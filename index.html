@@ -884,7 +884,17 @@ tr:hover td { background: var(--surface2); }
                     <div class="swatch" style="background:#1e293b" onclick="setSwatch('#1e293b')"></div>
                   </div>
                 </div>
-                <div class="form-group"><label>Logo URL (İsteğe Bağlı)</label><input type="text" id="s-logo" placeholder="https://...logo.png"></div>
+                <div class="form-group">
+                  <label>İşletme Logosu</label>
+                  <div style="display:flex; gap:10px; align-items:center;">
+                    <img id="settings-logo-preview" src="" style="width:50px; height:50px; border-radius:10px; object-fit:cover; border:1px solid var(--border); display:none;">
+    
+                    <input type="file" id="settings-logo-file" accept="image/*" style="padding: 10px 0;">
+    
+                    <input type="hidden" id="settings-logo-base64">
+                  </div>
+                </div>
+
               </div>
             </div>
             <div class="settings-section">
@@ -2089,6 +2099,59 @@ async function saveStaff(e) {
   }
 }
 
+// 1. Dosya Seçildiğinde Çalışan Kod (Base64'e Çevirme)
+document.getElementById('settings-logo-file')?.addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (file) {
+    // Dosya boyutu kontrolü (Örn: 2MB'den büyükse engelle - Base64 için önemli)
+    if (file.size > 2 * 1024 * 1024) {
+      alert("Logo dosyası çok büyük (Max 2MB). Lütfen daha küçük bir dosya seçin.");
+      this.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64String = event.target.result;
+      document.getElementById('settings-logo-base64').value = base64String; // Gizli kutuya at
+      
+      // Önizlemeyi güncelle
+      const preview = document.getElementById('settings-logo-preview');
+      preview.src = base64String;
+      preview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+// 2. Ayarları Kaydetme Fonksiyonunu Güncelle
+async function saveSettings() {
+  const btn = event.target;
+  const bizName = document.getElementById('set-biz-name').value.trim();
+  const logoData = document.getElementById('settings-logo-base64').value; // Yeni logo verisi
+
+  if (!bizName) { toast('İşletme adı zorunlu!', 'error'); return; }
+
+  btn.disabled = true; btn.textContent = 'Kaydediliyor...';
+
+  // Supabase 'profiles' tablosunu güncelle
+  const { error } = await sb
+    .from('profiles')
+    .update({ 
+      business_name: bizName,
+      logo_url: logoData // URL yerine artık direkt fotoğraf verisi gidiyor
+    })
+    .eq('id', UP.id);
+
+  btn.disabled = false; btn.textContent = 'Kaydet';
+
+  if (error) { 
+    toast('Hata: ' + error.message, 'error'); 
+  } else {
+    toast('Ayarlar başarıyla kaydedildi! 🎉');
+    loadDashboard(); // Sayfayı yenile ki logo her yerde güncellensin
+  }
+}
 
 
 </script>
