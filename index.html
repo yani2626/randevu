@@ -2152,29 +2152,54 @@ document.getElementById('settings-logo-file')?.addEventListener('change', functi
 // 2. Ayarları Kaydetme Fonksiyonunu Güncelle
 async function saveSettings() {
   const btn = event.target;
+  
+  // Inputlardan verileri çekiyoruz
   const bizName = document.getElementById('set-biz-name').value.trim();
-  const logoData = document.getElementById('settings-logo-base64').value; // Yeni logo verisi
+  const logoData = document.getElementById('settings-logo-base64').value; // Logo
+  const bannerData = document.getElementById('settings-banner-base64')?.value; // Kapak Fotoğrafı
+  const themeColor = document.getElementById('set-theme-color')?.value; // Seçilen Renk
 
-  if (!bizName) { toast('İşletme adı zorunlu!', 'error'); return; }
+  if (!bizName) { 
+    toast('İşletme adı zorunlu!', 'error'); 
+    return; 
+  }
 
-  btn.disabled = true; btn.textContent = 'Kaydediliyor...';
+  btn.disabled = true; 
+  btn.textContent = 'Güncelleniyor...';
 
-  // Supabase 'profiles' tablosunu güncelle
+  // Supabase 'profiles' tablosuna hepsini birden gönderiyoruz
   const { error } = await sb
     .from('profiles')
     .update({ 
       business_name: bizName,
-      logo_url: logoData // URL yerine artık direkt fotoğraf verisi gidiyor
+      logo_url: logoData,
+      banner_url: bannerData || logoData, // Eğer kapak fotosu seçilmediyse logoyu kullan
+      theme_color: themeColor || '#6366f1' // Varsayılan mor renk
     })
     .eq('id', UP.id);
 
-  btn.disabled = false; btn.textContent = 'Kaydet';
+  btn.disabled = false; 
+  btn.textContent = 'Ayarları Kaydet';
 
   if (error) { 
     toast('Hata: ' + error.message, 'error'); 
   } else {
-    toast('Ayarlar başarıyla kaydedildi! 🎉');
-    loadDashboard(); // Sayfayı yenile ki logo her yerde güncellensin
+    toast('Tüm görsel ayarlar başarıyla güncellendi! 🎨✨');
+    // Sayfayı yenilemeden verileri tekrar çekmek için:
+    loadDashboard(); 
+  }
+}
+
+// Dosyayı okuyup Base64'e çeviren yardımcı fonksiyon
+function handleLogoUpload(input) {
+  const file = input.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      document.getElementById('set-logo-url').value = e.target.result;
+      toast("Logo hazır! Kaydet butonuna basmayı unutmayın.");
+    };
+    reader.readAsDataURL(file);
   }
 }
 
