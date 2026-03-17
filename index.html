@@ -862,29 +862,46 @@ tr:hover td { background: var(--surface2); }
                 <div class="form-group"><label>Kaç Gün İlerisine Randevu?</label><input type="number" id="s-advdays" value="30" min="1" max="180"></div>
               </div>
                <div class="card" style="margin-top:20px;">
-  <div class="card-header"><div class="card-title">Randevu Sitesi Görünümü</div></div>
+              <div class="card-header"><div class="card-title">Randevu Sitesi Görünümü</div></div>
   
-  <div class="form-row">
-    <div class="form-group">
-      <label>Sitenin Ana Rengi (Accent)</label>
-      <input type="color" id="set-site-color" value="#6366f1">
-    </div>
+              <div class="form-row">
+              <div class="form-group">
+                <label>Sitenin Ana Rengi (Accent)</label>
+                <input type="color" id="set-site-color" value="#6366f1">
+              </div>
     
-    <div class="form-group">
-      <label>Tasarım Stili</label>
-      <select id="set-site-style">
-        <option value="modern">Modern & Hafif (Soft)</option>
-        <option value="dark-premium">Koyu & Premium (Gold)</option>
-        <option value="minimal">Minyatür & Net</option>
-      </select>
-    </div>
-  </div>
+              <div class="form-group">
+                <label>Tasarım Stili</label>
+                <select id="set-site-style">
+                  <option value="modern">Modern & Hafif (Soft)</option>
+                  <option value="dark-premium">Koyu & Premium (Gold)</option>
+                  <option value="minimal">Minyatür & Net</option>
+                </select>
+              </div>
+            </div>
 
-  <div class="form-group">
-    <label>Sitedeki Karşılama Metni</label>
-    <input type="text" id="set-site-welcome" placeholder="Örn: Merhaba, Randevunu Hemen Oluştur!">
+            <div class="form-group">
+              <label>Sitedeki Karşılama Metni</label>
+              <input type="text" id="set-site-welcome" placeholder="Örn: Merhaba, Randevunu Hemen Oluştur!">
+            </div>
+          </div>
+               <div class="card">
+  <div class="card-header"><div class="card-title">Mağaza Görünümü</div></div>
+  <div class="card-body">
+    <div class="form-row">
+      <div class="form-group">
+        <label>İşletme Logosu</label>
+        <input type="file" id="inp-logo-file" accept="image/*" onchange="handleLogoUpload(this)">
+        <input type="hidden" id="set-logo-url"> </div>
+      
+      <div class="form-group">
+        <label>Sitenin Ana Rengi</label>
+        <input type="color" id="set-theme-color" style="height:45px; cursor:pointer">
+      </div>
+    </div>
   </div>
 </div>
+
 
             </div>
             <div class="settings-section">
