@@ -2166,46 +2166,53 @@ document.getElementById('settings-logo-file')?.addEventListener('change', functi
   }
 });
 
-// 2. Ayarları Kaydetme Fonksiyonunu Güncelle
-async function saveSettings() {
-  const btn = event.target;
+// 2. Ayarları Kaydetme Fonksiyonunu Güncelleasync function saveSettings() {
+  // Butonu manuel bulalım (event.target bazen null dönebilir)
+  const btn = document.querySelector('button[onclick="saveSettings()"]') || event?.target;
   
-  // Inputlardan verileri çekiyoruz
-  const bizName = document.getElementById('set-biz-name').value.trim();
-  const logoData = document.getElementById('settings-logo-base64').value; // Logo
-  const bannerData = document.getElementById('settings-banner-base64')?.value; // Kapak Fotoğrafı
-  const themeColor = document.getElementById('set-theme-color')?.value; // Seçilen Renk
+  // Input verilerini alıyoruz
+  const bizName = document.getElementById('set-biz-name')?.value.trim();
+  const logoData = document.getElementById('settings-logo-base64')?.value; 
+  const bannerData = document.getElementById('settings-banner-base64')?.value;
+  const themeColor = document.getElementById('set-theme-color')?.value;
 
+  // Temel Kontrol
   if (!bizName) { 
-    toast('İşletme adı zorunlu!', 'error'); 
+    toast('İşletme adı boş bırakılamaz!', 'err'); 
     return; 
   }
 
-  btn.disabled = true; 
-  btn.textContent = 'Güncelleniyor...';
+  // Buton Yükleniyor Durumu
+  if(btn) { btn.disabled = true; btn.innerHTML = '⏳ Güncelleniyor...'; }
 
-  // Supabase 'profiles' tablosuna hepsini birden gönderiyoruz
-  const { error } = await sb
-    .from('profiles')
-    .update({ 
-      business_name: bizName,
-      logo_url: logoData,
-      banner_url: bannerData || logoData, // Eğer kapak fotosu seçilmediyse logoyu kullan
-      theme_color: themeColor || '#6366f1' // Varsayılan mor renk
-    })
-    .eq('id', UP.id);
+  try {
+    // Supabase Güncelleme
+    const { error } = await sb
+      .from('profiles')
+      .update({ 
+        business_name: bizName,
+        logo_url: logoData,
+        banner_url: bannerData || logoData, // Banner yoksa logoyu bas
+        theme_color: themeColor || '#6366f1' 
+      })
+      .eq('id', UP.id);
 
-  btn.disabled = false; 
-  btn.textContent = 'Ayarları Kaydet';
+    if (error) throw error;
 
-  if (error) { 
-    toast('Hata: ' + error.message, 'error'); 
-  } else {
-    toast('Tüm görsel ayarlar başarıyla güncellendi! 🎨✨');
-    // Sayfayı yenilemeden verileri tekrar çekmek için:
-    loadDashboard(); 
+    toast('Ayarlar ve Tasarım Başarıyla Kaydedildi! 🎨✨');
+    
+    // Dashboard'u tazele (logonun her yerde değişmesi için)
+    if (typeof loadDashboard === "function") loadDashboard();
+
+  } catch (err) {
+    console.error("Kaydetme Hatası:", err);
+    toast('Hata: ' + err.message, 'err');
+  } finally {
+    // Butonu eski haline getir
+    if(btn) { btn.disabled = false; btn.innerHTML = 'Ayarları Kaydet'; }
   }
 }
+
 
 // Dosyayı okuyup Base64'e çeviren yardımcı fonksiyon
 function handleLogoUpload(input) {
