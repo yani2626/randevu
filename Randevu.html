@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Randevu Al</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --accent: #6366f1;
+  --accent-dark: #4f46e5;
+  --accent-rgb: 99,102,241;
+  --font: 'Plus Jakarta Sans', sans-serif;
+  --radius: 16px;
+}
+[data-theme="light"] {
+  --bg: #f5f5ff;
+  --surface: #ffffff;
+  --surface2: #f8f8ff;
+  --border: #e8e8f5;
+  --text: #1a1a2e;
+  --text2: #44445a;
+  --text-muted: #8080a0;
+}
+[data-theme="dark"] {
+  --bg: #0d0d18;
+  --surface: #14141f;
+  --surface2: #1c1c2a;
+  --border: #2a2a3e;
+  --text: #f0f0ff;
+  --text2: #b0b0d0;
+  --text-muted: #6060808;
+  --text-muted: #707090;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; transition: background 0.3s, color 0.3s; }
+
+/* LOADER */
+#loader { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 14px; z-index: 9999; transition: opacity 0.4s; }
+#loader.hidden { opacity: 0; pointer-events: none; }
+.spin { width: 36px; height: 36px; border: 3px solid rgba(var(--accent-rgb),0.2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* CLOSED / 404 */
+#page-closed, #page-404 { display: none; min-height: 100vh; align-items: center; justify-content: center; flex-direction: column; gap: 12px; text-align: center; padding: 40px 20px; }
+.closed-icon { font-size: 4rem; margin-bottom: 8px; }
+.closed-title { font-size: 1.5rem; font-weight: 700; }
+.closed-sub { color: var(--text-muted); font-size: 0.95rem; max-width: 380px; line-height: 1.6; }
+
+/* HEADER */
+.site-header {
+  background: var(--accent);
+  position: relative; overflow: hidden;
+  padding: 0 0 60px;
+}
+.site-header::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 60%);
+}
+.site-header::after {
+  content: ''; position: absolute; top: -80px; right: -80px;
+  width: 320px; height: 320px; border-radius: 50%;
+  background: rgba(255,255,255,0.07);
+}
+.header-top {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 24px;
+  position: relative; z-index: 2;
+}
+.header-logo {
+  display: flex; align-items: center; gap: 10px;
+}
+.header-logo img { width: 38px; height: 38px; border-radius: 10px; object-fit: cover; }
+.header-logo-text { font-size: 1rem; font-weight: 800; color: rgba(255,255,255,0.95); letter-spacing: -0.02em; }
+.header-actions { display: flex; gap: 8px; align-items: center; }
+.hbtn { background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.25); color: #fff; border-radius: 9px; padding: 7px 14px; font-family: var(--font); font-size: 0.82rem; font-weight: 600; cursor: pointer; backdrop-filter: blur(8px); transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+.hbtn:hover { background: rgba(255,255,255,0.28); }
+.header-body { padding: 24px 24px 0; position: relative; z-index: 2; max-width: 680px; margin: 0 auto; }
+.biz-type-pill { display: inline-flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.18); color: rgba(255,255,255,0.9); border-radius: 20px; padding: 4px 12px; font-size: 0.75rem; font-weight: 600; margin-bottom: 14px; border: 1px solid rgba(255,255,255,0.2); }
+.biz-name { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 800; color: #fff; letter-spacing: -0.03em; margin-bottom: 10px; line-height: 1.15; }
+.biz-desc { color: rgba(255,255,255,0.8); font-size: 0.95rem; line-height: 1.6; margin-bottom: 16px; max-width: 500px; }
+.biz-meta { display: flex; gap: 18px; flex-wrap: wrap; }
+.meta-item { color: rgba(255,255,255,0.8); font-size: 0.84rem; display: flex; align-items: center; gap: 6px; }
+.meta-item a { color: rgba(255,255,255,0.8); text-decoration: none; }
+.meta-item a:hover { color: #fff; }
+
+/* SOCIAL BAR */
+.social-bar { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+.social-btn { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.9); border-radius: 8px; padding: 6px 12px; font-size: 0.78rem; font-weight: 600; text-decoration: none; transition: all 0.2s; backdrop-filter: blur(5px); }
+.social-btn:hover { background: rgba(255,255,255,0.28); }
+
+/* WRAP */
+.wrap { max-width: 680px; margin: 0 auto; padding: 0 16px 80px; margin-top: -48px; position: relative; z-index: 3; }
+
+/* STEP INDICATOR */
+.steps-bar {
+  background: var(--surface);
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  display: flex; align-items: center;
+  box-shadow: 0 4px 20px rgba(var(--accent-rgb),0.08);
+}
+.step { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+.step-dot { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--border); background: var(--surface2); color: var(--text-muted); display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 700; flex-shrink: 0; transition: all 0.3s; }
+.step-dot.active { border-color: var(--accent); background: var(--accent); color: #fff; box-shadow: 0 0 0 4px rgba(var(--accent-rgb),0.15); }
+.step-dot.done { border-color: #10b981; background: #10b981; color: #fff; }
+.step-lbl { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; transition: color 0.3s; }
+.step.active .step-lbl { color: var(--accent); }
+.step-line { flex: 0 0 20px; height: 2px; background: var(--border); margin: 0 4px; transition: background 0.3s; flex-shrink: 0; }
+.step-line.done { background: #10b981; }
+@media(max-width:500px) { .step-lbl { display: none; } .step-line { flex: 0 0 12px; } }
+
+/* CARD */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; margin-bottom: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+.card-title { font-size: 1rem; font-weight: 700; margin-bottom: 16px; letter-spacing: -0.02em; }
+
+/* SERVICE LIST */
+.svc-list { display: grid; gap: 10px; }
+.svc-card { border: 2px solid var(--border); border-radius: 12px; padding: 14px 16px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 14px; background: var(--surface); }
+.svc-card:hover { border-color: var(--accent); background: rgba(var(--accent-rgb),0.05); }
+.svc-card.sel { border-color: var(--accent); background: rgba(var(--accent-rgb),0.08); }
+.svc-card-icon { width: 42px; height: 42px; border-radius: 11px; background: rgba(var(--accent-rgb),0.1); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; transition: all 0.2s; }
+.svc-card.sel .svc-card-icon { background: var(--accent); color: #fff; }
+.svc-info { flex: 1; }
+.svc-name { font-weight: 700; font-size: 0.92rem; }
+.svc-meta { font-size: 0.78rem; color: var(--text-muted); margin-top: 3px; display: flex; gap: 8px; flex-wrap: wrap; }
+.svc-meta span { display: flex; align-items: center; gap: 3px; }
+.svc-price { font-weight: 800; font-size: 1rem; color: var(--accent); flex-shrink: 0; }
+
+/* CALENDAR */
+.cal-nav { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.cal-nav-btn { width: 32px; height: 32px; border-radius: 9px; border: 1.5px solid var(--border); background: var(--surface2); cursor: pointer; font-size: 0.88rem; display: flex; align-items: center; justify-content: center; color: var(--text); transition: all 0.15s; }
+.cal-nav-btn:hover { border-color: var(--accent); }
+.cal-month { font-size: 0.95rem; font-weight: 700; flex: 1; }
+.cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; }
+.cal-dh { text-align: center; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); padding: 5px 0; }
+.cal-d { aspect-ratio: 1; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 0.86rem; font-weight: 500; cursor: pointer; border: 2px solid transparent; transition: all 0.15s; position: relative; }
+.cal-d:hover:not(.off):not(.past) { background: rgba(var(--accent-rgb),0.08); border-color: var(--accent); }
+.cal-d.today { font-weight: 800; color: var(--accent); }
+.cal-d.sel { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 700; }
+.cal-d.off, .cal-d.past { color: var(--border); cursor: not-allowed; pointer-events: none; }
+.cal-d.has-dot::after { content: ''; position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; border-radius: 50%; background: currentColor; opacity: 0.5; }
+
+/* TIME SLOTS */
+.time-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
+.t-slot { padding: 10px 6px; border-radius: 9px; text-align: center; font-size: 0.86rem; font-weight: 600; cursor: pointer; border: 2px solid var(--border); background: var(--surface); color: var(--text2); transition: all 0.15s; }
+.t-slot:hover { border-color: var(--accent); background: rgba(var(--accent-rgb),0.07); }
+.t-slot.sel { background: var(--accent); color: #fff; border-color: var(--accent); }
+.t-slot.taken { background: var(--surface2); color: var(--border); border-color: var(--border); cursor: not-allowed; text-decoration: line-through; pointer-events: none; }
+@media(max-width:400px) { .time-grid { grid-template-columns: repeat(3,1fr); } }
+
+/* FORM */
+.form-group { margin-bottom: 14px; }
+.form-group label { display: flex; align-items: center; gap: 5px; font-size: 0.76rem; font-weight: 700; color: var(--text-muted); margin-bottom: 7px; letter-spacing: 0.06em; text-transform: uppercase; }
+.form-group input, .form-group textarea {
+  width: 100%; background: var(--surface2);
+  border: 2px solid var(--border); border-radius: 11px;
+  padding: 12px 14px; color: var(--text);
+  font-family: var(--font); font-size: 0.92rem;
+  transition: all 0.2s; outline: none;
+}
+.form-group input:focus, .form-group textarea:focus { border-color: var(--accent); background: var(--surface); box-shadow: 0 0 0 3px rgba(var(--accent-rgb),0.1); }
+.form-group textarea { resize: vertical; min-height: 72px; }
+.form-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media(max-width:460px) { .form-2col { grid-template-columns: 1fr; } }
+
+/* BUTTONS */
+.btn-row { display: flex; justify-content: space-between; gap: 10px; margin-top: 16px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 12px 22px; border-radius: 11px; border: none; font-family: var(--font); font-size: 0.92rem; font-weight: 700; cursor: pointer; transition: all 0.2s; letter-spacing: -0.01em; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-dark); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(var(--accent-rgb),0.35); }
+.btn-primary:disabled { opacity: 0.45; pointer-events: none; }
+.btn-ghost { background: var(--surface); color: var(--text2); border: 2px solid var(--border); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+.btn-full { width: 100%; justify-content: center; }
+
+/* SUMMARY */
+.summary-row { display: flex; align-items: flex-start; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--border); }
+.summary-row:last-child { border-bottom: none; }
+.summary-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+.summary-label { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 2px; }
+.summary-val { font-size: 0.9rem; font-weight: 700; }
+
+/* SUCCESS */
+#page-success { display: none; text-align: center; padding: 40px 20px; max-width: 480px; margin: 0 auto; }
+.success-anim { width: 88px; height: 88px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #34d399); margin: 0 auto 22px; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1); box-shadow: 0 8px 30px rgba(16,185,129,0.3); }
+@keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.success-title { font-size: 1.7rem; font-weight: 800; margin-bottom: 10px; letter-spacing: -0.03em; }
+.success-sub { color: var(--text-muted); font-size: 0.92rem; line-height: 1.65; margin-bottom: 24px; }
+.success-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; text-align: left; margin-bottom: 22px; }
+.sbox-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.86rem; }
+.sbox-row:last-child { border-bottom: none; }
+.sbox-row .lbl { color: var(--text-muted); }
+.sbox-row .val { font-weight: 700; }
+.whatsapp-share { display: flex; align-items: center; gap: 8px; background: #25d366; color: #fff; border-radius: 11px; padding: 12px 20px; font-weight: 700; font-size: 0.9rem; text-decoration: none; justify-content: center; margin-top: 10px; }
+
+/* FOOTER */
+.site-footer { border-top: 1px solid var(--border); padding: 20px 24px; background: var(--surface); text-align: center; }
+.site-footer-note { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px; }
+.footer-social { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.fsoc-btn { display: flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 8px; background: var(--surface2); color: var(--text2); font-size: 0.78rem; font-weight: 600; text-decoration: none; border: 1px solid var(--border); transition: all 0.15s; }
+.fsoc-btn:hover { border-color: var(--accent); color: var(--accent); }
+.powered { font-size: 0.74rem; color: var(--text-muted); margin-top: 12px; }
+
+/* WHATSAPP FLOAT */
+#wa-float { position: fixed; bottom: 20px; right: 20px; z-index: 100; display: none; }
+#wa-float a { display: flex; align-items: center; gap: 8px; background: #25d366; color: #fff; border-radius: 50px; padding: 12px 18px; font-weight: 700; font-size: 0.88rem; text-decoration: none; box-shadow: 0 6px 20px rgba(37,211,102,0.4); animation: floatIn 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes floatIn { from { transform: scale(0); } to { transform: scale(1); } }
+
+/* TOAST */
+#toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--text); color: var(--bg); border-radius: 10px; padding: 12px 20px; font-size: 0.88rem; font-weight: 600; z-index: 9999; opacity: 0; transition: all 0.3s; max-width: 90vw; text-align: center; }
+#toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+#toast.err { background: #ef4444; color: #fff; }
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="spin"></div>
+  <p style="font-size:0.85rem;color:var(--text-muted)">Yükleniyor...</p>
+</div>
+
+<div id="page-404" style="display:none;flex-direction:column">
+  <div class="closed-icon">🔍</div>
+  <div class="closed-title">Sayfa Bulunamadı</div>
+  <div class="closed-sub">Bu randevu sayfası mevcut değil veya kaldırılmış.</div>
+</div>
+
+<div id="page-closed" style="display:none;flex-direction:column">
+  <div class="closed-icon">🔒</div>
+  <div class="closed-title" id="closed-biz">İşletme</div>
+  <div class="closed-sub">Bu işletme şu an online randevu almıyor. Lütfen daha sonra tekrar deneyin veya telefon ile iletişime geçin.</div>
+  <div id="closed-phone" style="margin-top:16px;font-size:1.1rem;font-weight:700;color:var(--accent)"></div>
+</div>
+
+<div id="main-page" style="display:none">
+  <!-- HEADER -->
+  <header class="site-header" id="site-header">
+    <div class="header-top">
+      <div class="header-logo">
+        <img id="h-logo" src="" alt="" style="display:none" onerror="this.style.display='none'">
+        <div class="header-logo-text" id="h-logo-text">İşletme</div>
+      </div>
+      <div class="header-actions">
+        <button class="hbtn" onclick="toggleTheme()">🌓</button>
+        <a class="hbtn" id="h-map-btn" href="#" target="_blank" style="display:none">📍 Harita</a>
+      </div>
+    </div>
+    <div class="header-body">
+      <div class="biz-type-pill" id="h-type-pill">📍 <span id="h-type">İşletme</span></div>
+      <h1 class="biz-name" id="h-name">İşletme Adı</h1>
+      <p class="biz-desc" id="h-desc" style="display:none"></p>
+      <div class="biz-meta" id="h-meta"></div>
+      <div class="social-bar" id="h-social"></div>
+    </div>
+  </header>
+
+  <!-- BOOKING CONTENT -->
+  <div class="wrap" id="booking-wrap">
+
+    <!-- STEP BAR -->
+    <div class="steps-bar">
+      <div class="step active" id="st1">
+        <div class="step-dot active" id="sd1">1</div>
+        <div class="step-lbl">Hizmet</div>
+      </div>
+      <div class="step-line" id="sl1"></div>
+      <div class="step" id="st2">
+        <div class="step-dot" id="sd2">2</div>
+        <div class="step-lbl">Tarih & Saat</div>
+      </div>
+      <div class="step-line" id="sl2"></div>
+      <div class="step" id="st3">
+        <div class="step-dot" id="sd3">3</div>
+        <div class="step-lbl">Bilgiler</div>
+      </div>
+      <div class="step-line" id="sl3"></div>
+      <div class="step" id="st4">
+        <div class="step-dot" id="sd4">4</div>
+        <div class="step-lbl">Onay</div>
+      </div>
+    </div>
+
+    <!-- STEP 1 -->
+    <div id="step1">
+      <div class="card">
+        <div class="card-title">Hizmet seçin</div>
+        <div class="svc-list" id="svc-list"></div>
+      </div>
+      <div class="btn-row">
+        <div></div>
+        <button class="btn btn-primary" id="s1-next" onclick="goStep(2)" disabled>Devam →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div id="step2" style="display:none">
+      <div class="card">
+        <div class="card-title">Tarih seçin</div>
+        <div class="cal-nav">
+          <button class="cal-nav-btn" onclick="calPrev()">◀</button>
+          <div class="cal-month" id="cal-month"></div>
+          <button class="cal-nav-btn" onclick="calNext()">▶</button>
+        </div>
+        <div class="cal-grid" id="cal-dh"></div>
+        <div class="cal-grid" id="cal-grid"></div>
+      </div>
+      <div class="card" id="time-card" style="display:none">
+        <div class="card-title">Saat seçin</div>
+        <div class="time-grid" id="time-grid"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goStep(1)">← Geri</button>
+        <button class="btn btn-primary" id="s2-next" onclick="goStep(3)" disabled>Devam →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div id="step3" style="display:none">
+      <div class="card">
+        <div class="card-title">Bilgilerinizi girin</div>
+        <div class="form-2col">
+          <div class="form-group"><label>👤 Ad Soyad *</label><input type="text" id="f-name" placeholder="Ad Soyad" oninput="checkStep3()"></div>
+          <div class="form-group"><label>📞 Telefon *</label><input type="tel" id="f-phone" placeholder="05XX XXX XX XX" oninput="checkStep3()"></div>
+        </div>
+        <div class="form-group" id="g-email"><label>📧 E-posta</label><input type="email" id="f-email" placeholder="email@ornek.com"></div>
+        <div class="form-group" id="g-note"><label>📝 Notunuz</label><textarea id="f-note" placeholder="Eklemek istediğiniz bir not varsa..."></textarea></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goStep(2)">← Geri</button>
+        <button class="btn btn-primary" id="s3-next" onclick="goStep(4)" disabled>Devam →</button>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div id="step4" style="display:none">
+      <div class="card">
+        <div class="card-title">Randevu Özeti</div>
+        <div id="summary"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goStep(3)">← Geri</button>
+        <button class="btn btn-primary btn-full" id="confirm-btn" onclick="confirmBooking()">🎉 Randevuyu Onayla</button>
+      </div>
+    </div>
+
+  </div><!-- /wrap -->
+
+  <!-- SUCCESS -->
+  <div class="wrap" id="success-wrap" style="display:none">
+    <div id="page-success">
+      <div class="success-anim">✓</div>
+      <div class="success-title">Randevunuz Alındı!</div>
+      <div class="success-sub">Randevu talebiniz başarıyla oluşturuldu. İşletme sizi onayladığında bilgilendirileceksiniz.</div>
+      <div class="success-box" id="sbox"></div>
+      <button class="btn btn-ghost btn-full" onclick="resetBooking()" style="margin-top:8px">🔄 Yeni Randevu Al</button>
+      <a href="#" id="wa-success-share" class="whatsapp-share" style="display:none" target="_blank">
+        💬 WhatsApp'ta Paylaş
+      </a>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="site-footer" id="site-footer">
+    <div class="site-footer-note" id="footer-note"></div>
+    <div class="footer-social" id="footer-social"></div>
+    <div class="powered">Powered by <strong>RandevuPanel</strong></div>
+  </footer>
+</div>
+
+<!-- WA FLOAT -->
+<div id="wa-float"><a href="#" id="wa-link" target="_blank">💬 WhatsApp</a></div>
+
+<div id="toast"></div>
+
+<script>
+const SB_URL='https://sqjlqoznuxuwybgygoqy.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNxamxxb3pudXh1d3liZ3lnb3F5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjU3OTUsImV4cCI6MjA4OTI0MTc5NX0.raU-m-id4dj1y_962sTvb2nlXJBdLyfZ9MBzPb3IY2Q';
+const sb=supabase.createClient(SB_URL,SB_KEY);
+
+let profile=null,services=[],selSvc=null,selDate=null,selTime=null;
+let calDate=new Date(),maxDays=30,bookedSlots=[];
+let step=1;
+
+function toast(msg,err=false){const t=document.getElementById('toast');t.textContent=msg;t.className='show'+(err?' err':'');setTimeout(()=>t.className='',3500);}
+
+/* THEME */
+function toggleTheme(){const h=document.documentElement,cur=h.getAttribute('data-theme');const n=cur==='dark'?'light':'dark';h.setAttribute('data-theme',n);localStorage.setItem('theme',n);}
+(()=>{const s=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',s);})();
+
+/* ACCENT */
+function setAccent(hex){
+  document.documentElement.style.setProperty('--accent',hex);
+  document.documentElement.style.setProperty('--accent-dark',shadeColor(hex,-15));
+  const rgb=hexToRgb(hex);
+  if(rgb)document.documentElement.style.setProperty('--accent-rgb',`${rgb.r},${rgb.g},${rgb.b}`);
+  document.getElementById('site-header').style.background=hex;
+}
+function hexToRgb(hex){const r=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);return r?{r:parseInt(r[1],16),g:parseInt(r[2],16),b:parseInt(r[3],16)}:null;}
+function shadeColor(col,amt){let c=col.replace('#','');if(c.length===3)c=c.split('').map(x=>x+x).join('');const num=parseInt(c,16);let r=Math.min(255,Math.max(0,(num>>16)+amt));let g=Math.min(255,Math.max(0,((num>>8)&0x00FF)+amt));let b=Math.min(255,Math.max(0,(num&0x0000FF)+amt));return`#${((1<<24)|(r<<16)|(g<<8)|b).toString(16).slice(1)}`;}
+
+const MONTHS=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+const DAYS=['Pz','Pt','Sa','Ça','Pe','Cu','Ct'];
+const DAYKEYS=['sun','mon','tue','wed','thu','fri','sat'];
+
+async function init(){
+  const pid=new URLSearchParams(window.location.search).get('id');
+  if(!pid){hide();document.getElementById('page-404').style.display='flex';return;}
+  const [{data:p},{data:s},{data:cfg}]=await Promise.all([
+    sb.from('profiles').select('*').eq('id',pid).single(),
+    sb.from('services').select('*').eq('profile_id',pid).eq('is_active',true).order('created_at'),
+    sb.from('admin_settings').select('*').eq('id',1).single()
+  ]);
+  hide();
+  if(!p){document.getElementById('page-404').style.display='flex';return;}
+  if(!p.is_active){
+    document.getElementById('closed-biz').textContent=p.business_name||'İşletme';
+    if(p.phone&&p.show_phone!==false)document.getElementById('closed-phone').textContent='📞 '+p.phone;
+    document.getElementById('page-closed').style.display='flex';return;
+  }
+  profile=p; services=s||[]; maxDays=cfg?.max_advance_days||30;
+  if(p.theme_color)setAccent(p.theme_color);
+  document.title=`Randevu Al — ${p.business_name}`;
+  buildUI();
+  renderServices();
+  renderCal();
+  document.getElementById('main-page').style.display='block';
+}
+
+function hide(){document.getElementById('loader').classList.add('hidden');}
+
+function buildUI(){
+  const p=profile;
+  // Header
+  if(p.logo_url){const img=document.getElementById('h-logo');img.src=p.logo_url;img.style.display='block';}
+  document.getElementById('h-logo-text').textContent=p.business_name||'';
+  document.getElementById('h-type').textContent=p.business_type||'İşletme';
+  document.getElementById('h-name').textContent=p.business_name||'';
+  if(p.description){const d=document.getElementById('h-desc');d.textContent=p.description;d.style.display='block';}
+  // Meta
+  const meta=document.getElementById('h-meta');
+  const metas=[];
+  if(p.phone&&p.show_phone!==false)metas.push(`<div class="meta-item">📞 <a href="tel:${p.phone}">${p.phone}</a></div>`);
+  if(p.address&&p.show_address!==false)metas.push(`<div class="meta-item">📍 ${p.address}</div>`);
+  if(p.business_email)metas.push(`<div class="meta-item">✉️ <a href="mailto:${p.business_email}">${p.business_email}</a></div>`);
+  if(p.website)metas.push(`<div class="meta-item">🌐 <a href="${p.website}" target="_blank">${p.website.replace(/https?:\/\//,'')}</a></div>`);
+  meta.innerHTML=metas.join('');
+  // Map button
+  if(p.map_link){const mb=document.getElementById('h-map-btn');mb.href=p.map_link;mb.style.display='flex';}
+  // Social header
+  const soc=document.getElementById('h-social');
+  const socHtml=[];
+  if(p.instagram)socHtml.push(`<a href="https://instagram.com/${p.instagram.replace('@','')}" target="_blank" class="social-btn">📸 ${p.instagram}</a>`);
+  if(p.facebook)socHtml.push(`<a href="${p.facebook.startsWith('http')?p.facebook:'https://facebook.com/'+p.facebook}" target="_blank" class="social-btn">👍 Facebook</a>`);
+  if(p.twitter)socHtml.push(`<a href="https://twitter.com/${p.twitter.replace('@','')}" target="_blank" class="social-btn">🐦 ${p.twitter}</a>`);
+  if(p.tiktok)socHtml.push(`<a href="https://tiktok.com/${p.tiktok.replace('@','')}" target="_blank" class="social-btn">🎵 TikTok</a>`);
+  soc.innerHTML=socHtml.join('');
+  // WhatsApp float
+  if(p.show_whatsapp&&p.whatsapp){
+    const waf=document.getElementById('wa-float');
+    const waLink=document.getElementById('wa-link');
+    waLink.href=`https://wa.me/${p.whatsapp.replace(/\D/g,'')}?text=Merhaba, randevu hakkında bilgi almak istiyorum.`;
+    waf.style.display='block';
+  }
+  // Footer
+  if(p.footer_note)document.getElementById('footer-note').textContent=p.footer_note;
+  // Footer social
+  const fs=document.getElementById('footer-social');
+  const fsHtml=[];
+  if(p.instagram)fsHtml.push(`<a href="https://instagram.com/${p.instagram.replace('@','')}" class="fsoc-btn" target="_blank">📸 Instagram</a>`);
+  if(p.facebook)fsHtml.push(`<a href="${p.facebook.startsWith('http')?p.facebook:'https://fb.com/'+p.facebook}" class="fsoc-btn" target="_blank">👍 Facebook</a>`);
+  if(p.twitter)fsHtml.push(`<a href="https://twitter.com/${p.twitter.replace('@','')}" class="fsoc-btn" target="_blank">🐦 Twitter</a>`);
+  if(p.tiktok)fsHtml.push(`<a href="https://tiktok.com/${p.tiktok.replace('@','')}" class="fsoc-btn" target="_blank">🎵 TikTok</a>`);
+  fs.innerHTML=fsHtml.join('');
+  // Welcome message in step
+  if(p.welcome_message){
+    const el=document.getElementById('svc-list');
+    el.insertAdjacentHTML('beforebegin',`<p style="color:var(--text-muted);font-size:0.88rem;margin-bottom:14px;line-height:1.5">${p.welcome_message}</p>`);
+  }
+  // Hide email/note if disabled
+  if(p.ask_email===false)document.getElementById('g-email').style.display='none';
+  if(p.ask_note===false)document.getElementById('g-note').style.display='none';
+}
+
+function renderServices(){
+  const el=document.getElementById('svc-list');
+  if(!services.length){el.innerHTML='<div style="text-align:center;padding:30px;color:var(--text-muted)">Hizmet bulunamadı</div>';return;}
+  el.innerHTML=services.map(s=>`
+    <div class="svc-card" id="s-${s.id}" onclick="selService('${s.id}')">
+      <div class="svc-card-icon">${s.icon||'✂️'}</div>
+      <div class="svc-info">
+        <div class="svc-name">${s.name}</div>
+        <div class="svc-meta">
+          ${profile.show_duration!==false?`<span>⏱ ${s.duration} dk</span>`:''}
+          ${s.description?`<span>· ${s.description}</span>`:''}
+        </div>
+      </div>
+      ${profile.show_price!==false?`<div class="svc-price">${s.price>0?'₺'+Number(s.price).toFixed(0):'Ücretsiz'}</div>`:''}
+    </div>`).join('');
+}
+
+function selService(id){
+  selSvc=services.find(s=>s.id===id);
+  document.querySelectorAll('.svc-card').forEach(c=>c.classList.remove('sel'));
+  document.getElementById('s-'+id).classList.add('sel');
+  document.getElementById('s1-next').disabled=false;
+}
+
+/* STEPS */
+function goStep(n){
+  if(n===3){const nm=document.getElementById('f-name').value.trim(),ph=document.getElementById('f-phone').value.trim();if(!nm||!ph){toast('Ad ve telefon zorunludur',true);return;}}
+  document.getElementById('step'+step).style.display='none';
+  document.getElementById('step'+n).style.display='block';
+  updateStepBar(n); step=n;
+  if(n===4)buildSummary();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function updateStepBar(n){
+  for(let i=1;i<=4;i++){
+    const dot=document.getElementById('sd'+i), st=document.getElementById('st'+i);
+    dot.className=`step-dot ${i<n?'done':i===n?'active':''}`;
+    dot.textContent=i<n?'✓':i;
+    st.className=`step ${i===n?'active':''}`;
+  }
+  for(let i=1;i<=3;i++)document.getElementById('sl'+i).className=`step-line${i<n?' done':''}`;
+}
+function checkStep3(){document.getElementById('s3-next').disabled=!(document.getElementById('f-name').value.trim()&&document.getElementById('f-phone').value.trim());}
+
+/* CALENDAR */
+function renderCal(){
+  const y=calDate.getFullYear(),m=calDate.getMonth();
+  document.getElementById('cal-month').textContent=MONTHS[m]+' '+y;
+  document.getElementById('cal-dh').innerHTML=DAYS.map(d=>`<div class="cal-dh">${d}</div>`).join('');
+  const first=new Date(y,m,1),last=new Date(y,m+1,0);
+  const today=new Date();today.setHours(0,0,0,0);
+  const maxDate=new Date(today);maxDate.setDate(maxDate.getDate()+maxDays);
+  const hrs=profile.working_hours||{};
+  let html='';
+  for(let i=0;i<first.getDay();i++) html+=`<div class="cal-d off"></div>`;
+  for(let d=1;d<=last.getDate();d++){
+    const dt=new Date(y,m,d);
+    const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dk=DAYKEYS[dt.getDay()];
+    const closed=hrs[dk]?.active===false;
+    const past=dt<today, future=dt>maxDate;
+    const off=past||future||closed;
+    const isToday=dt.getTime()===today.getTime();
+    html+=`<div class="cal-d ${off?'off past':''} ${isToday?'today':''} ${ds===selDate?'sel':''}" ${!off?`onclick="pickDate('${ds}')"`:''}>${d}</div>`;
+  }
+  document.getElementById('cal-grid').innerHTML=html;
+}
+function calPrev(){calDate.setMonth(calDate.getMonth()-1);renderCal();}
+function calNext(){calDate.setMonth(calDate.getMonth()+1);renderCal();}
+async function pickDate(ds){
+  selDate=ds; selTime=null;
+  document.getElementById('s2-next').disabled=true;
+  renderCal();
+  await loadSlots(ds);
+}
+async function loadSlots(date){
+  const tc=document.getElementById('time-card');tc.style.display='block';
+  const tg=document.getElementById('time-grid');tg.innerHTML='<div style="grid-column:span 4;text-align:center;padding:12px;color:var(--text-muted)">Yükleniyor...</div>';
+  const {data:existing}=await sb.from('appointments').select('appointment_time').eq('profile_id',profile.id).eq('appointment_date',date).neq('status','cancelled');
+  bookedSlots=(existing||[]).map(a=>a.appointment_time.slice(0,5));
+  const dt=new Date(date+'T00:00');
+  const dk=DAYKEYS[dt.getDay()];
+  const h=profile.working_hours||{};
+  const dh=h[dk]||{open:'09:00',close:'18:00',active:true};
+  if(!dh.active){tg.innerHTML='<div style="grid-column:span 4;text-align:center;padding:16px;color:var(--text-muted)">Bu gün kapalı</div>';return;}
+  const dur=selSvc?.duration||profile.slot_duration||30;
+  const slots=genSlots(dh.open,dh.close,dur);
+  if(!slots.length){tg.innerHTML='<div style="grid-column:span 4;text-align:center;padding:16px;color:var(--text-muted)">Müsait slot yok</div>';return;}
+  tg.innerHTML=slots.map(s=>{ const taken=bookedSlots.includes(s); return `<div class="t-slot ${taken?'taken':''}" ${!taken?`onclick="pickTime('${s}')"`:''}>${s}</div>`; }).join('');
+}
+function genSlots(open,close,dur){const slots=[];const[oh,om]=open.split(':').map(Number);const[ch,cm]=close.split(':').map(Number);let cur=oh*60+om;const end=ch*60+cm;while(cur+dur<=end){slots.push(`${String(Math.floor(cur/60)).padStart(2,'0')}:${String(cur%60).padStart(2,'0')}`);cur+=dur;}return slots;}
+function pickTime(t){selTime=t;document.querySelectorAll('.t-slot').forEach(s=>s.classList.remove('sel'));event.currentTarget.classList.add('sel');document.getElementById('s2-next').disabled=false;}
+
+/* SUMMARY */
+function buildSummary(){
+  const dt=new Date(selDate+'T00:00');
+  const ds=`${dt.getDate()} ${MONTHS[dt.getMonth()]} ${dt.getFullYear()}`;
+  const nm=document.getElementById('f-name').value.trim();
+  const ph=document.getElementById('f-phone').value.trim();
+  document.getElementById('summary').innerHTML=`
+    <div class="summary-row"><div class="summary-icon">🏢</div><div><div class="summary-label">İşletme</div><div class="summary-val">${profile.business_name}</div></div></div>
+    <div class="summary-row"><div class="summary-icon">${selSvc?.icon||'✂️'}</div><div><div class="summary-label">Hizmet</div><div class="summary-val">${selSvc?.name||'—'}</div></div></div>
+    <div class="summary-row"><div class="summary-icon">📅</div><div><div class="summary-label">Tarih</div><div class="summary-val">${ds}</div></div></div>
+    <div class="summary-row"><div class="summary-icon">🕐</div><div><div class="summary-label">Saat</div><div class="summary-val">${selTime}</div></div></div>
+    <div class="summary-row"><div class="summary-icon">👤</div><div><div class="summary-label">Ad Soyad</div><div class="summary-val">${nm}</div></div></div>
+    <div class="summary-row"><div class="summary-icon">📞</div><div><div class="summary-label">Telefon</div><div class="summary-val">${ph}</div></div></div>`;
+}
+
+/* CONFIRM */
+async function confirmBooking(){
+  const btn=document.getElementById('confirm-btn');
+  btn.disabled=true; btn.textContent='⏳ İşleniyor...';
+  const {data:chk}=await sb.from('appointments').select('id').eq('profile_id',profile.id).eq('appointment_date',selDate).eq('appointment_time',selTime).neq('status','cancelled');
+  if(chk?.length){toast('Bu saat doldu! Başka saat seçin.',true);btn.disabled=false;btn.textContent='🎉 Randevuyu Onayla';goStep(2);return;}
+  const nm=document.getElementById('f-name').value.trim();
+  const ph=document.getElementById('f-phone').value.trim();
+  const em=document.getElementById('f-email').value.trim();
+  const nt=document.getElementById('f-note').value.trim();
+  const {error}=await sb.from('appointments').insert({profile_id:profile.id,service_id:selSvc?.id||null,customer_name:nm,customer_phone:ph,customer_email:em||null,appointment_date:selDate,appointment_time:selTime,status:'pending',notes:nt||null});
+  if(error){toast('Hata: '+error.message,true);btn.disabled=false;btn.textContent='🎉 Randevuyu Onayla';return;}
+  // Show success
+  const dt=new Date(selDate+'T00:00');
+  const ds=`${dt.getDate()} ${MONTHS[dt.getMonth()]} ${dt.getFullYear()}`;
+  document.getElementById('sbox').innerHTML=`
+    <div class="sbox-row"><span class="lbl">Hizmet</span><span class="val">${selSvc?.name||'—'}</span></div>
+    <div class="sbox-row"><span class="lbl">Tarih</span><span class="val">${ds}</span></div>
+    <div class="sbox-row"><span class="lbl">Saat</span><span class="val">${selTime}</span></div>
+    <div class="sbox-row"><span class="lbl">Ad Soyad</span><span class="val">${nm}</span></div>`;
+  // WA success share
+  if(profile.whatsapp&&profile.show_whatsapp){
+    const waSub=document.getElementById('wa-success-share');
+    const msg=`Randevum onaylandı!\n🏢 ${profile.business_name}\n✂️ ${selSvc?.name||''}\n📅 ${ds} ${selTime}`;
+    waSub.href=`https://wa.me/${profile.whatsapp.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`;
+    waSub.style.display='flex';
+  }
+  document.getElementById('booking-wrap').style.display='none';
+  document.getElementById('success-wrap').style.display='block';
+  document.getElementById('page-success').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* RESET */
+function resetBooking(){selSvc=null;selDate=null;selTime=null;step=1;document.getElementById('f-name').value='';document.getElementById('f-phone').value='';document.getElementById('f-email').value='';document.getElementById('f-note').value='';document.getElementById('booking-wrap').style.display='block';document.getElementById('success-wrap').style.display='none';document.getElementById('page-success').style.display='none';document.getElementById('step1').style.display='block';for(let i=2;i<=4;i++)document.getElementById('step'+i).style.display='none';document.querySelectorAll('.svc-card').forEach(c=>c.classList.remove('sel'));document.getElementById('s1-next').disabled=true;updateStepBar(1);calDate=new Date();renderCal();}
+
+init();
+</script>
+</body>
+</html>
