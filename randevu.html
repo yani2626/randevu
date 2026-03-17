@@ -8,90 +8,99 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
-  --accent: #6366f1; /* Bu renk admin panelinden gelecek */
+  --accent: #6366f1;
+  --accent-rgb: 99, 102, 241;
   --font: 'Plus Jakarta Sans', sans-serif;
-  --radius: 20px;
+  --radius: 24px;
 }
 [data-theme="light"] { --bg: #f8fafc; --surface: #ffffff; --text: #0f172a; --border: #e2e8f0; --text-muted: #64748b; }
 [data-theme="dark"] { --bg: #020617; --surface: #0f172a; --text: #f8fafc; --border: #1e293b; --text-muted: #94a3b8; }
 
-body { background: var(--bg); color: var(--text); font-family: var(--font); margin: 0; padding-bottom: 50px; }
+body { background: var(--bg); color: var(--text); font-family: var(--font); margin: 0; padding-bottom: 40px; }
 
-/* HEADER & BANNER */
-.hero-banner {
-    position: relative; height: 260px; background: #1e293b; 
+/* HERO SECTION */
+.hero {
+    position: relative; height: 280px; background: #1e293b;
     background-size: cover; background-position: center;
-    display: flex; align-items: flex-end; padding: 20px;
+    display: flex; align-items: flex-end; padding: 30px 20px;
 }
 .hero-overlay {
     position: absolute; inset: 0;
-    background: linear-gradient(0deg, rgba(0,0,0,0.7) 0%, transparent 100%);
+    background: linear-gradient(to top, var(--bg) 0%, rgba(0,0,0,0.4) 100%);
 }
-.hero-content { position: relative; z-index: 2; display: flex; align-items: center; gap: 15px; width: 100%; max-width: 600px; margin: 0 auto; }
-.biz-logo-lg { 
-    width: 80px; height: 80px; border-radius: 20px; border: 4px solid var(--surface); 
-    background: #fff; object-fit: cover; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+.hero-content { position: relative; z-index: 2; display: flex; align-items: center; gap: 20px; width: 100%; max-width: 600px; margin: 0 auto; }
+.biz-logo { 
+    width: 90px; height: 90px; border-radius: 24px; border: 4px solid var(--surface); 
+    background: #fff; object-fit: cover; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
-.biz-info-text h1 { color: #fff; font-size: 1.5rem; font-weight: 800; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-.biz-badge { background: var(--accent); color: #fff; font-size: 0.7rem; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; font-weight: 700; }
+.biz-info h1 { font-size: 1.8rem; font-weight: 800; margin: 0; letter-spacing: -1px; }
 
-/* STEPPER */
-.wrap { max-width: 600px; margin: -30px auto 0; position: relative; z-index: 10; padding: 0 15px; }
+/* WRAPPER */
+.wrap { max-width: 600px; margin: 0 auto; padding: 0 16px; position: relative; z-index: 10; }
+
+/* STEPS INDICATOR */
 .steps-nav { 
-    background: var(--surface); border-radius: var(--radius); padding: 15px; 
+    background: var(--surface); border-radius: var(--radius); padding: 12px; 
     display: flex; justify-content: space-between; border: 1px solid var(--border);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.03); margin-top: -30px; margin-bottom: 24px;
 }
-.s-dot { width: 35px; height: 35px; border-radius: 12px; background: var(--bg); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.8rem; color: var(--text-muted); transition: 0.3s; }
-.s-dot.active { background: var(--accent); color: #fff; transform: scale(1.1); box-shadow: 0 5px 15px rgba(var(--accent), 0.3); }
+.s-dot { width: 40px; height: 40px; border-radius: 14px; background: var(--bg); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; color: var(--text-muted); transition: 0.3s; }
+.s-dot.active { background: var(--accent); color: #fff; transform: translateY(-5px); box-shadow: 0 8px 15px rgba(var(--accent-rgb), 0.3); }
 .s-dot.done { background: #10b981; color: #fff; }
 
-/* MODERN CARDS */
-.selection-grid { display: grid; gap: 12px; }
+/* SELECTION CARDS */
+.card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 20px; margin-bottom: 16px; }
 .m-card { 
-    background: var(--surface); border: 2px solid var(--border); border-radius: 16px; 
-    padding: 15px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 15px;
+    background: var(--bg); border: 2px solid var(--border); border-radius: 18px; 
+    padding: 15px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 15px; margin-bottom: 10px;
 }
-.m-card:hover { border-color: var(--accent); transform: translateY(-2px); }
-.m-card.selected { border-color: var(--accent); background: rgba(99, 102, 241, 0.05); }
+.m-card:hover { border-color: var(--accent); background: var(--surface); }
+.m-card.selected { border-color: var(--accent); background: rgba(var(--accent-rgb), 0.05); border-width: 2px; }
 
-.m-img { width: 55px; height: 55px; border-radius: 12px; object-fit: cover; background: var(--bg); }
-.m-info h3 { font-size: 1rem; margin: 0 0 4px; font-weight: 700; }
-.m-info p { font-size: 0.8rem; color: var(--text-muted); margin: 0; }
-
-/* BUTTONS */
-.btn-primary { 
-    background: var(--accent); color: #fff; border: none; padding: 16px; 
-    border-radius: 16px; font-weight: 700; width: 100%; cursor: pointer;
-    font-size: 1rem; margin-top: 15px; box-shadow: 0 8px 20px rgba(99, 102, 241, 0.2);
+/* TAKVİM (CANAVAR GİBİ) */
+.cal-month { font-weight: 800; font-size: 1.1rem; text-align: center; margin: 10px 0; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 15px; }
+.cal-d { 
+    aspect-ratio: 1; display: flex; align-items: center; justify-content: center; 
+    border-radius: 12px; font-size: 0.9rem; font-weight: 700; cursor: pointer;
+    transition: 0.2s; background: var(--bg);
 }
-.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.cal-d.past { opacity: 0.2; cursor: not-allowed; text-decoration: line-through; }
+.cal-d.sel { background: var(--accent); color: #fff; transform: scale(1.1); box-shadow: 0 5px 15px rgba(var(--accent-rgb), 0.3); }
+.cal-d.today { color: var(--accent); border: 2px solid var(--accent); }
+.cal-d:hover:not(.past) { border-color: var(--accent); }
 
-/* TIME GRID */
+/* TIME SLOTS */
 .time-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
-.t-btn { 
-    padding: 12px; border: 2px solid var(--border); border-radius: 12px; 
-    text-align: center; font-weight: 700; cursor: pointer; background: var(--surface);
-}
+.t-btn { padding: 14px; border: 2px solid var(--border); border-radius: 14px; text-align: center; font-weight: 800; cursor: pointer; background: var(--bg); }
 .t-btn.selected { background: var(--accent); color: #fff; border-color: var(--accent); }
-.t-btn.taken { opacity: 0.3; pointer-events: none; background: var(--bg); }
+.t-btn.taken { opacity: 0.2; pointer-events: none; background: #eee; }
 
-/* LOADER */
-#loader { position: fixed; inset: 0; background: var(--bg); z-index: 100; display: flex; align-items: center; justify-content: center; }
+/* ANIMATION */
+[id^="step"] { animation: slideUp 0.4s ease-out; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+.btn-primary { 
+    background: var(--accent); color: #fff; border: none; padding: 18px; 
+    border-radius: 18px; font-weight: 800; width: 100%; cursor: pointer;
+    font-size: 1.1rem; box-shadow: 0 10px 20px rgba(var(--accent-rgb), 0.2); transition: 0.2s;
+}
+.btn-primary:active { transform: scale(0.98); }
+.btn-primary:disabled { opacity: 0.3; }
 </style>
 </head>
 <body>
 
-<div id="loader">🚀 Yükleniyor...</div>
+<div id="loader" style="position:fixed; inset:0; background:var(--bg); z-index:1000; display:flex; align-items:center; justify-content:center; font-weight:800">Dükkan Hazırlanıyor...</div>
 
 <div id="app" style="display:none">
-    <div class="hero-banner" id="hero-banner">
+    <div class="hero" id="hero-bg">
         <div class="hero-overlay"></div>
         <div class="hero-content">
-            <img id="biz-logo" class="biz-logo-lg" src="" alt="Logo">
-            <div class="biz-info-text">
-                <span class="biz-badge">Özel Randevu</span>
-                <h1 id="biz-name">Yükleniyor...</h1>
+            <img id="biz-logo" class="biz-logo" src="" alt="">
+            <div class="biz-info">
+                <h1 id="biz-name"></h1>
+                <div style="color:var(--accent); font-weight:700; font-size:0.9rem">Hoş Geldiniz 👋</div>
             </div>
         </div>
     </div>
@@ -105,47 +114,59 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); marg
         </div>
 
         <div id="step1">
-            <h2 style="margin-bottom:15px">Hizmet Seçin</h2>
-            <div class="selection-grid" id="svc-list"></div>
-            <button class="btn-primary" onclick="nextStep(2)" id="btn1" disabled>Devam Et</button>
+            <h2 style="margin-bottom:15px; font-weight:800">Hizmet Seçin</h2>
+            <div id="svc-list"></div>
+            <button class="btn-primary" onclick="nextStep(2)" id="btn1" disabled>Devam Et →</button>
         </div>
 
         <div id="step2" style="display:none">
-            <h2 style="margin-bottom:15px">Personel Seçin</h2>
-            <div class="selection-grid" id="staff-list"></div>
-            <button class="btn-primary" onclick="nextStep(3)" id="btn2" disabled>Zaman Seçimine Geç</button>
+            <h2 style="margin-bottom:15px; font-weight:800">Personel Seçin</h2>
+            <div id="staff-list"></div>
+            <button class="btn-primary" onclick="nextStep(3)" id="btn2" disabled>Zaman Seçimine Geç →</button>
         </div>
 
         <div id="step3" style="display:none">
-            <h2 style="margin-bottom:15px">Tarih ve Saat</h2>
-            <input type="date" id="date-input" style="width:100%; padding:15px; border-radius:12px; border:2px solid var(--border); font-family:inherit" onchange="loadTimes()">
-            <div class="time-grid" id="time-list"></div>
-            <button class="btn-primary" onclick="nextStep(4)" id="btn3" disabled>Bilgilerimi Gir</button>
+            <h2 style="margin-bottom:15px; font-weight:800">Tarih ve Saat</h2>
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center">
+                    <button onclick="calPrev()" style="border:none; background:none; cursor:pointer; font-size:1.2rem">◀</button>
+                    <div id="cal-month" class="cal-month">Mart 2026</div>
+                    <button onclick="calNext()" style="border:none; background:none; cursor:pointer; font-size:1.2rem">▶</button>
+                </div>
+                <div class="cal-grid" style="opacity:0.5; font-size:0.7rem; font-weight:800; text-align:center">
+                    <div>PZT</div><div>SAL</div><div>ÇAR</div><div>PER</div><div>CUM</div><div>CMT</div><div>PAZ</div>
+                </div>
+                <div id="cal-grid" class="cal-grid"></div>
+            </div>
+            <div id="time-card" style="display:none" class="card">
+                <div class="time-grid" id="time-list"></div>
+            </div>
+            <button class="btn-primary" onclick="nextStep(4)" id="btn3" disabled>Bilgilerimi Gir →</button>
         </div>
 
         <div id="step4" style="display:none">
-            <h2 style="margin-bottom:15px">Son Bir Adım</h2>
-            <div style="display:grid; gap:10px">
-                <input type="text" id="cust-name" placeholder="Adınız Soyadınız" style="padding:15px; border-radius:12px; border:2px solid var(--border)">
-                <input type="tel" id="cust-phone" placeholder="Telefon Numaranız" style="padding:15px; border-radius:12px; border:2px solid var(--border)">
-                <textarea id="cust-note" placeholder="Notunuz (Opsiyonel)" style="padding:15px; border-radius:12px; border:2px solid var(--border); height:100px"></textarea>
+            <h2 style="margin-bottom:15px; font-weight:800">Bilgilerinizi Onaylayın</h2>
+            <div class="card">
+                <input type="text" id="cust-name" placeholder="Adınız Soyadınız" style="width:100%; padding:15px; border-radius:12px; border:2px solid var(--border); margin-bottom:10px; font-family:inherit">
+                <input type="tel" id="cust-phone" placeholder="Telefon Numaranız" style="width:100%; padding:15px; border-radius:12px; border:2px solid var(--border); margin-bottom:10px; font-family:inherit">
+                <textarea id="cust-note" placeholder="Eklemek istediğiniz not..." style="width:100%; padding:15px; border-radius:12px; border:2px solid var(--border); height:80px; font-family:inherit"></textarea>
             </div>
-            <button class="btn-primary" onclick="completeBooking()">Randevuyu Tamamla 🎉</button>
+            <button class="btn-primary" id="final-btn" onclick="completeBooking()">Randevuyu Tamamla 🎉</button>
         </div>
     </div>
 </div>
 
 <script>
-// SUPABASE BAĞLANTISI (Senin Bilgilerin)
 const SB_URL='https://sqjlqoznuxuwybgygoqy.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNxamxxb3pudXh1d3liZ3lnb3F5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjU3OTUsImV4cCI6MjA4OTI0MTc5NX0.raU-m-id4dj1y_962sTvb2nlXJBdLyfZ9MBzPb3IY2Q';
 const sb=supabase.createClient(SB_URL,SB_KEY);
 
 let profile, services, staff, selSvc, selStaff, selDate, selTime;
+let calDate = new Date();
 
 async function init() {
     const pid = new URLSearchParams(window.location.search).get('id');
-    if(!pid) return alert("Hatalı Link!");
+    if(!pid) return;
 
     const {data:p} = await sb.from('profiles').select('*').eq('id', pid).single();
     const {data:s} = await sb.from('services').select('*').eq('profile_id', pid).eq('is_active', true);
@@ -153,13 +174,10 @@ async function init() {
 
     profile = p; services = s; staff = st;
 
-    // Görsel Ayarları
     document.getElementById('biz-name').innerText = p.business_name;
-    document.getElementById('biz-logo').src = p.logo_url || 'https://via.placeholder.com/100';
-    // Banner görseli (Admin panelinden banner_url sütunu ekleyebilirsin, yoksa logo kullanılır)
-    document.getElementById('hero-banner').style.backgroundImage = `url('${p.banner_url || p.logo_url}')`;
+    document.getElementById('biz-logo').src = p.logo_url || '';
+    document.getElementById('hero-bg').style.backgroundImage = `url('${p.logo_url}')`; // Banner olarak logoyu kullanıyoruz
     
-    // Temayı Renklendir
     if(p.theme_color) document.documentElement.style.setProperty('--accent', p.theme_color);
 
     renderServices();
@@ -170,11 +188,10 @@ async function init() {
 }
 
 function renderServices() {
-    const list = document.getElementById('svc-list');
-    list.innerHTML = services.map(s => `
+    document.getElementById('svc-list').innerHTML = services.map(s => `
         <div class="m-card" onclick="selectSvc('${s.id}')" id="svc-${s.id}">
-            <div class="m-img" style="display:flex; align-items:center; justify-content:center; background:#f0f0f0">${s.icon || '✂️'}</div>
-            <div class="m-info"><h3>${s.name}</h3><p>${s.duration} dk • ₺${s.price}</p></div>
+            <div style="font-size:1.5rem">${s.icon || '✂️'}</div>
+            <div style="flex:1"><b>${s.name}</b><br><small style="color:var(--text-muted)">${s.duration} dk • ₺${s.price}</small></div>
         </div>
     `).join('');
 }
@@ -187,11 +204,10 @@ function selectSvc(id) {
 }
 
 function renderStaff() {
-    const list = document.getElementById('staff-list');
-    list.innerHTML = staff.map(s => `
+    document.getElementById('staff-list').innerHTML = staff.map(s => `
         <div class="m-card" onclick="selectStaff('${s.id}')" id="staff-${s.id}">
-            <img src="${s.image_url || 'https://via.placeholder.com/100'}" class="m-img">
-            <div class="m-info"><h3>${s.name}</h3><p>${s.title || 'Uzman'}</p></div>
+            <img src="${s.image_url || ''}" style="width:50px; height:50px; border-radius:12px; object-fit:cover">
+            <div style="flex:1"><b>${s.name}</b><br><small style="color:var(--text-muted)">${s.title || 'Uzman'}</small></div>
         </div>
     `).join('');
 }
@@ -203,20 +219,37 @@ function selectStaff(id) {
     document.getElementById('btn2').disabled = false;
 }
 
-async function loadTimes() {
-    selDate = document.getElementById('date-input').value;
-    const list = document.getElementById('time-list');
+function renderCal() {
+    const y = calDate.getFullYear(), m = calDate.getMonth();
+    const months = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
+    document.getElementById('cal-month').innerText = months[m] + " " + y;
     
-    const {data:booked} = await sb.from('appointments')
-        .select('appointment_time')
-        .eq('appointment_date', selDate)
-        .eq('staff_id', selStaff.id)
-        .neq('status', 'cancelled');
+    const first = new Date(y, m, 1).getDay();
+    const last = new Date(y, m + 1, 0).getDate();
+    const today = new Date(); today.setHours(0,0,0,0);
 
+    let html = '';
+    const spaces = first === 0 ? 6 : first - 1;
+    for(let i=0; i<spaces; i++) html += '<div></div>';
+
+    for(let d=1; d<=last; d++) {
+        const curr = new Date(y, m, d);
+        const ds = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const isPast = curr < today;
+        html += `<div class="cal-d ${isPast?'past':''} ${ds==selDate?'sel':''} ${curr.getTime()==today.getTime()?'today':''}" onclick="${isPast?'':'pickDate(\''+ds+'\')'}">${d}</div>`;
+    }
+    document.getElementById('cal-grid').innerHTML = html;
+}
+
+async function pickDate(ds) {
+    selDate = ds; renderCal();
+    document.getElementById('time-card').style.display = 'block';
+    
+    const {data:booked} = await sb.from('appointments').select('appointment_time').eq('appointment_date', ds).eq('staff_id', selStaff.id).neq('status', 'cancelled');
     const taken = (booked||[]).map(b => b.appointment_time.slice(0,5));
-    const hours = ["09:00","10:00","11:00","12:00","14:00","15:00","16:00","17:00"];
+    const hours = ["09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00"];
 
-    list.innerHTML = hours.map(h => `
+    document.getElementById('time-list').innerHTML = hours.map(h => `
         <div class="t-btn ${taken.includes(h)?'taken':''}" onclick="selectTime('${h}')" id="t-${h.replace(':','')}">${h}</div>
     `).join('');
 }
@@ -228,9 +261,13 @@ function selectTime(h) {
     document.getElementById('btn3').disabled = false;
 }
 
+function calNext() { calDate.setMonth(calDate.getMonth()+1); renderCal(); }
+function calPrev() { calDate.setMonth(calDate.getMonth()-1); renderCal(); }
+
 function nextStep(n) {
     [1,2,3,4].forEach(s => document.getElementById('step'+s).style.display = 'none');
     document.getElementById('step'+n).style.display = 'block';
+    if(n==3) renderCal();
     document.querySelectorAll('.s-dot').forEach((d, i) => {
         if(i+1 < n) d.className = 's-dot done';
         else if(i+1 === n) d.className = 's-dot active';
@@ -239,27 +276,23 @@ function nextStep(n) {
 }
 
 async function completeBooking() {
-    const name = document.getElementById('cust-name').value;
-    const phone = document.getElementById('cust-phone').value;
-    if(!name || !phone) return alert("Bilgileri doldurun!");
-
+    const btn = document.getElementById('final-btn');
+    btn.disabled = true; btn.innerText = "Kaydediliyor...";
+    
     const {error} = await sb.from('appointments').insert({
-        profile_id: profile.id,
-        service_id: selSvc.id,
-        staff_id: selStaff.id,
-        customer_name: name,
-        customer_phone: phone,
-        appointment_date: selDate,
-        appointment_time: selTime,
-        status: 'pending',
-        notes: document.getElementById('cust-note').value
+        profile_id: profile.id, service_id: selSvc.id, staff_id: selStaff.id,
+        customer_name: document.getElementById('cust-name').value,
+        customer_phone: document.getElementById('cust-phone').value,
+        appointment_date: selDate, appointment_time: selTime,
+        status: 'pending', notes: document.getElementById('cust-note').value
     });
 
     if(!error) {
-        alert("Randevu Başarıyla Alındı! 🎉");
+        alert("Randevu Alındı! 🎉");
         location.reload();
     } else {
-        alert("Hata: " + error.message);
+        alert("Hata oluştu.");
+        btn.disabled = false;
     }
 }
 
