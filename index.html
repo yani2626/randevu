@@ -1394,7 +1394,7 @@ function calNext(){calDate.setMonth(calDate.getMonth()+1);renderCal();}
 /* ══════════════════════════════════════
    APPOINTMENTS
 ══════════════════════════════════════ */
-async function loadApts() {
+async function loadApt() {
   const { data, error } = await sb.from('appointments')
     .select(`
       *,
