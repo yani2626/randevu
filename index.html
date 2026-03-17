@@ -1395,11 +1395,32 @@ function calNext(){calDate.setMonth(calDate.getMonth()+1);renderCal();}
    APPOINTMENTS
 ══════════════════════════════════════ */
 async function loadApts() {
-  if (!UP) return;
-  const { data } = await sb.from('appointments').select('*, services(name,icon)').eq('profile_id', UP.id).order('appointment_date',{ascending:false});
-  allApts = data||[];
-  renderApts(allApts);
+  // .select('*') yerine ilişkili tabloyu da dahil ediyoruz
+  const { data, error } = await sb.from('appointments')
+    .select(`
+      *,
+      staff:staff_id (name) 
+    `)
+    .eq('profile_id', UP.id)
+    .order('date', { ascending: false });
+
+  const container = document.getElementById('apt-list');
+  // ... (diğer kontroller) ...
+
+  container.innerHTML = data.map(a => `
+    <div class="apt-card">
+      <div class="apt-info">
+        <div class="apt-customer">${a.customer_name}</div>
+        <div class="apt-details">
+          <span>📅 ${a.date}</span> 
+          <span>⏰ ${a.time}</span>
+          <span class="badge badge-info">👤 ${a.staff ? a.staff.name : 'Herhangi Biri'}</span>
+        </div>
+      </div>
+      </div>
+  `).join('');
 }
+
 let curFilter='all';
 function filterApts(f, btn) {
   curFilter=f;
