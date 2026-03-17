@@ -1395,31 +1395,31 @@ function calNext(){calDate.setMonth(calDate.getMonth()+1);renderCal();}
    APPOINTMENTS
 ══════════════════════════════════════ */
 async function loadApts() {
-  // .select('*') yerine ilişkili tabloyu da dahil ediyoruz
   const { data, error } = await sb.from('appointments')
     .select(`
       *,
       staff:staff_id (name) 
-    `)
+    `) // staff tablosundan ismini alıyoruz
     .eq('profile_id', UP.id)
-    .order('date', { ascending: false });
+    .order('created_at', { ascending: false });
 
-  const container = document.getElementById('apt-list');
-  // ... (diğer kontroller) ...
+  if (error) return;
 
+  const container = document.getElementById('apt-list-body'); // Tablo gövden
   container.innerHTML = data.map(a => `
-    <div class="apt-card">
-      <div class="apt-info">
-        <div class="apt-customer">${a.customer_name}</div>
-        <div class="apt-details">
-          <span>📅 ${a.date}</span> 
-          <span>⏰ ${a.time}</span>
-          <span class="badge badge-info">👤 ${a.staff ? a.staff.name : 'Herhangi Biri'}</span>
-        </div>
-      </div>
-      </div>
+    <tr>
+      <td>${a.customer_name}</td>
+      <td>${a.customer_phone}</td>
+      <td>${a.service_name || '—'}</td>
+      <td><b>${a.staff ? a.staff.name : '—'}</b></td> <td>${a.date}</td>
+      <td>${a.time}</td>
+      <td><span class="status-badge ${a.status}">${a.status}</span></td>
+      <td>${a.note || '—'}</td>
+      <td>... (işlem butonların) ...</td>
+    </tr>
   `).join('');
 }
+
 
 let curFilter='all';
 function filterApts(f, btn) {
