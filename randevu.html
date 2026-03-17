@@ -381,15 +381,15 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); min-
     <button onclick="document.getElementById('cancel-modal').style.display='flex'" style="background:none; border:none; color:var(--text-muted); text-decoration:underline; font-size:12px; cursor:pointer;">Randevumu İptal Etmek İstiyorum</button>
 </div>
 
-<div id="cancel-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; align-items:center; justify-content:center; padding:20px;">
-    <div style="background:var(--surface); padding:25px; border-radius:var(--radius); width:100%; max-width:400px;">
-        <h3>Randevu İptali</h3>
-        <p style="font-size:14px; color:var(--text2);">Randevu aldığınız telefon numarasını girin.</p>
-        <input type="tel" id="c-phone" placeholder="05XX XXX XX XX" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:10px; margin:15px 0;">
-        <button onclick="cancelMyAppointment()" style="width:100%; padding:12px; background:var(--accent); color:white; border:none; border-radius:10px; cursor:pointer; font-weight:bold;">İptal Et</button>
-        <button onclick="document.getElementById('cancel-modal').style.display='none'" style="width:100%; margin-top:10px; background:none; border:none; color:var(--text-muted); cursor:pointer;">Vazgeç</button>
-    </div>
-</div>
+  <div id="cancel-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; align-items:center; justify-content:center; padding:20px;">
+      <div style="background:var(--surface); padding:25px; border-radius:var(--radius); width:100%; max-width:400px;">
+         <h3>Randevu İptali</h3>
+          <p style="font-size:14px; color:var(--text2);">Randevu aldığınız telefon numarasını girin.</p>
+          <input type="tel" id="c-phone" placeholder="05XX XXX XX XX" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:10px; margin:15px 0;">
+          <button onclick="cancelMyAppointment()" style="width:100%; padding:12px; background:var(--accent); color:white; border:none; border-radius:10px; cursor:pointer; font-weight:bold;">İptal Et</button>
+          <button onclick="document.getElementById('cancel-modal').style.display='none'" style="width:100%; margin-top:10px; background:none; border:none; color:var(--text-muted); cursor:pointer;">Vazgeç</button>
+      </div>
+  </div>
 
 <script>
 const SB_URL='https://sqjlqoznuxuwybgygoqy.supabase.co';
