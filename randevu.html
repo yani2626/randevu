@@ -3,406 +3,264 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Randevu Al</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<title>Randevu Al | Premium</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
-  --accent: #6366f1;
-  --accent-dark: #4f46e5;
-  --accent-rgb: 99,102,241;
+  --accent: #6366f1; /* Bu renk admin panelinden gelecek */
   --font: 'Plus Jakarta Sans', sans-serif;
-  --radius: 16px;
+  --radius: 20px;
 }
-[data-theme="light"] {
-  --bg: #f5f5ff;
-  --surface: #ffffff;
-  --surface2: #f8f8ff;
-  --border: #e8e8f5;
-  --text: #1a1a2e;
-  --text2: #44445a;
-  --text-muted: #8080a0;
+[data-theme="light"] { --bg: #f8fafc; --surface: #ffffff; --text: #0f172a; --border: #e2e8f0; --text-muted: #64748b; }
+[data-theme="dark"] { --bg: #020617; --surface: #0f172a; --text: #f8fafc; --border: #1e293b; --text-muted: #94a3b8; }
+
+body { background: var(--bg); color: var(--text); font-family: var(--font); margin: 0; padding-bottom: 50px; }
+
+/* HEADER & BANNER */
+.hero-banner {
+    position: relative; height: 260px; background: #1e293b; 
+    background-size: cover; background-position: center;
+    display: flex; align-items: flex-end; padding: 20px;
 }
-[data-theme="dark"] {
-  --bg: #0d0d18;
-  --surface: #14141f;
-  --surface2: #1c1c2a;
-  --border: #2a2a3e;
-  --text: #f0f0ff;
-  --text2: #b0b0d0;
-  --text-muted: #707090;
+.hero-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(0deg, rgba(0,0,0,0.7) 0%, transparent 100%);
 }
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; transition: background 0.3s, color 0.3s; }
+.hero-content { position: relative; z-index: 2; display: flex; align-items: center; gap: 15px; width: 100%; max-width: 600px; margin: 0 auto; }
+.biz-logo-lg { 
+    width: 80px; height: 80px; border-radius: 20px; border: 4px solid var(--surface); 
+    background: #fff; object-fit: cover; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+.biz-info-text h1 { color: #fff; font-size: 1.5rem; font-weight: 800; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+.biz-badge { background: var(--accent); color: #fff; font-size: 0.7rem; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; font-weight: 700; }
+
+/* STEPPER */
+.wrap { max-width: 600px; margin: -30px auto 0; position: relative; z-index: 10; padding: 0 15px; }
+.steps-nav { 
+    background: var(--surface); border-radius: var(--radius); padding: 15px; 
+    display: flex; justify-content: space-between; border: 1px solid var(--border);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 20px;
+}
+.s-dot { width: 35px; height: 35px; border-radius: 12px; background: var(--bg); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.8rem; color: var(--text-muted); transition: 0.3s; }
+.s-dot.active { background: var(--accent); color: #fff; transform: scale(1.1); box-shadow: 0 5px 15px rgba(var(--accent), 0.3); }
+.s-dot.done { background: #10b981; color: #fff; }
+
+/* MODERN CARDS */
+.selection-grid { display: grid; gap: 12px; }
+.m-card { 
+    background: var(--surface); border: 2px solid var(--border); border-radius: 16px; 
+    padding: 15px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 15px;
+}
+.m-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.m-card.selected { border-color: var(--accent); background: rgba(99, 102, 241, 0.05); }
+
+.m-img { width: 55px; height: 55px; border-radius: 12px; object-fit: cover; background: var(--bg); }
+.m-info h3 { font-size: 1rem; margin: 0 0 4px; font-weight: 700; }
+.m-info p { font-size: 0.8rem; color: var(--text-muted); margin: 0; }
+
+/* BUTTONS */
+.btn-primary { 
+    background: var(--accent); color: #fff; border: none; padding: 16px; 
+    border-radius: 16px; font-weight: 700; width: 100%; cursor: pointer;
+    font-size: 1rem; margin-top: 15px; box-shadow: 0 8px 20px rgba(99, 102, 241, 0.2);
+}
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* TIME GRID */
+.time-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
+.t-btn { 
+    padding: 12px; border: 2px solid var(--border); border-radius: 12px; 
+    text-align: center; font-weight: 700; cursor: pointer; background: var(--surface);
+}
+.t-btn.selected { background: var(--accent); color: #fff; border-color: var(--accent); }
+.t-btn.taken { opacity: 0.3; pointer-events: none; background: var(--bg); }
 
 /* LOADER */
-#loader { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 14px; z-index: 9999; transition: opacity 0.4s; }
-#loader.hidden { opacity: 0; pointer-events: none; }
-.spin { width: 36px; height: 36px; border: 3px solid rgba(var(--accent-rgb),0.2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* CLOSED / 404 */
-#page-closed, #page-404 { display: none; min-height: 100vh; align-items: center; justify-content: center; flex-direction: column; gap: 12px; text-align: center; padding: 40px 20px; }
-.closed-icon { font-size: 4rem; margin-bottom: 8px; }
-.closed-title { font-size: 1.5rem; font-weight: 700; }
-.closed-sub { color: var(--text-muted); font-size: 0.95rem; max-width: 380px; line-height: 1.6; }
-
-/* HEADER */
-.site-header {
-  background: var(--accent);
-  position: relative; overflow: hidden;
-  padding: 0 0 60px;
-}
-.site-header::before {
-  content: ''; position: absolute; inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 60%);
-}
-.site-header::after {
-  content: ''; position: absolute; top: -80px; right: -80px;
-  width: 320px; height: 320px; border-radius: 50%;
-  background: rgba(255,255,255,0.07);
-}
-.header-top {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 18px 24px;
-  position: relative; z-index: 2;
-}
-.header-logo {
-  display: flex; align-items: center; gap: 10px;
-}
-.header-logo img { width: 38px; height: 38px; border-radius: 10px; object-fit: cover; }
-.header-logo-text { font-size: 1rem; font-weight: 800; color: rgba(255,255,255,0.95); letter-spacing: -0.02em; }
-.header-actions { display: flex; gap: 8px; align-items: center; }
-.hbtn { background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.25); color: #fff; border-radius: 9px; padding: 7px 14px; font-family: var(--font); font-size: 0.82rem; font-weight: 600; cursor: pointer; backdrop-filter: blur(8px); transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
-.hbtn:hover { background: rgba(255,255,255,0.28); }
-.header-body { padding: 24px 24px 0; position: relative; z-index: 2; max-width: 680px; margin: 0 auto; }
-.biz-type-pill { display: inline-flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.18); color: rgba(255,255,255,0.9); border-radius: 20px; padding: 4px 12px; font-size: 0.75rem; font-weight: 600; margin-bottom: 14px; border: 1px solid rgba(255,255,255,0.2); }
-.biz-name { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 800; color: #fff; letter-spacing: -0.03em; margin-bottom: 10px; line-height: 1.15; }
-.biz-desc { color: rgba(255,255,255,0.8); font-size: 0.95rem; line-height: 1.6; margin-bottom: 16px; max-width: 500px; }
-.biz-meta { display: flex; gap: 18px; flex-wrap: wrap; }
-.meta-item { color: rgba(255,255,255,0.8); font-size: 0.84rem; display: flex; align-items: center; gap: 6px; }
-.meta-item a { color: rgba(255,255,255,0.8); text-decoration: none; }
-.meta-item a:hover { color: #fff; }
-
-/* SOCIAL BAR */
-.social-bar { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
-.social-btn { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.9); border-radius: 8px; padding: 6px 12px; font-size: 0.78rem; font-weight: 600; text-decoration: none; transition: all 0.2s; backdrop-filter: blur(5px); }
-.social-btn:hover { background: rgba(255,255,255,0.28); }
-
-/* WRAP */
-.wrap { max-width: 680px; margin: 0 auto; padding: 0 16px 80px; margin-top: -48px; position: relative; z-index: 3; }
-
-/* STEP INDICATOR */
-.steps-bar {
-  background: var(--surface); border-radius: 18px; border: 1px solid var(--border); padding: 16px 20px; margin-bottom: 16px; display: flex; align-items: center; box-shadow: 0 4px 20px rgba(var(--accent-rgb),0.08);
-}
-.step { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
-.step-dot { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--border); background: var(--surface2); color: var(--text-muted); display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 700; flex-shrink: 0; transition: all 0.3s; }
-.step-dot.active { border-color: var(--accent); background: var(--accent); color: #fff; box-shadow: 0 0 0 4px rgba(var(--accent-rgb),0.15); }
-.step-dot.done { border-color: #10b981; background: #10b981; color: #fff; }
-.step-lbl { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; transition: color 0.3s; }
-.step.active .step-lbl { color: var(--accent); }
-.step-line { flex: 0 0 20px; height: 2px; background: var(--border); margin: 0 4px; transition: background 0.3s; flex-shrink: 0; }
-.step-line.done { background: #10b981; }
-@media(max-width:500px) { .step-lbl { display: none; } .step-line { flex: 0 0 12px; } }
-
-/* CARD */
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; margin-bottom: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-.card-title { font-size: 1rem; font-weight: 700; margin-bottom: 16px; letter-spacing: -0.02em; }
-
-/* SERVICE & STAFF LIST */
-.svc-list, .staff-list { display: grid; gap: 10px; }
-.svc-card, .staff-card { border: 2px solid var(--border); border-radius: 12px; padding: 14px 16px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 14px; background: var(--surface); }
-.svc-card:hover, .staff-card:hover { border-color: var(--accent); background: rgba(var(--accent-rgb),0.05); }
-.svc-card.sel, .staff-card.sel { border-color: var(--accent); background: rgba(var(--accent-rgb),0.08); }
-.svc-card-icon, .staff-img { width: 42px; height: 42px; border-radius: 11px; background: rgba(var(--accent-rgb),0.1); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; transition: all 0.2s; object-fit: cover; }
-.svc-card.sel .svc-card-icon, .staff-card.sel .staff-img { background: var(--accent); color: #fff; }
-
-.svc-info, .staff-info { flex: 1; }
-.svc-name, .staff-name { font-weight: 700; font-size: 0.92rem; }
-.svc-meta, .staff-title { font-size: 0.78rem; color: var(--text-muted); margin-top: 3px; }
-
-/* CALENDAR & TIME SLOTS */
-.cal-nav { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
-.cal-nav-btn { width: 32px; height: 32px; border-radius: 9px; border: 1.5px solid var(--border); background: var(--surface2); cursor: pointer; font-size: 0.88rem; display: flex; align-items: center; justify-content: center; color: var(--text); transition: all 0.15s; }
-.cal-nav-btn:hover { border-color: var(--accent); }
-.cal-month { font-size: 0.95rem; font-weight: 700; flex: 1; }
-.cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; }
-.cal-dh { text-align: center; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); padding: 5px 0; }
-.cal-d { aspect-ratio: 1; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 0.86rem; font-weight: 500; cursor: pointer; border: 2px solid transparent; transition: all 0.15s; position: relative; }
-.cal-d:hover:not(.off):not(.past) { background: rgba(var(--accent-rgb),0.08); border-color: var(--accent); }
-.cal-d.today { font-weight: 800; color: var(--accent); }
-.cal-d.sel { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 700; }
-.cal-d.off, .cal-d.past { color: var(--border); cursor: not-allowed; pointer-events: none; }
-
-.time-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
-.t-slot { padding: 10px 6px; border-radius: 9px; text-align: center; font-size: 0.86rem; font-weight: 600; cursor: pointer; border: 2px solid var(--border); background: var(--surface); color: var(--text2); transition: all 0.15s; }
-.t-slot:hover { border-color: var(--accent); background: rgba(var(--accent-rgb),0.07); }
-.t-slot.sel { background: var(--accent); color: #fff; border-color: var(--accent); }
-.t-slot.taken { background: var(--surface2); color: var(--border); border-color: var(--border); cursor: not-allowed; text-decoration: line-through; pointer-events: none; }
-
-/* FORM & BUTTONS */
-.form-group { margin-bottom: 14px; }
-.form-group label { display: flex; align-items: center; gap: 5px; font-size: 0.76rem; font-weight: 700; color: var(--text-muted); margin-bottom: 7px; letter-spacing: 0.06em; text-transform: uppercase; }
-.form-group input, .form-group textarea { width: 100%; background: var(--surface2); border: 2px solid var(--border); border-radius: 11px; padding: 12px 14px; color: var(--text); font-family: var(--font); font-size: 0.92rem; transition: all 0.2s; outline: none; }
-.form-group input:focus, .form-group textarea:focus { border-color: var(--accent); background: var(--surface); box-shadow: 0 0 0 3px rgba(var(--accent-rgb),0.1); }
-.btn-row { display: flex; justify-content: space-between; gap: 10px; margin-top: 16px; }
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 12px 22px; border-radius: 11px; border: none; font-family: var(--font); font-size: 0.92rem; font-weight: 700; cursor: pointer; transition: all 0.2s; letter-spacing: -0.01em; }
-.btn-primary { background: var(--accent); color: #fff; }
-.btn-primary:disabled { opacity: 0.45; pointer-events: none; }
-.btn-ghost { background: var(--surface); color: var(--text2); border: 2px solid var(--border); }
-.btn-full { width: 100%; justify-content: center; }
-
-/* TOAST */
-#toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--text); color: var(--bg); border-radius: 10px; padding: 12px 20px; font-size: 0.88rem; font-weight: 600; z-index: 9999; opacity: 0; transition: all 0.3s; }
-#toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-#toast.err { background: #ef4444; color: #fff; }
-
-/* SUCCESS & WHATSAPP */
-#page-success { display: none; text-align: center; padding: 40px 20px; max-width: 480px; margin: 0 auto; }
-.success-anim { width: 88px; height: 88px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #34d399); margin: 0 auto 22px; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; box-shadow: 0 8px 30px rgba(16,185,129,0.3); }
-.success-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; text-align: left; margin-bottom: 22px; }
-.whatsapp-share { display: flex; align-items: center; gap: 8px; background: #25d366; color: #fff; border-radius: 11px; padding: 12px 20px; font-weight: 700; font-size: 0.9rem; text-decoration: none; justify-content: center; margin-top: 10px; }
+#loader { position: fixed; inset: 0; background: var(--bg); z-index: 100; display: flex; align-items: center; justify-content: center; }
 </style>
 </head>
 <body>
 
-<div id="loader"><div class="spin"></div></div>
+<div id="loader">🚀 Yükleniyor...</div>
 
-<div id="page-404" style="display:none;">🔍 Sayfa Bulunamadı</div>
-<div id="page-closed" style="display:none;"><div class="closed-icon">🔒</div><div class="closed-title" id="closed-biz"></div></div>
-
-<div id="main-page" style="display:none">
-  <header class="site-header" id="site-header">
-    <div class="header-top">
-      <div class="header-logo"><img id="h-logo" src="" alt="" style="display:none"><div class="header-logo-text" id="h-logo-text"></div></div>
-      <div class="header-actions"><button class="hbtn" onclick="toggleTheme()">🌓</button></div>
-    </div>
-    <div class="header-body">
-      <h1 class="biz-name" id="h-name"></h1>
-      <div class="biz-meta" id="h-meta"></div>
-    </div>
-  </header>
-
-  <div class="wrap">
-    <div class="steps-bar">
-      <div class="step active" id="st1"><div class="step-dot active" id="sd1">1</div><div class="step-lbl">Hizmet</div></div>
-      <div class="step-line" id="sl1"></div>
-      <div class="step" id="st1_5"><div class="step-dot" id="sd1_5">2</div><div class="step-lbl">Personel</div></div>
-      <div class="step-line" id="sl1_5"></div>
-      <div class="step" id="st2"><div class="step-dot" id="sd2">3</div><div class="step-lbl">Zaman</div></div>
-      <div class="step-line" id="sl2"></div>
-      <div class="step" id="st3"><div class="step-dot" id="sd3">4</div><div class="step-lbl">Onay</div></div>
+<div id="app" style="display:none">
+    <div class="hero-banner" id="hero-banner">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <img id="biz-logo" class="biz-logo-lg" src="" alt="Logo">
+            <div class="biz-info-text">
+                <span class="biz-badge">Özel Randevu</span>
+                <h1 id="biz-name">Yükleniyor...</h1>
+            </div>
+        </div>
     </div>
 
-    <div id="step1">
-      <div class="card"><div class="card-title">Hizmet seçin</div><div class="svc-list" id="svc-list"></div></div>
-      <div class="btn-row"><div></div><button class="btn btn-primary" id="s1-next" onclick="goStep('1_5')" disabled>Devam →</button></div>
-    </div>
+    <div class="wrap">
+        <div class="steps-nav">
+            <div class="s-dot active" id="sd1">1</div>
+            <div class="s-dot" id="sd2">2</div>
+            <div class="s-dot" id="sd3">3</div>
+            <div class="s-dot" id="sd4">4</div>
+        </div>
 
-    <div id="step1_5" style="display:none">
-      <div class="card"><div class="card-title">Personel seçin</div><div class="staff-list" id="staff-list"></div></div>
-      <div class="btn-row">
-        <button class="btn btn-ghost" onclick="goStep(1)">← Geri</button>
-        <button class="btn btn-primary" id="s1_5-next" onclick="goStep(2)" disabled>Devam →</button>
-      </div>
-    </div>
+        <div id="step1">
+            <h2 style="margin-bottom:15px">Hizmet Seçin</h2>
+            <div class="selection-grid" id="svc-list"></div>
+            <button class="btn-primary" onclick="nextStep(2)" id="btn1" disabled>Devam Et</button>
+        </div>
 
-    <div id="step2" style="display:none">
-      <div class="card">
-        <div class="cal-nav"><button class="cal-nav-btn" onclick="calPrev()">◀</button><div class="cal-month" id="cal-month"></div><button class="cal-nav-btn" onclick="calNext()">▶</button></div>
-        <div class="cal-grid" id="cal-dh"></div><div class="cal-grid" id="cal-grid"></div>
-      </div>
-      <div class="card" id="time-card" style="display:none"><div class="card-title">Saat seçin</div><div class="time-grid" id="time-grid"></div></div>
-      <div class="btn-row">
-        <button class="btn btn-ghost" onclick="goStep('1_5')">← Geri</button>
-        <button class="btn btn-primary" id="s2-next" onclick="goStep(3)" disabled>Devam →</button>
-      </div>
-    </div>
+        <div id="step2" style="display:none">
+            <h2 style="margin-bottom:15px">Personel Seçin</h2>
+            <div class="selection-grid" id="staff-list"></div>
+            <button class="btn-primary" onclick="nextStep(3)" id="btn2" disabled>Zaman Seçimine Geç</button>
+        </div>
 
-    <div id="step3" style="display:none">
-      <div class="card">
-        <div class="form-group"><label>👤 Ad Soyad *</label><input type="text" id="f-name" oninput="checkStep3()"></div>
-        <div class="form-group"><label>📞 Telefon *</label><input type="tel" id="f-phone" oninput="checkStep3()"></div>
-        <div class="form-group"><label>📝 Notunuz</label><textarea id="f-note"></textarea></div>
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-ghost" onclick="goStep(2)">← Geri</button>
-        <button class="btn btn-primary" id="confirm-btn" onclick="confirmBooking()" disabled>🎉 Randevuyu Onayla</button>
-      </div>
-    </div>
-  </div>
+        <div id="step3" style="display:none">
+            <h2 style="margin-bottom:15px">Tarih ve Saat</h2>
+            <input type="date" id="date-input" style="width:100%; padding:15px; border-radius:12px; border:2px solid var(--border); font-family:inherit" onchange="loadTimes()">
+            <div class="time-grid" id="time-list"></div>
+            <button class="btn-primary" onclick="nextStep(4)" id="btn3" disabled>Bilgilerimi Gir</button>
+        </div>
 
-  <div class="wrap" id="success-wrap" style="display:none">
-    <div id="page-success">
-      <div class="success-anim">✓</div>
-      <div class="success-title">Harika!</div>
-      <div class="success-sub">Randevunuz başarıyla oluşturuldu.</div>
-      <div class="success-box" id="sbox"></div>
-      <button class="btn btn-ghost btn-full" onclick="location.reload()">🔄 Yeni Randevu</button>
+        <div id="step4" style="display:none">
+            <h2 style="margin-bottom:15px">Son Bir Adım</h2>
+            <div style="display:grid; gap:10px">
+                <input type="text" id="cust-name" placeholder="Adınız Soyadınız" style="padding:15px; border-radius:12px; border:2px solid var(--border)">
+                <input type="tel" id="cust-phone" placeholder="Telefon Numaranız" style="padding:15px; border-radius:12px; border:2px solid var(--border)">
+                <textarea id="cust-note" placeholder="Notunuz (Opsiyonel)" style="padding:15px; border-radius:12px; border:2px solid var(--border); height:100px"></textarea>
+            </div>
+            <button class="btn-primary" onclick="completeBooking()">Randevuyu Tamamla 🎉</button>
+        </div>
     </div>
-  </div>
 </div>
 
-<div id="toast"></div>
-
 <script>
+// SUPABASE BAĞLANTISI (Senin Bilgilerin)
 const SB_URL='https://sqjlqoznuxuwybgygoqy.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNxamxxb3pudXh1d3liZ3lnb3F5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjU3OTUsImV4cCI6MjA4OTI0MTc5NX0.raU-m-id4dj1y_962sTvb2nlXJBdLyfZ9MBzPb3IY2Q';
 const sb=supabase.createClient(SB_URL,SB_KEY);
 
-let profile=null, services=[], staff=[], selSvc=null, selStaff=null, selDate=null, selTime=null;
-let calDate=new Date(), maxDays=30, bookedSlots=[];
-let step=1;
+let profile, services, staff, selSvc, selStaff, selDate, selTime;
 
-function toast(msg,err=false){const t=document.getElementById('toast');t.textContent=msg;t.className='show'+(err?' err':'');setTimeout(()=>t.className='',3000);}
+async function init() {
+    const pid = new URLSearchParams(window.location.search).get('id');
+    if(!pid) return alert("Hatalı Link!");
 
-async function init(){
-  const pid=new URLSearchParams(window.location.search).get('id');
-  if(!pid){document.getElementById('page-404').style.display='flex'; return;}
-  
-  const [{data:p}, {data:s}, {data:st}] = await Promise.all([
-    sb.from('profiles').select('*').eq('id',pid).single(),
-    sb.from('services').select('*').eq('profile_id',pid).eq('is_active',true),
-    sb.from('staff').select('*').eq('profile_id',pid) // Personelleri çekiyoruz
-  ]);
+    const {data:p} = await sb.from('profiles').select('*').eq('id', pid).single();
+    const {data:s} = await sb.from('services').select('*').eq('profile_id', pid).eq('is_active', true);
+    const {data:st} = await sb.from('staff').select('*').eq('profile_id', pid);
 
-  document.getElementById('loader').classList.add('hidden');
-  if(!p) {document.getElementById('page-404').style.display='flex'; return;}
-  
-  profile=p; services=s||[]; staff=st||[];
-  buildHeader();
-  renderServices();
-  renderStaff();
-  document.getElementById('main-page').style.display='block';
+    profile = p; services = s; staff = st;
+
+    // Görsel Ayarları
+    document.getElementById('biz-name').innerText = p.business_name;
+    document.getElementById('biz-logo').src = p.logo_url || 'https://via.placeholder.com/100';
+    // Banner görseli (Admin panelinden banner_url sütunu ekleyebilirsin, yoksa logo kullanılır)
+    document.getElementById('hero-banner').style.backgroundImage = `url('${p.banner_url || p.logo_url}')`;
+    
+    // Temayı Renklendir
+    if(p.theme_color) document.documentElement.style.setProperty('--accent', p.theme_color);
+
+    renderServices();
+    renderStaff();
+    
+    document.getElementById('loader').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
 }
 
-function buildHeader(){
-  document.getElementById('h-name').textContent=profile.business_name;
-  document.getElementById('h-logo-text').textContent=profile.business_name;
-  if(profile.logo_url) { const img=document.getElementById('h-logo'); img.src=profile.logo_url; img.style.display='block'; }
+function renderServices() {
+    const list = document.getElementById('svc-list');
+    list.innerHTML = services.map(s => `
+        <div class="m-card" onclick="selectSvc('${s.id}')" id="svc-${s.id}">
+            <div class="m-img" style="display:flex; align-items:center; justify-content:center; background:#f0f0f0">${s.icon || '✂️'}</div>
+            <div class="m-info"><h3>${s.name}</h3><p>${s.duration} dk • ₺${s.price}</p></div>
+        </div>
+    `).join('');
 }
 
-function renderServices(){
-  const el=document.getElementById('svc-list');
-  el.innerHTML=services.map(s=>`
-    <div class="svc-card" id="svc-${s.id}" onclick="selService('${s.id}')">
-      <div class="svc-card-icon">✂️</div>
-      <div class="svc-info"><div class="svc-name">${s.name}</div><div class="svc-meta">${s.duration} dk · ₺${s.price}</div></div>
-    </div>`).join('');
+function selectSvc(id) {
+    selSvc = services.find(x => x.id === id);
+    document.querySelectorAll('#svc-list .m-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('svc-'+id).classList.add('selected');
+    document.getElementById('btn1').disabled = false;
 }
 
-function selService(id){
-  selSvc=services.find(s=>s.id===id);
-  document.querySelectorAll('.svc-card').forEach(c=>c.classList.remove('sel'));
-  document.getElementById('svc-'+id).classList.add('sel');
-  document.getElementById('s1-next').disabled=false;
+function renderStaff() {
+    const list = document.getElementById('staff-list');
+    list.innerHTML = staff.map(s => `
+        <div class="m-card" onclick="selectStaff('${s.id}')" id="staff-${s.id}">
+            <img src="${s.image_url || 'https://via.placeholder.com/100'}" class="m-img">
+            <div class="m-info"><h3>${s.name}</h3><p>${s.title || 'Uzman'}</p></div>
+        </div>
+    `).join('');
 }
 
-function renderStaff(){
-  const el=document.getElementById('staff-list');
-  if(!staff.length){ el.innerHTML="<p>Personel bulunamadı.</p>"; return; }
-  el.innerHTML=staff.map(s=>`
-    <div class="staff-card" id="staff-${s.id}" onclick="selStaffMember('${s.id}')">
-      <img src="${s.image_url || 'https://cdn-icons-png.flaticon.com/512/147/147144.png'}" class="staff-img">
-      <div class="staff-info"><div class="staff-name">${s.name}</div><div class="staff-title">${s.title || 'Uzman'}</div></div>
-    </div>`).join('');
+function selectStaff(id) {
+    selStaff = staff.find(x => x.id === id);
+    document.querySelectorAll('#staff-list .m-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('staff-'+id).classList.add('selected');
+    document.getElementById('btn2').disabled = false;
 }
 
-function selStaffMember(id){
-  selStaff=staff.find(s=>s.id===id);
-  document.querySelectorAll('.staff-card').forEach(c=>c.classList.remove('sel'));
-  document.getElementById('staff-'+id).classList.add('sel');
-  document.getElementById('s1_5-next').disabled=false;
+async function loadTimes() {
+    selDate = document.getElementById('date-input').value;
+    const list = document.getElementById('time-list');
+    
+    const {data:booked} = await sb.from('appointments')
+        .select('appointment_time')
+        .eq('appointment_date', selDate)
+        .eq('staff_id', selStaff.id)
+        .neq('status', 'cancelled');
+
+    const taken = (booked||[]).map(b => b.appointment_time.slice(0,5));
+    const hours = ["09:00","10:00","11:00","12:00","14:00","15:00","16:00","17:00"];
+
+    list.innerHTML = hours.map(h => `
+        <div class="t-btn ${taken.includes(h)?'taken':''}" onclick="selectTime('${h}')" id="t-${h.replace(':','')}">${h}</div>
+    `).join('');
 }
 
-function goStep(n){
-  document.getElementById('step'+step).style.display='none';
-  document.getElementById('step'+n).style.display='block';
-  step=n;
-  if(n==2) renderCal();
-  updateStepBar(n);
+function selectTime(h) {
+    selTime = h;
+    document.querySelectorAll('.t-btn').forEach(b => b.classList.remove('selected'));
+    document.getElementById('t-'+h.replace(':','')).classList.add('selected');
+    document.getElementById('btn3').disabled = false;
 }
 
-function updateStepBar(n){
-  const steps = ['1', '1_5', '2', '3'];
-  steps.forEach((s, idx) => {
-    const dot = document.getElementById('sd'+s);
-    if(s == n) dot.className = 'step-dot active';
-    else if(steps.indexOf(s) < steps.indexOf(n.toString())) dot.className = 'step-dot done';
-    else dot.className = 'step-dot';
-  });
+function nextStep(n) {
+    [1,2,3,4].forEach(s => document.getElementById('step'+s).style.display = 'none');
+    document.getElementById('step'+n).style.display = 'block';
+    document.querySelectorAll('.s-dot').forEach((d, i) => {
+        if(i+1 < n) d.className = 's-dot done';
+        else if(i+1 === n) d.className = 's-dot active';
+        else d.className = 's-dot';
+    });
 }
 
-function renderCal(){
-  const y=calDate.getFullYear(), m=calDate.getMonth();
-  document.getElementById('cal-month').textContent=m+1 + '/' + y;
-  const first=new Date(y,m,1), last=new Date(y,m+1,0);
-  let html='';
-  for(let i=0;i<first.getDay();i++) html+='<div class="cal-d off"></div>';
-  for(let d=1;d<=last.getDate();d++){
-    const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    html+=`<div class="cal-d ${ds==selDate?'sel':''}" onclick="pickDate('${ds}')">${d}</div>`;
-  }
-  document.getElementById('cal-grid').innerHTML=html;
-}
+async function completeBooking() {
+    const name = document.getElementById('cust-name').value;
+    const phone = document.getElementById('cust-phone').value;
+    if(!name || !phone) return alert("Bilgileri doldurun!");
 
-async function pickDate(ds){
-  selDate=ds; renderCal();
-  document.getElementById('time-card').style.display='block';
-  // BURADA ARTIK STAFF_ID İLE FİLTRELEME YAPIYORUZ
-  const {data:booked} = await sb.from('appointments')
-    .select('appointment_time')
-    .eq('appointment_date', ds)
-    .eq('staff_id', selStaff.id) // Seçilen personele göre dolu saatleri getir
-    .neq('status', 'cancelled');
-  
-  const taken = (booked||[]).map(b=>b.appointment_time.slice(0,5));
-  const slots = ['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00'];
-  
-  document.getElementById('time-grid').innerHTML=slots.map(s=>`
-    <div class="t-slot ${taken.includes(s)?'taken':''}" onclick="pickTime('${s}')">${s}</div>
-  `).join('');
-}
+    const {error} = await sb.from('appointments').insert({
+        profile_id: profile.id,
+        service_id: selSvc.id,
+        staff_id: selStaff.id,
+        customer_name: name,
+        customer_phone: phone,
+        appointment_date: selDate,
+        appointment_time: selTime,
+        status: 'pending',
+        notes: document.getElementById('cust-note').value
+    });
 
-function pickTime(t){
-  selTime=t; document.querySelectorAll('.t-slot').forEach(s=>s.classList.remove('sel'));
-  event.target.classList.add('sel');
-  document.getElementById('s2-next').disabled=false;
-}
-
-function checkStep3(){
-  const ok = document.getElementById('f-name').value && document.getElementById('f-phone').value;
-  document.getElementById('confirm-btn').disabled=!ok;
-}
-
-async function confirmBooking(){
-  const btn=document.getElementById('confirm-btn');
-  btn.disabled=true; btn.textContent='⏳...';
-  
-  const {error} = await sb.from('appointments').insert({
-    profile_id: profile.id,
-    service_id: selSvc.id,
-    staff_id: selStaff.id, // PERSONEL ID KAYDEDİLİYOR
-    customer_name: document.getElementById('f-name').value,
-    customer_phone: document.getElementById('f-phone').value,
-    appointment_date: selDate,
-    appointment_time: selTime,
-    status: 'pending'
-  });
-
-  if(error) { toast('Hata!',true); btn.disabled=false; }
-  else {
-    document.getElementById('main-page').style.display='none';
-    document.getElementById('success-wrap').style.display='block';
-    document.getElementById('sbox').innerHTML = `<b>${selSvc.name}</b><br>${selStaff.name}<br>${selDate} ${selTime}`;
-  }
-}
-
-function toggleTheme(){ 
-  const cur = document.documentElement.getAttribute('data-theme');
-  document.documentElement.setAttribute('data-theme', cur=='dark'?'light':'dark');
+    if(!error) {
+        alert("Randevu Başarıyla Alındı! 🎉");
+        location.reload();
+    } else {
+        alert("Hata: " + error.message);
+    }
 }
 
 init();
