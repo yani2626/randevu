@@ -1195,9 +1195,9 @@ tr:hover td { background: var(--surface2); }
 </div>
 
 <div id="toast"></div>
-
+<script>
 /* ══════════════════════════════════════
-   CONFIG & INIT
+   CONFIG & GLOBAL VARIABLES
 ══════════════════════════════════════ */
 const SB_URL = 'https://sqjlqoznuxuwybgygoqy.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNxamxxb3pudXh1d3liZ3lnb3F5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjU3OTUsImV4cCI6MjA4OTI0MTc5NX0.raU-m-id4dj1y_962sTvb2nlXJBdLyfZ9MBzPb3IY2Q';
@@ -1205,24 +1205,16 @@ const ADMIN_EMAIL = 'karahanyagiz38@gmail.com';
 const ADMIN_PIN = '123456';
 const sb = supabase.createClient(SB_URL, SB_KEY);
 
-let CU = null, isAdmin = false, UP = null, allApts = [], calDate = new Date(), pinBuf = '', allUsers = [];
-
-// Sayfa yüklendiğinde başlat
-(async () => {
-  const { data: ls } = await sb.from('admin_settings').select('*').eq('id', 1).single();
-  if (ls) applyLandingData(ls);
-  const { data: { session } } = await sb.auth.getSession();
-  if (session) {
-    CU = session.user;
-    if (CU.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-      document.getElementById('landing-screen').style.display = 'none';
-      document.getElementById('pin-screen').style.display = 'flex';
-    } else { await loadApp(); }
-  } else { showLanding(); }
-})();
+let CU = null; // current user
+let isAdmin = false;
+let UP = null; // user profile
+let allApts = [];
+let calDate = new Date();
+let pinBuf = '';
+let allUsers = [];
 
 /* ══════════════════════════════════════
-   UTILS & UI
+   UTILS & UI HELPERS
 ══════════════════════════════════════ */
 function toast(msg, type='success') {
   const t = document.getElementById('toast');
@@ -1240,20 +1232,52 @@ function statusBadge(s) {
 }
 
 /* ══════════════════════════════════════
-   AUTH & REGISTRATION
+   THEME & NAVIGATION
+══════════════════════════════════════ */
+function toggleTheme() {
+  const h = document.documentElement;
+  const next = h.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  h.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+  if(document.getElementById('theme-label')) document.getElementById('theme-label').textContent = next === 'dark' ? 'Koyu' : 'Açık';
+}
+
+function showLanding() {
+  document.getElementById('landing-screen').style.display = 'flex';
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('pin-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'none';
+}
+
+function nav(page, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+page)?.classList.add('active');
+  if (btn) btn.classList.add('active');
+  const titles = { dashboard:'Genel Bakış', appointments:'Randevular', services:'Hizmetler', customers:'Müşteriler', settings:'Ayarlar', staff:'Personeller' };
+  document.getElementById('topbar-title').textContent = titles[page] || page;
+}
+
+/* ══════════════════════════════════════
+   AUTH LOGIC
 ══════════════════════════════════════ */
 async function doLogin() {
   const email = document.getElementById('l-email').value.trim();
   const pass = document.getElementById('l-pass').value;
   const err = document.getElementById('auth-err');
   if (!email || !pass) { err.textContent='E-posta ve şifre gerekli'; err.classList.add('show'); return; }
+  
   const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
   if (error) { err.textContent=error.message; err.classList.add('show'); return; }
+  
   CU = data.user;
   if (email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
     document.getElementById('auth-screen').style.display = 'none';
     document.getElementById('pin-screen').style.display = 'flex';
-  } else { await loadApp(); }
+  } else {
+    isAdmin = false;
+    await loadApp();
+  }
 }
 
 async function doRegister() {
@@ -1261,10 +1285,13 @@ async function doRegister() {
   const biz = document.getElementById('r-biz').value.trim();
   const email = document.getElementById('r-email').value.trim();
   const pass = document.getElementById('r-pass').value;
+  
   const { data: kd } = await sb.from('registration_keys').select('*').eq('key_value', key).single();
-  if (!kd || kd.is_used) { toast('Geçersiz veya kullanılmış anahtar', 'error'); return; }
+  if (!kd || kd.is_used) { toast('Geçersiz anahtar','danger'); return; }
+  
   const { data, error } = await sb.auth.signUp({ email, password: pass });
-  if (error) { toast(error.message, 'error'); return; }
+  if (error) { toast(error.message, 'danger'); return; }
+  
   const uid = data.user.id;
   await sb.from('profiles').insert({ id: uid, email, business_name: biz });
   await sb.from('registration_keys').update({ is_used: true, used_by: uid }).eq('key_value', key);
@@ -1274,7 +1301,7 @@ async function doRegister() {
 }
 
 /* ══════════════════════════════════════
-   APP CORE (DASHBOARD & APPOINTMENTS)
+   CORE APP LOADING
 ══════════════════════════════════════ */
 async function loadApp() {
   document.getElementById('landing-screen').style.display = 'none';
@@ -1283,100 +1310,184 @@ async function loadApp() {
   document.getElementById('app').style.display = 'block';
 
   const { data: p } = await sb.from('profiles').select('*').eq('id', CU.id).single();
-  UP = p || { id: CU.id, email: CU.email, business_name: 'Admin', slot_duration:30 };
+  if (!p && isAdmin) {
+    await sb.from('profiles').upsert({ id: CU.id, email: CU.email, business_name: 'Admin Paneli', is_active: true });
+    UP = { id: CU.id, business_name: 'Admin Paneli' };
+  } else { UP = p; }
 
   document.getElementById('sb-biz').textContent = UP.business_name;
-  document.getElementById('sb-name').textContent = UP.email?.split('@')[0];
+  document.getElementById('sb-avatar').textContent = UP.business_name[0].toUpperCase();
   document.getElementById('admin-nav').style.display = isAdmin ? 'block' : 'none';
 
-  await Promise.all([loadDashboard(), loadSettings(), loadServices(), loadApts(), loadStaff(), loadCustomers()]);
+  // Verileri paralel yükle
+  await Promise.all([loadDashboard(), loadApts(), loadServices(), loadStaff(), loadCustomers()]);
   updateMyLink();
 }
 
-async function loadDashboard() {
-  const { data } = await sb.from('appointments').select('*').eq('profile_id', UP.id);
-  allApts = data || [];
-  document.getElementById('s-total').textContent = allApts.length;
-  document.getElementById('s-pending').textContent = allApts.filter(a=>a.status==='pending').length;
-  renderCal();
-}
-
+/* ══════════════════════════════════════
+   APPOINTMENTS MGT
+══════════════════════════════════════ */
 async function loadApts() {
-  const { data } = await sb.from('appointments').select('*, services:service_id(name, icon), staff:staff_id(name)').eq('profile_id', UP.id).order('appointment_date', { ascending: false });
+  const { data, error } = await sb.from('appointments')
+    .select('*, services:service_id(name, icon), staff:staff_id(name)')
+    .eq('profile_id', UP.id)
+    .order('appointment_date', { ascending: false });
+
   const tb = document.getElementById('apt-tbody');
-  if (!data?.length) { tb.innerHTML = '<tr><td colspan="9">Randevu yok</td></tr>'; return; }
+  if (!data?.length) { tb.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:20px;">Randevu yok</td></tr>'; return; }
+
   tb.innerHTML = data.map(a => `
     <tr>
       <td class="td-bold">${a.customer_name}</td>
       <td>${a.customer_phone}</td>
-      <td>${a.services?.name || '—'}</td>
-      <td style="color:var(--accent)">${a.staff?.name || '—'}</td>
-      <td>${a.appointment_date}</td>
+      <td>${a.services?.icon || ''} ${a.services?.name || '—'}</td>
+      <td style="color:var(--accent); font-weight:600">${a.staff ? a.staff.name : '—'}</td>
+      <td>${fmtDate(a.appointment_date)}</td>
       <td>${a.appointment_time?.slice(0, 5)}</td>
       <td>${statusBadge(a.status)}</td>
       <td>
-        <button class="btn btn-ghost btn-xs" onclick='editApt(${JSON.stringify(a)})'>✏️</button>
-        <button class="btn btn-danger btn-xs" onclick="delApt('${a.id}')">🗑</button>
+        <div style="display:flex;gap:4px">
+          <button class="btn btn-ghost btn-xs" onclick='editApt(${JSON.stringify(a)})'>✏️</button>
+          <button class="btn btn-danger btn-xs" onclick="delApt('${a.id}')">🗑</button>
+        </div>
       </td>
     </tr>`).join('');
 }
 
+async function saveApt() {
+  const id = document.getElementById('ma-id').value;
+  const payload = {
+    profile_id: UP.id,
+    customer_name: document.getElementById('ma-name').value,
+    customer_phone: document.getElementById('ma-phone').value,
+    service_id: document.getElementById('ma-service').value || null,
+    staff_id: document.getElementById('ma-staff').value || null,
+    appointment_date: document.getElementById('ma-date').value,
+    appointment_time: document.getElementById('ma-time').value,
+    status: document.getElementById('ma-status').value,
+    notes: document.getElementById('ma-note').value
+  };
+
+  let res = id ? await sb.from('appointments').update(payload).eq('id', id) : await sb.from('appointments').insert(payload);
+  if (res.error) toast(res.error.message, 'danger');
+  else { toast('İşlem başarılı'); closeModal('modal-apt'); loadApts(); loadDashboard(); }
+}
+
 /* ══════════════════════════════════════
-   STAFF & SETTINGS (NEW LOGIC)
+   STAFF (PERSONEL) MGT
 ══════════════════════════════════════ */
 async function loadStaff() {
   const { data } = await sb.from('staff').select('*').eq('profile_id', UP.id).order('created_at');
   const container = document.getElementById('staff-list');
-  if (!data?.length) { container.innerHTML = '<div class="empty">Personel yok</div>'; return; }
+  if (!container) return;
+
+  if (!data?.length) { container.innerHTML = '<div class="empty">Henüz personel yok.</div>'; return; }
+
   container.innerHTML = data.map(s => `
     <div class="staff-card">
       <img src="${s.image_url || 'https://via.placeholder.com/60'}" class="staff-img">
-      <div class="staff-info"><strong>${s.name}</strong><br><small>${s.title || ''}</small></div>
-      <button class="btn btn-danger btn-xs" onclick="deleteStaff('${s.id}')">🗑</button>
+      <div class="staff-info">
+        <div class="staff-name">${s.name}</div>
+        <div class="staff-title">${s.title || 'Personel'}</div>
+      </div>
+      <div class="staff-actions">
+        <button class="btn btn-ghost btn-xs" onclick='editStaff(${JSON.stringify(s)})'>✏️</button>
+        <button class="btn btn-danger btn-xs" onclick="deleteStaff('${s.id}')">🗑</button>
+      </div>
     </div>`).join('');
-  
+
+  // Dropdown güncelleme
   const sel = document.getElementById('ma-staff');
-  if (sel) sel.innerHTML = '<option value="">Fark Etmez</option>' + data.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+  if (sel) sel.innerHTML = '<option value="">Fark Etmez</option>' + data.filter(x=>x.is_active).map(x=>`<option value="${x.id}">${x.name}</option>`).join('');
 }
 
 async function saveStaff() {
-  const name = document.getElementById('mst-name').value;
-  const image = document.getElementById('mst-img').value;
-  const { error } = await sb.from('staff').insert({ profile_id: UP.id, name, image_url: image, is_active: true });
-  if (error) toast(error.message, 'error'); else { toast('Eklendi'); closeModal('modal-staff'); loadStaff(); }
-}
+  const id = document.getElementById('mst-id').value;
+  const payload = {
+    profile_id: UP.id,
+    name: document.getElementById('mst-name').value.trim(),
+    title: document.getElementById('mst-title').value.trim(),
+    image_url: document.getElementById('mst-img').value, // Base64 verisi
+    is_active: document.getElementById('mst-active').classList.contains('on')
+  };
 
-async function saveSettings() {
-  const bizName = document.getElementById('s-bizname').value;
-  const logo = document.getElementById('s-logo').value;
-  const { error } = await sb.from('profiles').update({ business_name: bizName, logo_url: logo }).eq('id', UP.id);
-  if (error) toast(error.message, 'error'); else toast('Kaydedildi! ✅');
+  if(!payload.name) { toast('İsim zorunlu','danger'); return; }
+
+  let res = id ? await sb.from('staff').update(payload).eq('id', id) : await sb.from('staff').insert(payload);
+  if (res.error) toast(res.error.message, 'danger');
+  else { toast('Personel kaydedildi'); closeModal('modal-staff'); loadStaff(); }
 }
 
 /* ══════════════════════════════════════
-   OTHER UI HANDLERS
+   IMAGE & FILE HANDLERS
 ══════════════════════════════════════ */
+// Personel Foto Seçimi
+document.getElementById('mst-file')?.addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (ev) => { document.getElementById('mst-img').value = ev.target.result; toast('Fotoğraf hazır'); };
+    reader.readAsDataURL(file);
+  }
+});
+
+// Logo Seçimi
 function handleLogoUpload(input) {
   const file = input.files[0];
   if (file) {
     const reader = new FileReader();
-    reader.onload = (e) => { document.getElementById('s-logo').value = e.target.result; toast("Görsel hazır."); };
+    reader.onload = (e) => { 
+      document.getElementById('s-logo').value = e.target.result; 
+      if(document.getElementById('settings-logo-preview')) document.getElementById('settings-logo-preview').src = e.target.result;
+      toast("Logo yüklendi"); 
+    };
     reader.readAsDataURL(file);
   }
 }
-function nav(page, btn) {
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('page-'+page)?.classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  if (btn) btn.classList.add('active');
+
+/* ══════════════════════════════════════
+   SETTINGS MGT
+══════════════════════════════════════ */
+async function saveSettings() {
+  const btn = document.querySelector('button[onclick="saveSettings()"]');
+  if(btn) btn.disabled = true;
+
+  const hours = {};
+  ['mon','tue','wed','thu','fri','sat','sun'].forEach(d => {
+    hours[d] = {
+      open: document.getElementById('ho-'+d)?.value || '09:00',
+      close: document.getElementById('hc-'+d)?.value || '18:00',
+      active: document.getElementById('ha-'+d)?.classList.contains('on')
+    };
+  });
+
+  const upd = {
+    business_name: document.getElementById('s-bizname').value,
+    business_type: document.getElementById('s-biztype').value,
+    theme_color: document.getElementById('s-colorhex').value,
+    logo_url: document.getElementById('s-logo').value,
+    working_hours: hours,
+    is_active: document.getElementById('t-isactive').classList.contains('on')
+  };
+
+  const { error } = await sb.from('profiles').update(upd).eq('id', UP.id);
+  if (error) toast(error.message, 'danger');
+  else { toast('Ayarlar güncellendi ✅'); UP = {...UP, ...upd}; }
+  
+  if(btn) btn.disabled = false;
 }
+
+/* ══════════════════════════════════════
+   INIT & SESSION
+══════════════════════════════════════ */
 function updateMyLink() {
   const url = `${window.location.origin}/randevu.html?id=${UP.id}`;
-  document.getElementById('my-link').textContent = url;
+  if(document.getElementById('my-link')) document.getElementById('my-link').textContent = url;
 }
-function pinPress(d) {
-  pinBuf += d;
-  if (pinBuf === ADMIN_PIN) { isAdmin=true; loadApp(); }
+
+async function doLogout() {
+  await sb.auth.signOut();
+  location.reload();
 }
-// ... (Diğer küçük yardımcı fonksiyonlar: renderCal, deleteApt, saveSvc vb. senin attığınla aynı mantıkta devam eder)
+
 </script>
