@@ -1124,8 +1124,11 @@ tr:hover td { background: var(--surface2); }
     <input type="hidden" id="mst-id">
     <div class="form-group"><label>Ad Soyad *</label><input type="text" id="mst-name" placeholder="Örn: Ahmet Yılmaz"></div>
     <div class="form-group"><label>Ünvan / Uzmanlık</label><input type="text" id="mst-title" placeholder="Örn: Uzman Kuaför"></div>
-    <div class="form-group"><label>Fotoğraf URL</label><input type="text" id="mst-img" placeholder="https://..."></div>
-    <div class="modal-foot">
+    <div class="form-group">
+      <label>Personel Fotoğrafı</label>
+      <input type="file" id="mst-file" accept="image/*" style="padding: 10px 0;">
+      <input type="hidden" id="mst-img"> </div>
+   <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeModal('modal-staff')">İptal</button>
       <button class="btn btn-primary" onclick="saveStaff()">Kaydet</button>
     </div>
@@ -2009,29 +2012,57 @@ function showStaffModal() {
   openModal('modal-staff'); // HTML'deki modal id'si
 }
 
-// 3. Personeli Veritabanına Kaydetme
+// Fotoğraf seçildiğinde onu metne çeviren yardımcı kod
+document.getElementById('mst-file')?.addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      document.getElementById('mst-img').value = event.target.result; // Fotoğrafı gizli kutuya at
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
 async function saveStaff() {
+  const btn = event.target; // Tıklanan buton
   const id = document.getElementById('mst-id').value;
   const name = document.getElementById('mst-name').value.trim();
   const title = document.getElementById('mst-title').value.trim();
-  const image_url = document.getElementById('mst-img').value.trim();
+  const image_data = document.getElementById('mst-img').value; // Base64 verisi
   const is_active = document.getElementById('mst-active').classList.contains('on');
 
-  if(!name) { toast('İsim zorunlu!', 'error'); return; }
+  if (!name) { toast('Lütfen isim giriniz!', 'error'); return; }
+  
+  btn.disabled = true; btn.textContent = 'Kaydediliyor...';
 
-  const payload = { profile_id: UP.id, name, title, image_url, is_active };
+  const payload = { 
+    profile_id: UP.id, 
+    name: name, 
+    title: title, 
+    image_url: image_data, // Artık URL değil direkt fotoğraf verisi gidiyor
+    is_active: is_active 
+  };
 
   let error;
-  if(id) ({error} = await sb.from('staff').update(payload).eq('id', id));
-  else ({error} = await sb.from('staff').insert(payload));
+  if (id) {
+    ({ error } = await sb.from('staff').update(payload).eq('id', id));
+  } else {
+    ({ error } = await sb.from('staff').insert(payload));
+  }
 
-  if(error) { toast('Hata: ' + error.message, 'error'); } 
-  else {
-    toast('Personel kaydedildi!');
+  btn.disabled = false; btn.textContent = 'Kaydet';
+
+  if (error) { 
+    toast('Hata: ' + error.message, 'error'); 
+    console.log(error);
+  } else {
+    toast('Personel başarıyla kaydedildi! 🎉');
     closeModal('modal-staff');
     loadStaff(); // Listeyi yenile
   }
 }
+
 
 </script>
 </body>
