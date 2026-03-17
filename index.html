@@ -2024,44 +2024,51 @@ document.getElementById('mst-file')?.addEventListener('change', function(e) {
   }
 });
 
-async function saveStaff() {
-  const btn = event.target; // Tıklanan buton
-  const id = document.getElementById('mst-id').value;
+async function saveStaff(e) {
+  if(e) e.preventDefault(); // Sayfa yenilemeyi durdur
+  
+  console.log("Kaydet basıldı!"); // Tarayıcı konsoluna yazar
+  
   const name = document.getElementById('mst-name').value.trim();
   const title = document.getElementById('mst-title').value.trim();
-  const image_data = document.getElementById('mst-img').value; // Base64 verisi
-  const is_active = document.getElementById('mst-active').classList.contains('on');
+  const image_data = document.getElementById('mst-img').value;
+  const id = document.getElementById('mst-id').value;
 
-  if (!name) { toast('Lütfen isim giriniz!', 'error'); return; }
-  
-  btn.disabled = true; btn.textContent = 'Kaydediliyor...';
+  if (!name) { 
+    alert("Lütfen isim giriniz!"); 
+    return; 
+  }
 
+  // Supabase'e gönderilecek paket
   const payload = { 
-    profile_id: UP.id, 
+    profile_id: CU.id, // Burada UP.id yerine CU.id (Current User) dene
     name: name, 
     title: title, 
-    image_url: image_data, // Artık URL değil direkt fotoğraf verisi gidiyor
-    is_active: is_active 
+    image_url: image_data,
+    is_active: true 
   };
 
-  let error;
-  if (id) {
-    ({ error } = await sb.from('staff').update(payload).eq('id', id));
-  } else {
-    ({ error } = await sb.from('staff').insert(payload));
-  }
+  try {
+    let result;
+    if (id) {
+      result = await sb.from('staff').update(payload).eq('id', id);
+    } else {
+      result = await sb.from('staff').insert(payload);
+    }
 
-  btn.disabled = false; btn.textContent = 'Kaydet';
-
-  if (error) { 
-    toast('Hata: ' + error.message, 'error'); 
-    console.log(error);
-  } else {
-    toast('Personel başarıyla kaydedildi! 🎉');
-    closeModal('modal-staff');
-    loadStaff(); // Listeyi yenile
+    if (result.error) {
+      alert("Veritabanı Hatası: " + result.error.message);
+      console.error(result.error);
+    } else {
+      toast('Personel başarıyla kaydedildi!');
+      closeModal('modal-staff');
+      if (typeof loadStaff === "function") loadStaff();
+    }
+  } catch (err) {
+    alert("Sistemsel Hata: " + err.message);
   }
 }
+
 
 
 </script>
