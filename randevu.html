@@ -600,15 +600,20 @@ async function confirmBooking(){
   btn.disabled=true; btn.textContent='⏳ İşleniyor...';
   const {data:chk}=await sb.from('appointments').select('id').eq('profile_id',profile.id).eq('appointment_date',selDate).eq('appointment_time',selTime).neq('status','cancelled');
   if(chk?.length){toast('Bu saat doldu! Başka saat seçin.',true);btn.disabled=false;btn.textContent='🎉 Randevuyu Onayla';goStep(2);return;}
-  const nm = document.getElementById('f-name').value.trim();
-  const ph = document.getElementById('f-phone').value.trim();
-  if(!nm || !ph){ toast("Lütfen ad ve telefon giriniz"); return; }
-
   const em=document.getElementById('f-email').value.trim();
   const nt=document.getElementById('f-note').value.trim();
   const {error}=await sb.from('appointments').insert({profile_id:profile.id,service_id:selSvc?.id||null,customer_name:nm,customer_phone:ph,customer_email:em||null,appointment_date:selDate,appointment_time:selTime,status:'pending',notes:nt||null});
   if(error){toast('Hata: '+error.message,true);btn.disabled=false;btn.textContent='🎉 Randevuyu Onayla';return;}
-  // Show success
+  // Onay butonuna basıldığında (step 4) kontrol et
+  if(step === 4) {
+      const nm = document.getElementById('f-name').value.trim();
+      const ph = document.getElementById('f-phone').value.trim();
+      if(!nm || !ph) { 
+          toast("Lütfen ad ve telefon numaranızı giriniz"); 
+          return; 
+      }
+  }
+
   const dt=new Date(selDate+'T00:00');
   const ds=`${dt.getDate()} ${MONTHS[dt.getMonth()]} ${dt.getFullYear()}`;
   document.getElementById('sbox').innerHTML=`
