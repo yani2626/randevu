@@ -1829,6 +1829,117 @@ async function doLogout() {
     showLanding();
   }
 })();
+ /* ══════════════════════════════════════
+   STAFF (PERSONEL) LOGIC
+══════════════════════════════════════ */
+
+// Personelleri Veritabanından Çek ve Listele
+async function loadStaff() {
+  if (!UP) return;
+  const { data, error } = await sb.from('staff').select('*').eq('profile_id', UP.id).order('created_at');
+  
+  if (error) { toast('Personel yüklenirken hata oluştu', 'error'); return; }
+  
+  const container = document.getElementById('staff-list');
+  if (!data || data.length === 0) {
+    container.innerHTML = `
+      <div class="empty" style="grid-column: 1/-1; padding: 40px;">
+        <div class="empty-icon">👨‍⚕️</div>
+        <div class="empty-sub">Henüz personel eklenmemiş.</div>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = data.map(s => `
+    <div class="staff-card">
+      <img src="${s.image_url || 'https://via.placeholder.com/60'}" class="staff-img" alt="${s.name}">
+      <div class="staff-info">
+        <div class="staff-name">${s.name} ${!s.is_active ? '<span class="badge badge-gray">Pasif</span>' : ''}</div>
+        <div class="staff-title">${s.title || 'Personel'}</div>
+      </div>
+      <div class="staff-actions">
+        <button class="btn btn-ghost btn-xs" onclick='editStaff(${JSON.stringify(s)})'>✏️</button>
+        <button class="btn btn-danger btn-xs" onclick="deleteStaff('${s.id}')">🗑</button>
+      </div>
+    </div>
+  `).join('');
+
+  // Randevu ekleme modalındaki personel seçim listesini de güncelle
+  updateStaffSelect(data);
+}
+
+// Randevu Modalındaki Personel Dropdown'ını Doldur
+function updateStaffSelect(staffData) {
+  const sel = document.getElementById('ma-staff');
+  if (sel) {
+    sel.innerHTML = '<option value="">Herhangi Biri / Fark etmez</option>' + 
+      staffData.filter(s => s.is_active).map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+  }
+}
+
+// Personel Ekleme Modalı Aç
+function showStaffModal() {
+  document.getElementById('staff-modal-title').textContent = '👨‍⚕️ Yeni Personel Ekle';
+  document.getElementById('mst-id').value = '';
+  document.getElementById('mst-name').value = '';
+  document.getElementById('mst-title').value = '';
+  document.getElementById('mst-img').value = '';
+  document.getElementById('mst-active').classList.add('on');
+  openModal('modal-staff');
+}
+
+// Personel Düzenleme
+function editStaff(s) {
+  document.getElementById('staff-modal-title').textContent = '✏️ Personel Düzenle';
+  document.getElementById('mst-id').value = s.id;
+  document.getElementById('mst-name').value = s.name;
+  document.getElementById('mst-title').value = s.title || '';
+  document.getElementById('mst-img').value = s.image_url || '';
+  document.getElementById('mst-active').classList.toggle('on', s.is_active);
+  openModal('modal-staff');
+}
+
+// Personel Kaydet (Insert veya Update)
+async function saveStaff() {
+  const id = document.getElementById('mst-id').value;
+  const name = document.getElementById('mst-name').value.trim();
+  const title = document.getElementById('mst-title').value.trim();
+  const image_url = document.getElementById('mst-img').value.trim();
+  const is_active = document.getElementById('mst-active').classList.contains('on');
+
+  if (!name) { toast('Lütfen isim giriniz', 'error'); return; }
+
+  const payload = {
+    profile_id: UP.id,
+    name,
+    title,
+    image_url,
+    is_active
+  };
+
+  let error;
+  if (id) {
+    ({ error } = await sb.from('staff').update(payload).eq('id', id));
+  } else {
+    ({ error } = await sb.from('staff').insert(payload));
+  }
+
+  if (error) { toast('Hata: ' + error.message, 'error'); }
+  else {
+    toast('Personel kaydedildi!');
+    closeModal('modal-staff');
+    loadStaff();
+  }
+}
+
+// Personel Sil
+async function deleteStaff(id) {
+  if (!confirm('Bu personeli silmek istediğinize emin misiniz?')) return;
+  const { error } = await sb.from('staff').delete().eq('id', id);
+  if (error) toast('Hata: ' + error.message, 'error');
+  else { toast('Personel silindi'); loadStaff(); }
+}
+
 </script>
 </body>
 </html>
