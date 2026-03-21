@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <style>
 /* ═══════════════════════════════════════════════
    THEME VARIABLES
@@ -72,85 +73,281 @@ body {
 }
 
 /* ═══════════════════════════════════════════════
-   LANDING PAGE
+   LANDING PAGE — PRO VERSION
 ═══════════════════════════════════════════════ */
 #landing-screen {
   min-height: 100vh;
   background: var(--surface);
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }
+
+/* NAV */
 .land-nav {
-  padding: 20px 48px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  padding: 18px 48px;
+  display: flex; align-items: center; justify-content: space-between;
   border-bottom: 1px solid var(--border);
   background: var(--surface);
+  position: sticky; top: 0; z-index: 50;
+  backdrop-filter: blur(12px);
 }
 .land-logo {
-  font-size: 1.35rem;
-  font-weight: 800;
-  letter-spacing: -0.04em;
+  font-size: 1.3rem; font-weight: 800; letter-spacing: -0.04em;
   background: linear-gradient(135deg, var(--accent), #a78bfa);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
 }
 .land-nav-actions { display: flex; gap: 10px; align-items: center; }
+
+/* HERO */
 .land-hero {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 80px 24px 60px;
-  background: radial-gradient(ellipse 80% 60% at 50% -10%, var(--accent-soft2), transparent);
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 60px; align-items: center;
+  max-width: 1100px; margin: 0 auto;
+  padding: 80px 48px 60px;
+  width: 100%;
 }
+.land-hero-left { display: flex; flex-direction: column; }
 .land-pill {
   display: inline-flex; align-items: center; gap: 7px;
   background: var(--accent-soft); color: var(--accent);
   border: 1px solid var(--accent-soft2);
-  border-radius: 30px; padding: 6px 16px;
-  font-size: 0.82rem; font-weight: 600;
-  margin-bottom: 28px;
+  border-radius: 30px; padding: 5px 14px;
+  font-size: 0.79rem; font-weight: 700;
+  margin-bottom: 24px; width: fit-content;
   letter-spacing: 0.02em;
 }
 .land-headline {
-  font-size: clamp(2.2rem, 5vw, 3.8rem);
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  line-height: 1.1;
-  margin-bottom: 20px;
-  max-width: 700px;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 800; letter-spacing: -0.04em;
+  line-height: 1.1; margin-bottom: 18px;
 }
 .land-headline span { background: linear-gradient(135deg, var(--accent), #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 .land-sub {
-  font-size: 1.1rem; color: var(--text2);
-  max-width: 520px; line-height: 1.65;
-  margin-bottom: 36px; font-weight: 400;
+  font-size: 1rem; color: var(--text2);
+  line-height: 1.7; margin-bottom: 32px;
+  font-weight: 400; max-width: 480px;
 }
-.land-cta-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-bottom: 64px; }
+.land-cta-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 36px; }
+.land-trust { display: flex; align-items: center; gap: 10px; }
+.land-trust-avatars { display: flex; }
+.land-trust-avatars span {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), #a78bfa);
+  border: 2px solid var(--surface); margin-left: -8px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 0.65rem; font-weight: 800; color: #fff;
+}
+.land-trust-avatars span:first-child { margin-left: 0; }
+.land-trust-text { font-size: 0.78rem; color: var(--text-muted); font-weight: 500; }
+.land-trust-text strong { color: var(--text); }
+
+/* HERO MOCKUP */
+.land-hero-right { position: relative; }
+.land-mockup {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 18px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+  position: relative; overflow: hidden;
+}
+[data-theme="dark"] .land-mockup { box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+.land-mockup::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--accent), #a78bfa, #ec4899);
+}
+.mock-bar {
+  display: flex; gap: 5px; margin-bottom: 14px;
+}
+.mock-dot { width: 8px; height: 8px; border-radius: 50%; }
+.mock-dot.r { background: #ff5f56; }
+.mock-dot.y { background: #ffbd2e; }
+.mock-dot.g { background: #27c93f; }
+.mock-body { display: flex; flex-direction: column; gap: 10px; }
+.mock-row { display: flex; gap: 10px; align-items: center; }
+.mock-avatar { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, var(--accent), #a78bfa); flex-shrink: 0; }
+.mock-lines { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+.mock-line { height: 8px; border-radius: 4px; background: var(--border); }
+.mock-line.w60 { width: 60%; }
+.mock-line.w40 { width: 40%; }
+.mock-line.w80 { width: 80%; }
+.mock-apt-list { margin-top: 6px; display: flex; flex-direction: column; gap: 7px; }
+.mock-apt {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 9px 12px;
+}
+.mock-apt-time {
+  background: var(--accent); color: #fff;
+  border-radius: 6px; padding: 2px 8px;
+  font-size: 0.68rem; font-weight: 800;
+  flex-shrink: 0;
+}
+.mock-apt-info { flex: 1; }
+.mock-apt-name { height: 7px; border-radius: 3px; background: var(--border); width: 70%; margin-bottom: 4px; }
+.mock-apt-sub { height: 6px; border-radius: 3px; background: var(--border); width: 45%; }
+.mock-apt-badge {
+  font-size: 0.62rem; font-weight: 700; padding: 2px 7px;
+  border-radius: 10px; flex-shrink: 0;
+}
+.mock-apt-badge.g { background: rgba(16,185,129,0.15); color: #10b981; }
+.mock-apt-badge.y { background: rgba(245,158,11,0.15); color: #f59e0b; }
+.mock-apt-badge.p { background: var(--accent-soft); color: var(--accent); }
+.mock-stat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-top: 10px; }
+.mock-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px; }
+.mock-stat-num { height: 16px; border-radius: 4px; background: var(--accent); width: 50%; margin-bottom: 5px; opacity: 0.7; }
+.mock-stat-lbl { height: 6px; border-radius: 3px; background: var(--border); width: 80%; }
+.mock-float {
+  position: absolute; top: -10px; right: -10px;
+  background: var(--success, #10b981); color: #fff;
+  border-radius: 12px; padding: 8px 12px;
+  font-size: 0.72rem; font-weight: 800;
+  box-shadow: 0 8px 20px rgba(16,185,129,0.3);
+  animation: floatBob 3s ease-in-out infinite;
+}
+@keyframes floatBob { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-6px);} }
+
+/* HOW IT WORKS */
+.land-how {
+  background: var(--bg);
+  padding: 80px 48px;
+}
+.land-section-head { text-align: center; margin-bottom: 50px; }
+.land-section-label {
+  font-size: 0.75rem; font-weight: 800; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 12px;
+}
+.land-section-title {
+  font-size: clamp(1.5rem, 3vw, 2.2rem); font-weight: 800;
+  letter-spacing: -0.03em; margin-bottom: 12px;
+}
+.land-section-sub { font-size: 0.95rem; color: var(--text-muted); max-width: 500px; margin: 0 auto; line-height: 1.65; }
+.land-steps-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 24px; max-width: 1000px; margin: 0 auto; }
+.land-step-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 18px; padding: 24px 20px; text-align: center;
+  position: relative;
+}
+.land-step-num {
+  width: 40px; height: 40px; border-radius: 12px;
+  background: var(--accent-soft); color: var(--accent);
+  font-weight: 800; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 14px;
+}
+.land-step-icon { font-size: 1.8rem; margin-bottom: 10px; }
+.land-step-title { font-weight: 700; font-size: 0.92rem; margin-bottom: 6px; }
+.land-step-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.55; }
+.land-step-arrow {
+  position: absolute; right: -14px; top: 50%; transform: translateY(-50%);
+  font-size: 1.2rem; color: var(--text-muted); z-index: 1;
+}
+.land-step-card:last-child .land-step-arrow { display: none; }
+
+/* FEATURES GRID */
+.land-features-section { padding: 80px 48px; max-width: 1100px; margin: 0 auto; width: 100%; }
 .land-features {
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: 20px; max-width: 860px; width: 100%;
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 20px;
 }
 .land-feat {
   background: var(--surface2); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 22px;
-  text-align: left;
+  border-radius: var(--radius); padding: 24px;
+  transition: var(--transition);
 }
-.land-feat-icon { font-size: 1.6rem; margin-bottom: 10px; }
-.land-feat-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 5px; }
-.land-feat-desc { font-size: 0.83rem; color: var(--text-muted); line-height: 1.5; }
+.land-feat:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(99,102,241,0.1); }
+.land-feat-icon { font-size: 1.8rem; margin-bottom: 12px; }
+.land-feat-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 6px; }
+.land-feat-desc { font-size: 0.82rem; color: var(--text-muted); line-height: 1.55; }
+
+/* WHO IS IT FOR */
+.land-who {
+  background: var(--bg); padding: 80px 48px;
+}
+.land-who-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; max-width: 1000px; margin: 0 auto; }
+.land-who-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 20px 16px; text-align: center;
+  transition: var(--transition); cursor: pointer;
+}
+.land-who-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+.land-who-icon { font-size: 2rem; margin-bottom: 8px; }
+.land-who-name { font-weight: 700; font-size: 0.88rem; }
+
+/* TESTIMONIALS */
+.land-testi { padding: 80px 48px; max-width: 1100px; margin: 0 auto; width: 100%; }
+.land-testi-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+.land-testi-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 18px; padding: 22px;
+}
+.land-testi-stars { color: #f59e0b; font-size: 0.88rem; margin-bottom: 10px; letter-spacing: 2px; }
+.land-testi-text { font-size: 0.88rem; color: var(--text2); line-height: 1.65; margin-bottom: 14px; font-style: italic; }
+.land-testi-author { display: flex; align-items: center; gap: 10px; }
+.land-testi-av {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent), #a78bfa);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 0.85rem; color: #fff; flex-shrink: 0;
+}
+.land-testi-name { font-weight: 700; font-size: 0.84rem; }
+.land-testi-role { font-size: 0.74rem; color: var(--text-muted); }
+
+/* CTA BANNER */
+.land-cta-banner {
+  background: linear-gradient(135deg, var(--accent), #8b5cf6);
+  margin: 0 48px 80px; border-radius: 24px;
+  padding: 60px 48px; text-align: center;
+  position: relative; overflow: hidden;
+}
+.land-cta-banner::before {
+  content: ''; position: absolute; top: -60px; right: -60px;
+  width: 240px; height: 240px; border-radius: 50%;
+  background: rgba(255,255,255,0.07);
+}
+.land-cta-banner::after {
+  content: ''; position: absolute; bottom: -40px; left: -40px;
+  width: 180px; height: 180px; border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+}
+.land-cta-banner h2 { font-size: clamp(1.5rem,3vw,2.2rem); font-weight: 800; color: #fff; margin-bottom: 10px; letter-spacing: -0.03em; position: relative; z-index: 1; }
+.land-cta-banner p { color: rgba(255,255,255,0.8); font-size: 0.95rem; margin-bottom: 28px; position: relative; z-index: 1; }
+.land-cta-banner .cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; position: relative; z-index: 1; }
+.btn-white { background: #fff; color: var(--accent); border: none; font-weight: 700; }
+.btn-white:hover { background: rgba(255,255,255,0.9); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+.btn-outline-white { background: transparent; color: #fff; border: 2px solid rgba(255,255,255,0.5); font-weight: 700; }
+.btn-outline-white:hover { border-color: #fff; background: rgba(255,255,255,0.1); }
+
+/* FOOTER */
 .land-footer {
-  padding: 20px 48px;
+  padding: 32px 48px;
   border-top: 1px solid var(--border);
   display: flex; align-items: center; justify-content: space-between;
   font-size: 0.82rem; color: var(--text-muted);
+  flex-wrap: wrap; gap: 14px;
 }
+.land-footer-links { display: flex; gap: 20px; }
+.land-footer-links a { color: var(--text-muted); text-decoration: none; font-size: 0.82rem; }
+.land-footer-links a:hover { color: var(--accent); }
 #land-footer-text { font-size: 0.82rem; color: var(--text-muted); }
 #land-feat1, #land-feat2, #land-feat3 { display: block; }
+
+/* RESPONSIVE */
+@media(max-width:900px) {
+  .land-hero { grid-template-columns: 1fr; gap: 40px; padding: 50px 24px; }
+  .land-hero-right { display: none; }
+  .land-steps-grid, .land-who-grid { grid-template-columns: repeat(2,1fr); }
+  .land-testi-grid { grid-template-columns: 1fr; }
+  .land-features { grid-template-columns: 1fr 1fr; }
+  .land-how, .land-testi, .land-features-section, .land-who { padding: 60px 24px; }
+  .land-cta-banner { margin: 0 24px 60px; padding: 44px 28px; }
+  .land-nav { padding: 14px 20px; }
+}
+@media(max-width:600px) {
+  .land-steps-grid, .land-features { grid-template-columns: 1fr; }
+  .land-who-grid { grid-template-columns: repeat(2,1fr); }
+}
 
 /* ═══════════════════════════════════════════════
    AUTH SCREEN
@@ -567,12 +764,78 @@ tr:hover td { background: var(--surface2); }
 /* AUTH error */
 .auth-error { color: var(--danger); font-size: 0.82rem; margin-top: 10px; text-align: center; display: none; }
 .auth-error.show { display: block; }
+
+/* ═══════════════════════════════════════════════
+   SVG ICON SYSTEM
+═══════════════════════════════════════════════ */
+.icon { display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+.icon svg { display:block; }
+
+/* Social brand icons */
+.brand-instagram { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.brand-facebook  { color: #1877F2; }
+.brand-twitter   { color: #000; }
+.brand-tiktok    { color: #010101; }
+.brand-whatsapp  { color: #25D366; }
+.brand-youtube   { color: #FF0000; }
+
+/* Stat indicator colors */
+.stat-up   { color: var(--success); }
+.stat-down { color: var(--danger); }
+
+/* QR section */
+.qr-wrap { display:flex; flex-direction:column; align-items:center; gap:16px; padding:30px; }
+#qr-canvas { border-radius:16px; border:1px solid var(--border); }
+.qr-actions { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+
+/* STATS page */
+.chart-bar-wrap { display:flex; flex-direction:column; gap:8px; }
+.chart-bar-row { display:flex; align-items:center; gap:10px; }
+.chart-bar-label { font-size:0.78rem; font-weight:600; color:var(--text2); min-width:80px; }
+.chart-bar-track { flex:1; height:10px; background:var(--surface3); border-radius:5px; overflow:hidden; }
+.chart-bar-fill { height:100%; border-radius:5px; background:var(--accent); transition:width 1s ease; }
+.chart-bar-val { font-size:0.78rem; font-weight:700; min-width:30px; text-align:right; }
+.week-chart { display:flex; align-items:flex-end; gap:6px; height:80px; }
+.week-bar-wrap { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; height:100%; justify-content:flex-end; }
+.week-bar { width:100%; border-radius:6px 6px 0 0; background:var(--accent); min-height:4px; transition:height 1s ease; }
+.week-bar.today { background: linear-gradient(135deg, var(--accent), #a78bfa); }
+.week-day { font-size:0.66rem; font-weight:700; color:var(--text-muted); }
+
+/* AFFILIATE */
+.aff-link-box { background:var(--bg); border:1.5px dashed var(--accent); border-radius:12px; padding:14px 16px; font-family:var(--mono); font-size:0.82rem; color:var(--accent); display:flex; align-items:center; gap:10px; }
+.aff-link-box span { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.aff-step { display:flex; gap:14px; align-items:flex-start; padding:14px 0; border-bottom:1px solid var(--border); }
+.aff-step:last-child { border-bottom:none; }
+.aff-step-num { width:32px; height:32px; border-radius:10px; background:var(--accent-soft); color:var(--accent); font-weight:800; font-size:0.88rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.aff-step-title { font-weight:700; font-size:0.9rem; margin-bottom:3px; }
+.aff-step-desc { font-size:0.82rem; color:var(--text-muted); line-height:1.5; }
+.aff-earn-card { background:linear-gradient(135deg,var(--accent),#a78bfa); border-radius:16px; padding:22px; color:#fff; text-align:center; }
+.aff-earn-amount { font-size:2.5rem; font-weight:800; letter-spacing:-0.04em; }
+.aff-earn-label { font-size:0.88rem; opacity:0.85; margin-top:4px; }
+.referral-item { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--border); }
+.referral-item:last-child { border-bottom:none; }
+.referral-av { width:36px; height:36px; border-radius:10px; background:var(--accent-soft); color:var(--accent); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.85rem; flex-shrink:0; }
+.referral-name { font-weight:600; font-size:0.88rem; }
+.referral-date { font-size:0.76rem; color:var(--text-muted); }
+.referral-badge { margin-left:auto; }
+
+/* AUTH customization */
+.auth-img-preview { width:100%; height:160px; border-radius:12px; object-fit:cover; border:1px solid var(--border); background:var(--surface2); display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:0.85rem; overflow:hidden; }
+.auth-img-preview img { width:100%; height:100%; object-fit:cover; }
+
+/* Randevu sayfası özelleştirme */
+.preview-frame { border:1px solid var(--border); border-radius:14px; overflow:hidden; background:var(--surface2); }
+.preview-bar { background:var(--surface); border-bottom:1px solid var(--border); padding:8px 12px; display:flex; gap:6px; }
+.preview-dot { width:8px; height:8px; border-radius:50%; }
+
 </style>
 </head>
 <body>
 
 <!-- ═══ LANDING PAGE ═══ -->
 <div id="landing-screen">
+
+  <!-- NAV -->
   <nav class="land-nav">
     <div class="land-logo" id="land-logo-text">RandevuPanel</div>
     <div class="land-nav-actions">
@@ -581,38 +844,188 @@ tr:hover td { background: var(--surface2); }
       <button class="btn btn-primary btn-sm" onclick="showAuthScreen('register')">Ücretsiz Başla →</button>
     </div>
   </nav>
+
+  <!-- HERO -->
   <div class="land-hero">
-    <div class="land-pill" id="land-pill">✨ <span id="land-pill-text">Berber, Kuaför, Klinik ve Daha Fazlası</span></div>
-    <h1 class="land-headline" id="land-headline">Online Randevu <span>Sisteminizi</span> Dakikalar İçinde Kurun</h1>
-    <p class="land-sub" id="land-sub">Müşterileriniz 7/24 randevu alabilsin. Takvimini yönet, hatırlatmalar gönder, işletmeni büyüt.</p>
-    <div class="land-cta-row">
-      <button class="btn btn-primary btn-lg" onclick="showAuthScreen('register')">🚀 <span id="land-cta-text">Hesap Oluştur — Ücretsiz</span></button>
-      <button class="btn btn-ghost btn-lg" onclick="showAuthScreen('login')">Giriş Yap</button>
+    <div class="land-hero-left">
+      <div class="land-pill" id="land-pill">✨ <span id="land-pill-text">Berber, Kuaför, Klinik ve Daha Fazlası</span></div>
+      <h1 class="land-headline" id="land-headline">Online Randevu <span>Sisteminizi</span> Dakikalar İçinde Kurun</h1>
+      <p class="land-sub" id="land-sub">Müşterileriniz 7/24 randevu alabilsin. Takvimi yönetin, personel ekleyin, işletmenizi büyütün.</p>
+      <div class="land-cta-row">
+        <button class="btn btn-primary btn-lg" onclick="showAuthScreen('register')">🚀 <span id="land-cta-text">Ücretsiz Hesap Oluştur</span></button>
+        <button class="btn btn-ghost btn-lg" onclick="showAuthScreen('login')">Giriş Yap</button>
+      </div>
+      <div class="land-trust">
+        <div class="land-trust-avatars">
+          <span>AB</span><span>MK</span><span>ÇS</span><span>+</span>
+        </div>
+        <div class="land-trust-text"><strong>500+</strong> işletme aktif olarak kullanıyor</div>
+      </div>
+    </div>
+    <div class="land-hero-right">
+      <div class="mock-float">🎉 Yeni randevu!</div>
+      <div class="land-mockup">
+        <div class="mock-bar"><div class="mock-dot r"></div><div class="mock-dot y"></div><div class="mock-dot g"></div></div>
+        <div class="mock-body">
+          <div class="mock-row">
+            <div class="mock-avatar"></div>
+            <div class="mock-lines"><div class="mock-line w60"></div><div class="mock-line w40"></div></div>
+          </div>
+          <div class="mock-stat-row">
+            <div class="mock-stat"><div class="mock-stat-num"></div><div class="mock-stat-lbl"></div></div>
+            <div class="mock-stat"><div class="mock-stat-num" style="background:#10b981"></div><div class="mock-stat-lbl"></div></div>
+            <div class="mock-stat"><div class="mock-stat-num" style="background:#f59e0b"></div><div class="mock-stat-lbl"></div></div>
+          </div>
+          <div class="mock-apt-list">
+            <div class="mock-apt"><div class="mock-apt-time">09:00</div><div class="mock-apt-info"><div class="mock-apt-name"></div><div class="mock-apt-sub"></div></div><div class="mock-apt-badge g">Onaylı</div></div>
+            <div class="mock-apt"><div class="mock-apt-time">10:30</div><div class="mock-apt-info"><div class="mock-apt-name"></div><div class="mock-apt-sub"></div></div><div class="mock-apt-badge y">Bekliyor</div></div>
+            <div class="mock-apt"><div class="mock-apt-time">12:00</div><div class="mock-apt-info"><div class="mock-apt-name"></div><div class="mock-apt-sub"></div></div><div class="mock-apt-badge p">Onaylı</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NASIL ÇALIŞIR -->
+  <div class="land-how">
+    <div class="land-section-head">
+      <div class="land-section-label">Nasıl Çalışır?</div>
+      <div class="land-section-title">4 Adımda Başlayın</div>
+      <div class="land-section-sub">Teknik bilgi gerektirmez. 10 dakikada kurulumu tamamlayın.</div>
+    </div>
+    <div class="land-steps-grid">
+      <div class="land-step-card">
+        <div class="land-step-icon">🗝️</div>
+        <div class="land-step-num">1</div>
+        <div class="land-step-title">Hesap Oluşturun</div>
+        <div class="land-step-desc">Kayıt anahtarınızla ücretsiz hesap açın, dakikalar içinde hazır olun.</div>
+        <div class="land-step-arrow">→</div>
+      </div>
+      <div class="land-step-card">
+        <div class="land-step-icon">⚙️</div>
+        <div class="land-step-num">2</div>
+        <div class="land-step-title">Ayarlayın</div>
+        <div class="land-step-desc">İşletme bilgilerinizi, hizmetlerinizi ve çalışma saatlerinizi girin.</div>
+        <div class="land-step-arrow">→</div>
+      </div>
+      <div class="land-step-card">
+        <div class="land-step-icon">🔗</div>
+        <div class="land-step-num">3</div>
+        <div class="land-step-title">Linki Paylaşın</div>
+        <div class="land-step-desc">Müşterilerinize özel randevu linkinizi WhatsApp ve sosyal medyada paylaşın.</div>
+        <div class="land-step-arrow">→</div>
+      </div>
+      <div class="land-step-card">
+        <div class="land-step-icon">📅</div>
+        <div class="land-step-num">4</div>
+        <div class="land-step-title">Yönetin</div>
+        <div class="land-step-desc">Randevuları onaylayın, personel atayın, takviminizi kolayca yönetin.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÖZELLİKLER -->
+  <div class="land-features-section">
+    <div class="land-section-head">
+      <div class="land-section-label">Özellikler</div>
+      <div class="land-section-title">İhtiyacınız Olan Her Şey</div>
     </div>
     <div class="land-features">
       <div class="land-feat" id="land-feat1">
         <div class="land-feat-icon">📅</div>
         <div class="land-feat-title" id="lf1-title">Akıllı Takvim</div>
-        <div class="land-feat-desc" id="lf1-desc">Çalışma saatlerinizi ayarlayın, randevular otomatik yerleşsin.</div>
+        <div class="land-feat-desc" id="lf1-desc">Çalışma saatlerinizi ayarlayın, randevular otomatik yerleşsin. Tatil günleri kolayca kapatılır.</div>
       </div>
       <div class="land-feat" id="land-feat2">
         <div class="land-feat-icon">🎨</div>
         <div class="land-feat-title" id="lf2-title">Tam Özelleştirme</div>
-        <div class="land-feat-desc" id="lf2-desc">Renk, logo, mesaj, hizmetler — her şeyi kendi markanıza göre ayarlayın.</div>
+        <div class="land-feat-desc" id="lf2-desc">Tema rengi, logo, banner, sosyal medya — her şeyi kendi markanıza göre ayarlayın.</div>
       </div>
       <div class="land-feat" id="land-feat3">
+        <div class="land-feat-icon">👨‍⚕️</div>
+        <div class="land-feat-title" id="lf3-title">Personel Yönetimi</div>
+        <div class="land-feat-desc" id="lf3-desc">Birden fazla personel ekleyin. Müşteriler istediği kişiyi seçerek randevu alsın.</div>
+      </div>
+      <div class="land-feat">
+        <div class="land-feat-icon">💬</div>
+        <div class="land-feat-title">WhatsApp Entegrasyonu</div>
+        <div class="land-feat-desc">Sayfanıza WhatsApp butonu ekleyin. Müşteriler tek tıkla ulaşsın.</div>
+      </div>
+      <div class="land-feat">
         <div class="land-feat-icon">📊</div>
-        <div class="land-feat-title" id="lf3-title">Kolay Yönetim</div>
-        <div class="land-feat-desc" id="lf3-desc">Randevuları onaylayın, iptal edin, notlar ekleyin — tümü tek panelden.</div>
+        <div class="land-feat-title">Kolay Yönetim</div>
+        <div class="land-feat-desc">Randevuları onaylayın, iptal edin, filtreleyin. Müşteri geçmişine bakın.</div>
+      </div>
+      <div class="land-feat">
+        <div class="land-feat-icon">🌓</div>
+        <div class="land-feat-title">Açık & Koyu Tema</div>
+        <div class="land-feat-desc">Panel ve randevu sayfası açık/koyu tema destekler. Göz yormaz.</div>
       </div>
     </div>
   </div>
-  <div class="land-footer">
-    <div id="land-footer-text">© 2024 RandevuPanel. Tüm hakları saklıdır.</div>
-    <div style="display:flex;gap:16px">
-      <button class="btn btn-ghost btn-xs" onclick="showAuthScreen('login')">Giriş</button>
+
+  <!-- KİMLER KULLANIYOR -->
+  <div class="land-who">
+    <div class="land-section-head">
+      <div class="land-section-label">Sektörler</div>
+      <div class="land-section-title">Her İşletme İçin Uygun</div>
+    </div>
+    <div class="land-who-grid">
+      <div class="land-who-card"><div class="land-who-icon">✂️</div><div class="land-who-name">Berber</div></div>
+      <div class="land-who-card"><div class="land-who-icon">💅</div><div class="land-who-name">Kuaför</div></div>
+      <div class="land-who-card"><div class="land-who-icon">🦷</div><div class="land-who-name">Diş Hekimi</div></div>
+      <div class="land-who-card"><div class="land-who-icon">💆</div><div class="land-who-name">Masaj & SPA</div></div>
+      <div class="land-who-card"><div class="land-who-icon">🐾</div><div class="land-who-name">Veteriner</div></div>
+      <div class="land-who-card"><div class="land-who-icon">🧠</div><div class="land-who-name">Psikolog</div></div>
+      <div class="land-who-card"><div class="land-who-icon">💪</div><div class="land-who-name">Personal Trainer</div></div>
+      <div class="land-who-card"><div class="land-who-icon">✨</div><div class="land-who-name">Güzellik Salonu</div></div>
     </div>
   </div>
+
+  <!-- MÜŞTERİ YORUMLARI -->
+  <div class="land-testi">
+    <div class="land-section-head">
+      <div class="land-section-label">Müşteri Yorumları</div>
+      <div class="land-section-title">Onlar Ne Diyor?</div>
+    </div>
+    <div class="land-testi-grid">
+      <div class="land-testi-card">
+        <div class="land-testi-stars">★★★★★</div>
+        <div class="land-testi-text">"Dükkanıma randevu sistemi kurmak istiyordum ama hep erteledim. RandevuPanel ile 10 dakikada kurdum. Müşterilerim bayıldı."</div>
+        <div class="land-testi-author"><div class="land-testi-av">AY</div><div><div class="land-testi-name">Ali Yılmaz</div><div class="land-testi-role">Berber, İstanbul</div></div></div>
+      </div>
+      <div class="land-testi-card">
+        <div class="land-testi-stars">★★★★★</div>
+        <div class="land-testi-text">"Personel bazlı randevu özelliği süper. Artık hangi çalışanımın ne zaman boş olduğunu tek bakışta görüyorum."</div>
+        <div class="land-testi-author"><div class="land-testi-av">FÇ</div><div><div class="land-testi-name">Fatma Çelik</div><div class="land-testi-role">Kuaför Salonu, Ankara</div></div></div>
+      </div>
+      <div class="land-testi-card">
+        <div class="land-testi-stars">★★★★★</div>
+        <div class="land-testi-text">"Hastalarım artık WhatsApp'tan değil, direkt randevu sayfamdan giriyor. Çok daha düzenli ve profesyonel görünüyor."</div>
+        <div class="land-testi-author"><div class="land-testi-av">MK</div><div><div class="land-testi-name">Dr. Mehmet Kaya</div><div class="land-testi-role">Diş Hekimi, İzmir</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA BANNER -->
+  <div class="land-cta-banner">
+    <h2>Hemen Başlayın, Ücretsiz</h2>
+    <p>Kayıt anahtarınızı alın, dakikalar içinde online randevu sisteminiz hazır olsun.</p>
+    <div class="cta-btns">
+      <button class="btn btn-white btn-lg" onclick="showAuthScreen('register')">🚀 Ücretsiz Hesap Oluştur</button>
+      <button class="btn btn-outline-white btn-lg" onclick="showAuthScreen('login')">Giriş Yap</button>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="land-footer">
+    <div id="land-footer-text">© 2025 RandevuPanel. Tüm hakları saklıdır.</div>
+    <div class="land-footer-links">
+      <a href="#" onclick="showAuthScreen('login')">Giriş</a>
+      <a href="#" onclick="showAuthScreen('register')">Kayıt Ol</a>
+    </div>
+  </div>
+
 </div>
 
 <!-- ═══ AUTH SCREEN ═══ -->
@@ -696,23 +1109,58 @@ tr:hover td { background: var(--surface2); }
       <div class="sb-body">
         <div class="nav-section">
           <div class="sb-section-title">Menü</div>
-          <button class="nav-item active" onclick="nav('dashboard',this)"><span class="ni">◈</span> Genel Bakış</button>
-          <button class="nav-item" onclick="nav('appointments',this)"><span class="ni">📅</span> Randevular <span class="nav-badge" id="nb-pending" style="display:none">0</span></button>
-          <button class="nav-item" onclick="nav('services',this)"><span class="ni">🛍️</span> Hizmetler</button>
-          <button class="nav-item" onclick="nav('customers',this)"><span class="ni">👥</span> Müşteriler</button>
-          <button class="nav-item" onclick="nav('settings',this)"><span class="ni">⚙️</span> Ayarlar</button>
-           <button class="nav-item" onclick="nav('staff',this)"><span class="ni">👨‍⚕️</span> Personeller</button>
-          <button class="nav-item" onclick="nav('account',this)"><span class="ni">👤</span> Hesabım</button>
-          <button class="nav-item" onclick="nav('mylink',this)"><span class="ni">🔗</span> Randevu Linkim</button>
+          <button class="nav-item active" onclick="nav('dashboard',this)">
+            <span class="ni"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span> Genel Bakış
+          </button>
+          <button class="nav-item" onclick="nav('appointments',this)">
+            <span class="ni"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span> Randevular <span class="nav-badge" id="nb-pending" style="display:none">0</span>
+          </button>
+          <button class="nav-item" onclick="nav('services',this)">
+            <span class="ni"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span> Hizmetler
+          </button>
+          <button class="nav-item" onclick="nav('staff',this)">
+            <span class="ni"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span> Personeller
+          </button>
+          <button class="nav-item" onclick="nav('customers',this)">
+            <span class="ni"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></span> Müşteriler
+          </button>
+          <button class="nav-item" onclick="nav('stats',this)">
+            <span class="ni"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span> İstatistikler
+          </button>
+          <button class="nav-item" onclick="nav('settings',this)">
+            <span class="ni"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span> Ayarlar
+          </button>
+          <button class="nav-item" onclick="nav('mylink',this)">
+            <span class="ni"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span> Randevu Linkim
+          </button>
+          <button class="nav-item" onclick="nav('affiliate',this)">
+            <span class="ni"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="23" y1="11" x2="17" y2="11"/><line x1="20" y1="8" x2="20" y2="14"/></svg></span> Affiliate
+          </button>
+          <button class="nav-item" onclick="nav('account',this)">
+            <span class="ni"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span> Hesabım
+          </button>
         </div>
         <!-- ADMIN ONLY -->
         <div id="admin-nav" style="display:none">
           <div class="sb-section-title">Süperadmin <span class="badge badge-admin">ADMIN</span></div>
-          <button class="nav-item" onclick="nav('admin-dash',this)"><span class="ni">🌐</span> Admin Genel</button>
-          <button class="nav-item" onclick="nav('admin-users',this)"><span class="ni">🏢</span> İşletmeler</button>
-          <button class="nav-item" onclick="nav('admin-keys',this)"><span class="ni">🗝️</span> Kayıt Anahtarları</button>
-          <button class="nav-item" onclick="nav('admin-landing',this)"><span class="ni">🎨</span> Landing Sayfası</button>
-          <button class="nav-item" onclick="nav('admin-system',this)"><span class="ni">🛠️</span> Sistem Ayarları</button>
+          <button class="nav-item" onclick="nav('admin-dash',this)">
+            <span class="ni"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span> Admin Genel
+          </button>
+          <button class="nav-item" onclick="nav('admin-users',this)">
+            <span class="ni"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8L2 7h20z"/></svg></span> İşletmeler
+          </button>
+          <button class="nav-item" onclick="nav('admin-keys',this)">
+            <span class="ni"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg></span> Kayıt Anahtarları
+          </button>
+          <button class="nav-item" onclick="nav('admin-landing',this)">
+            <span class="ni"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></span> Landing Sayfası
+          </button>
+          <button class="nav-item" onclick="nav('admin-auth',this)">
+            <span class="ni"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span> Giriş Sayfası
+          </button>
+          <button class="nav-item" onclick="nav('admin-system',this)">
+            <span class="ni"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span> Sistem Ayarları
+          </button>
         </div>
       </div>
       <div class="sb-foot">
@@ -727,7 +1175,7 @@ tr:hover td { background: var(--surface2); }
           <span>🌓 Tema Değiştir</span>
           <span id="theme-label">Açık</span>
         </button>
-        <button class="nav-item" onclick="doLogout()"><span class="ni">↩</span> Çıkış Yap</button>
+        <button class="nav-item" onclick="doLogout()"><span class="ni"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span> Çıkış Yap</button>
       </div>
     </aside>
 
@@ -992,23 +1440,51 @@ tr:hover td { background: var(--surface2); }
 
         <!-- ═ MY LINK ═ -->
         <div class="page" id="page-mylink">
-          <div class="card">
-            <div class="card-header"><div class="card-title">🔗 Randevu Sayfası Linkiniz</div></div>
-            <p style="font-size:0.88rem;color:var(--text-muted);margin-bottom:14px">Bu linki müşterilerinizle paylaşın. Sosyal medya biyografinize, WhatsApp profilinize veya web sitenize ekleyebilirsiniz.</p>
-            <div class="link-box" style="margin-bottom:14px">
-              <span id="my-link"></span>
-              <button class="btn btn-ghost btn-xs" onclick="copyMyLink()">📋 Kopyala</button>
+          <div class="grid2">
+            <div>
+              <div class="card">
+                <div class="card-header">
+                  <div><div class="card-title">Randevu Sayfası Linkiniz</div><div class="card-sub">Müşterilerinizle paylaşın</div></div>
+                </div>
+                <div class="link-box" style="margin-bottom:14px">
+                  <span id="my-link"></span>
+                  <button class="btn btn-ghost btn-xs" onclick="copyMyLink()">
+                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    Kopyala
+                  </button>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <button class="btn btn-ghost btn-sm" onclick="openPreview()">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    Ön İzleme
+                  </button>
+                  <button class="btn btn-primary btn-sm" onclick="shareWhatsApp()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.528 5.849L.057 23.5l5.797-1.519A11.934 11.934 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>
+                    WhatsApp'ta Paylaş
+                  </button>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header"><div class="card-title">Paylaşım Metni</div></div>
+                <textarea id="share-text-input" rows="3" style="width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:10px;font-family:var(--font);font-size:0.88rem;color:var(--text);outline:none;resize:vertical" placeholder="Randevu linkinizle birlikte göndereceğiniz mesaj...">Online randevu sistemimiz hazır! Hizmetlerimizi görüntüleyip randevu alabilirsiniz.</textarea>
+                <button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="copyShareText()">Metni Kopyala</button>
+              </div>
             </div>
-            <div style="display:flex;gap:8px">
-              <button class="btn btn-ghost btn-sm" onclick="openPreview()">👁 Ön İzleme</button>
-              <button class="btn btn-primary btn-sm" onclick="shareWhatsApp()">📤 WhatsApp'ta Paylaş</button>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header"><div class="card-title">📊 QR Kodu</div></div>
-            <div id="qr-placeholder" style="text-align:center;padding:30px;color:var(--text-muted)">
-              <div style="font-size:2rem;margin-bottom:10px">📱</div>
-              <p style="font-size:0.85rem">QR kod özelliği yakında eklenecek.</p>
+            <div class="card">
+              <div class="card-header">
+                <div><div class="card-title">QR Kodu</div><div class="card-sub">Yazdırın, duvara asın</div></div>
+              </div>
+              <div class="qr-wrap">
+                <canvas id="qr-canvas" width="200" height="200"></canvas>
+                <div class="qr-actions">
+                  <button class="btn btn-primary btn-sm" onclick="downloadQR()">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    PNG İndir
+                  </button>
+                  <button class="btn btn-ghost btn-sm" onclick="printQR()">Yazdır</button>
+                </div>
+                <p style="font-size:0.78rem;color:var(--text-muted);text-align:center;max-width:200px">Müşterileriniz QR kodu okutarak direkt randevu sayfanıza ulaşır</p>
+              </div>
             </div>
           </div>
         </div>
@@ -1098,6 +1574,128 @@ tr:hover td { background: var(--surface2); }
               <div class="toggle-row"><div class="toggle-info"><div class="ti">Özellik Kart 3</div></div><button class="toggle on" id="tl-f3" onclick="this.classList.toggle('on')"></button></div>
             </div>
             <button class="btn btn-primary" onclick="saveLandingSettings()">💾 Landing Sayfasını Kaydet</button>
+          </div>
+        </div>
+
+
+        <!-- ═ STATS ═ -->
+        <div class="page" id="page-stats">
+          <div class="stats-row">
+            <div class="stat-box"><div class="stat-num" id="stat-week">—</div><div class="stat-lbl">Bu Hafta</div></div>
+            <div class="stat-box g"><div class="stat-num" id="stat-month">—</div><div class="stat-lbl">Bu Ay</div></div>
+            <div class="stat-box b"><div class="stat-num" id="stat-rate">—</div><div class="stat-lbl">Onay Oranı</div></div>
+            <div class="stat-box y"><div class="stat-num" id="stat-cust">—</div><div class="stat-lbl">Tekil Müşteri</div></div>
+          </div>
+          <div class="grid2">
+            <div class="card">
+              <div class="card-header"><div class="card-title">Haftalık Randevu Dağılımı</div></div>
+              <div class="week-chart" id="week-chart"></div>
+            </div>
+            <div class="card">
+              <div class="card-header"><div class="card-title">En Popüler Hizmetler</div></div>
+              <div class="chart-bar-wrap" id="svc-chart"></div>
+            </div>
+          </div>
+          <div class="grid2">
+            <div class="card">
+              <div class="card-header"><div class="card-title">Saatlik Yoğunluk</div></div>
+              <div class="chart-bar-wrap" id="hour-chart"></div>
+            </div>
+            <div class="card">
+              <div class="card-header"><div class="card-title">Durum Dağılımı</div></div>
+              <div id="status-chart"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═ AFFILIATE ═ -->
+        <div class="page" id="page-affiliate">
+          <div class="grid2">
+            <div>
+              <div class="card">
+                <div class="card-header"><div><div class="card-title">Referans Linkiniz</div><div class="card-sub">Bu linki paylaşın, her yeni üye için puan kazanın</div></div></div>
+                <div class="aff-link-box" style="margin-bottom:12px"><span id="aff-link">Yükleniyor...</span><button class="btn btn-ghost btn-xs" onclick="copyAffLink()">Kopyala</button></div>
+                <button class="btn btn-primary btn-sm" onclick="shareAffWhatsApp()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.528 5.849L.057 23.5l5.797-1.519A11.934 11.934 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.85 0-3.585-.504-5.07-1.381l-.361-.214-3.744.982.998-3.648-.235-.374A9.975 9.975 0 0 1 2 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
+                  WhatsApp'ta Paylaş
+                </button>
+              </div>
+              <div class="card">
+                <div class="card-header"><div class="card-title">Nasıl Çalışır?</div></div>
+                <div class="aff-step"><div class="aff-step-num">1</div><div><div class="aff-step-title">Linkinizi Paylaşın</div><div class="aff-step-desc">Referans linkinizi sosyal medyada veya arkadaşlarınıza gönderin.</div></div></div>
+                <div class="aff-step"><div class="aff-step-num">2</div><div><div class="aff-step-title">Kayıt Olsunlar</div><div class="aff-step-desc">Linkinizden gelen kişiler hesap oluşturduğunda otomatik sayılır.</div></div></div>
+                <div class="aff-step"><div class="aff-step-num">3</div><div><div class="aff-step-title">Puan Kazanın</div><div class="aff-step-desc">Her başarılı referans için 1 ay ücretsiz kullanım veya nakit ödül alın.</div></div></div>
+              </div>
+            </div>
+            <div>
+              <div class="card">
+                <div class="card-header"><div class="card-title">Kazanç Özeti</div></div>
+                <div class="aff-earn-card" style="margin-bottom:14px">
+                  <div class="aff-earn-amount" id="aff-total">0</div>
+                  <div class="aff-earn-label">Toplam Referans</div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                  <div class="card card-sm" style="margin:0;text-align:center"><div style="font-size:1.4rem;font-weight:800;color:var(--success)" id="aff-active">0</div><div style="font-size:0.75rem;color:var(--text-muted)">Aktif</div></div>
+                  <div class="card card-sm" style="margin:0;text-align:center"><div style="font-size:1.4rem;font-weight:800;color:var(--accent)" id="aff-pending">0</div><div style="font-size:0.75rem;color:var(--text-muted)">Bekleyen</div></div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header"><div class="card-title">Referanslarım</div></div>
+                <div id="referral-list"><div class="empty"><div class="empty-sub">Henüz referans yok. Linkinizi paylaşın!</div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═ ADMIN: AUTH CUSTOMIZATION ═ -->
+        <div class="page" id="page-admin-auth">
+          <div class="card">
+            <div class="card-header"><div><div class="card-title">Giriş Sayfası Düzenleyici</div><div class="card-sub">Auth ekranının sol panelini özelleştirin</div></div></div>
+            <div class="settings-section">
+              <div class="settings-section-title">Sol Panel Görseli</div>
+              <div class="settings-grid">
+                <div class="form-group">
+                  <label>Arka Plan Görseli URL</label>
+                  <input type="text" id="auth-bg-url" placeholder="https://images.unsplash.com/...">
+                  <div class="form-hint">Unsplash, Pexels veya herhangi bir görsel URL</div>
+                </div>
+                <div class="form-group">
+                  <label>Gradient Rengi (Üst)</label>
+                  <input type="color" id="auth-grad-color1" value="#6366f1" style="height:42px;width:100%">
+                </div>
+                <div class="form-group">
+                  <label>Sol Panel Başlık</label>
+                  <input type="text" id="auth-left-title" placeholder="İşletmenizi dijitale taşıyın">
+                </div>
+                <div class="form-group">
+                  <label>Sol Panel Alt Yazı</label>
+                  <textarea id="auth-left-sub" rows="2"></textarea>
+                </div>
+              </div>
+            </div>
+            <div class="settings-section">
+              <div class="settings-section-title">Özellik Maddeleri (Sol Panel)</div>
+              <div class="settings-grid">
+                <div class="form-group"><label>Madde 1</label><input type="text" id="auth-f1" placeholder="Kolay kurulum, hızlı başlangıç"></div>
+                <div class="form-group"><label>Madde 2</label><input type="text" id="auth-f2" placeholder="Özelleştirilebilir randevu sayfası"></div>
+                <div class="form-group"><label>Madde 3</label><input type="text" id="auth-f3" placeholder="Gerçek zamanlı takvim yönetimi"></div>
+                <div class="form-group"><label>Madde 4</label><input type="text" id="auth-f4" placeholder="Hizmet ve fiyat yönetimi"></div>
+                <div class="form-group"><label>Madde 5</label><input type="text" id="auth-f5" placeholder="Müşteri geçmişi takibi"></div>
+              </div>
+            </div>
+            <div class="settings-section">
+              <div class="settings-section-title">Canlı Önizleme</div>
+              <div class="preview-frame">
+                <div class="preview-bar"><div class="preview-dot" style="background:#ff5f56"></div><div class="preview-dot" style="background:#ffbd2e"></div><div class="preview-dot" style="background:#27c93f"></div></div>
+                <div id="auth-preview" style="padding:20px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:0 0 12px 12px;min-height:120px;display:flex;align-items:center;justify-content:center">
+                  <div style="color:#fff;text-align:center">
+                    <div style="font-size:1.1rem;font-weight:800;margin-bottom:6px" id="prev-auth-title">İşletmenizi dijitale taşıyın</div>
+                    <div style="font-size:0.78rem;opacity:0.8" id="prev-auth-sub">Müşterilerinize özel randevu sayfası oluşturun.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="saveAuthCustomization()">Kaydet</button>
           </div>
         </div>
 
@@ -1310,7 +1908,8 @@ async function doRegister() {
   const { data, error } = await sb.auth.signUp({ email, password: pass });
   if (error) { btn.disabled=false; btn.textContent='Hesap Oluştur'; err.textContent=error.message; err.classList.add('show'); return; }
   const uid = data.user.id;
-  await sb.from('profiles').insert({ id: uid, email, business_name: biz });
+  const referrer = sessionStorage.getItem('referrer') || null;
+  await sb.from('profiles').insert({ id: uid, email, business_name: biz, referred_by: referrer });
   await sb.from('registration_keys').update({ is_used: true, used_by: uid }).eq('key_value', key);
   await sb.from('services').insert([{ profile_id: uid, name: 'Standart Randevu', duration: 30, price: 0, icon: '✂️' }]);
   toast('Hesap oluşturuldu! Giriş yapın.');
@@ -1898,6 +2497,198 @@ async function saveSysSettings() {
   if(error){toast('Hata: '+error.message,'error');return;}
   toast('Sistem ayarları kaydedildi!');
 }
+
+
+/* ══════════════════════════════════════
+   QR KOD
+══════════════════════════════════════ */
+function generateQR(url) {
+  const canvas = document.getElementById('qr-canvas');
+  if (!canvas) return;
+  // QRCode.js kütüphanesi ile üret
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, 200, 200);
+  // Simple QR placeholder - gerçek QR için qrcode kütüphanesi kullan
+  // Aşağıdaki basit bir görsel placeholder
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, 200, 200);
+  ctx.fillStyle = '#000';
+  // QR kütüphanesi yüklenince çalışır
+  if (typeof QRCode !== 'undefined') {
+    canvas.width = 200; canvas.height = 200;
+    QRCode.toCanvas(canvas, url, { width: 200, margin: 2, color: { dark: '#000', light: '#fff' } });
+  } else {
+    // Fallback: URL'i göster
+    ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = '#6366f1'; ctx.fillRect(70, 80, 60, 40);
+    ctx.fillStyle = '#fff'; ctx.fillText('QR', 100, 106);
+    ctx.fillStyle = '#333'; ctx.font = '8px sans-serif';
+    ctx.fillText('QR Kod', 100, 145);
+  }
+}
+function downloadQR() {
+  const canvas = document.getElementById('qr-canvas');
+  const link = document.createElement('a');
+  link.download = `randevu-qr-${UP?.business_name||'panel'}.png`;
+  link.href = canvas.toDataURL();
+  link.click();
+}
+function printQR() {
+  const canvas = document.getElementById('qr-canvas');
+  const w = window.open('', '_blank');
+  w.document.write(`<html><body style="text-align:center;padding:40px"><h2 style="font-family:sans-serif">${UP?.business_name||'Randevu'}</h2><img src="${canvas.toDataURL()}" width="250"><p style="font-family:sans-serif;color:#666">Randevu için QR kodu okutun</p></body></html>`);
+  w.document.close(); w.print();
+}
+function copyShareText() {
+  const t = document.getElementById('share-text-input').value;
+  const url = document.getElementById('my-link').textContent;
+  navigator.clipboard.writeText(t + '\n' + url).then(() => toast('Metin kopyalandı!'));
+}
+function updateMyLink() {
+  if (!UP) return;
+  const url = window.location.href.replace('index.html','').replace(/\/$/, '') + '/randevu.html?id=' + UP.id;
+  const el = document.getElementById('my-link');
+  if (el) el.textContent = url;
+  // QR üret
+  setTimeout(() => generateQR(url), 500);
+}
+
+/* ══════════════════════════════════════
+   İSTATİSTİKLER
+══════════════════════════════════════ */
+async function loadStats() {
+  if (!UP) return;
+  const { data: apts } = await sb.from('appointments').select('*').eq('profile_id', UP.id);
+  if (!apts?.length) return;
+  const now = new Date();
+  const weekAgo = new Date(now - 7*24*60*60*1000);
+  const monthAgo = new Date(now - 30*24*60*60*1000);
+  const weekApts = apts.filter(a => new Date(a.appointment_date) >= weekAgo);
+  const monthApts = apts.filter(a => new Date(a.appointment_date) >= monthAgo);
+  const confirmed = apts.filter(a => a.status === 'confirmed' || a.status === 'completed');
+  const customers = new Set(apts.map(a => a.customer_phone)).size;
+  const se = id => { const el = document.getElementById(id); if (el) el.textContent = arguments[1]; };
+  document.getElementById('stat-week') && (document.getElementById('stat-week').textContent = weekApts.length);
+  document.getElementById('stat-month') && (document.getElementById('stat-month').textContent = monthApts.length);
+  document.getElementById('stat-rate') && (document.getElementById('stat-rate').textContent = apts.length ? Math.round(confirmed.length/apts.length*100)+'%' : '0%');
+  document.getElementById('stat-cust') && (document.getElementById('stat-cust').textContent = customers);
+  // Haftalık chart
+  const days = ['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
+  const dayKeys = ['mon','tue','wed','thu','fri','sat','sun'];
+  const dayCounts = new Array(7).fill(0);
+  apts.forEach(a => { const d = new Date(a.appointment_date).getDay(); dayCounts[d === 0 ? 6 : d - 1]++; });
+  const maxDay = Math.max(...dayCounts, 1);
+  const wc = document.getElementById('week-chart');
+  if (wc) wc.innerHTML = days.map((d,i) => `<div class="week-bar-wrap"><div class="week-bar ${new Date().getDay() === (i===6?0:i+1) ? 'today' : ''}" style="height:${Math.round(dayCounts[i]/maxDay*100)}%"></div><div class="week-day">${d}</div></div>`).join('');
+  // Hizmet chart
+  const svcCount = {};
+  apts.forEach(a => { const k = a.service_id||'Diğer'; svcCount[k] = (svcCount[k]||0)+1; });
+  const { data: svcs } = await sb.from('services').select('id,name').eq('profile_id', UP.id);
+  const svcMap = Object.fromEntries((svcs||[]).map(s=>[s.id,s.name]));
+  const sorted = Object.entries(svcCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const maxSvc = Math.max(...sorted.map(s=>s[1]),1);
+  const sc = document.getElementById('svc-chart');
+  if (sc) sc.innerHTML = sorted.map(([id,cnt])=>`<div class="chart-bar-row"><div class="chart-bar-label">${svcMap[id]||'Diğer'}</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:${Math.round(cnt/maxSvc*100)}%"></div></div><div class="chart-bar-val">${cnt}</div></div>`).join('');
+  // Saatlik chart
+  const hourCounts = {};
+  apts.forEach(a => { const h = a.appointment_time?.slice(0,2)||'??'; hourCounts[h] = (hourCounts[h]||0)+1; });
+  const sortedH = Object.entries(hourCounts).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const maxH = Math.max(...sortedH.map(s=>s[1]),1);
+  const hc = document.getElementById('hour-chart');
+  if (hc) hc.innerHTML = sortedH.map(([h,cnt])=>`<div class="chart-bar-row"><div class="chart-bar-label">${h}:00</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:${Math.round(cnt/maxH*100)}%;background:var(--success)"></div></div><div class="chart-bar-val">${cnt}</div></div>`).join('');
+  // Durum dağılımı
+  const statuses = {pending:'Bekleyen',confirmed:'Onaylı',completed:'Tamamlandı',cancelled:'İptal'};
+  const colors = {pending:'var(--warning)',confirmed:'var(--info)',completed:'var(--success)',cancelled:'var(--danger)'};
+  const stc = document.getElementById('status-chart');
+  if (stc) stc.innerHTML = Object.entries(statuses).map(([k,l])=>{
+    const cnt = apts.filter(a=>a.status===k).length;
+    const pct = Math.round(cnt/apts.length*100);
+    return `<div class="chart-bar-row" style="margin-bottom:8px"><div class="chart-bar-label">${l}</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:${pct}%;background:${colors[k]}"></div></div><div class="chart-bar-val">${cnt}</div></div>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════════
+   AFFİLİATE
+══════════════════════════════════════ */
+function getAffLink() {
+  if (!UP) return '';
+  return window.location.href.replace('index.html','').replace(/\/$/, '') + '/index.html?ref=' + UP.id;
+}
+async function loadAffiliate() {
+  if (!UP) return;
+  const el = document.getElementById('aff-link');
+  if (el) el.textContent = getAffLink();
+  // Referansları çek
+  const { data } = await sb.from('profiles').select('id,business_name,email,created_at').eq('referred_by', UP.id);
+  const refs = data || [];
+  document.getElementById('aff-total') && (document.getElementById('aff-total').textContent = refs.length);
+  document.getElementById('aff-active') && (document.getElementById('aff-active').textContent = refs.filter(r=>r.is_active).length);
+  document.getElementById('aff-pending') && (document.getElementById('aff-pending').textContent = refs.filter(r=>!r.is_active).length);
+  const rl = document.getElementById('referral-list');
+  if (!rl) return;
+  if (!refs.length) { rl.innerHTML = '<div class="empty"><div class="empty-sub">Henüz referans yok. Linkinizi paylaşın!</div></div>'; return; }
+  rl.innerHTML = refs.map(r=>`<div class="referral-item"><div class="referral-av">${(r.business_name||'?')[0].toUpperCase()}</div><div><div class="referral-name">${r.business_name||r.email}</div><div class="referral-date">${new Date(r.created_at).toLocaleDateString('tr-TR')}</div></div><span class="badge badge-green referral-badge">Aktif</span></div>`).join('');
+}
+function copyAffLink() { navigator.clipboard.writeText(getAffLink()).then(()=>toast('Link kopyalandı!')); }
+function shareAffWhatsApp() { window.open(`https://wa.me/?text=${encodeURIComponent('RandevuPanel ile online randevu sistemi kur: ' + getAffLink())}`,'_blank'); }
+
+/* ══════════════════════════════════════
+   AUTH CUSTOMIZATION
+══════════════════════════════════════ */
+async function loadAuthCustomization() {
+  const { data } = await sb.from('admin_settings').select('*').eq('id',1).single();
+  if (!data) return;
+  const setVal = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+  setVal('auth-bg-url', data.auth_bg_url);
+  setVal('auth-grad-color1', data.auth_grad_color1 || '#6366f1');
+  setVal('auth-left-title', data.auth_left_title);
+  setVal('auth-left-sub', data.auth_left_sub);
+  setVal('auth-f1', data.auth_f1); setVal('auth-f2', data.auth_f2);
+  setVal('auth-f3', data.auth_f3); setVal('auth-f4', data.auth_f4); setVal('auth-f5', data.auth_f5);
+  // Canlı uygula
+  applyAuthCustomization(data);
+}
+function applyAuthCustomization(d) {
+  const left = document.querySelector('.auth-left');
+  if (!left) return;
+  if (d.auth_bg_url) { left.style.backgroundImage = `url('${d.auth_bg_url}')`; left.style.backgroundSize = 'cover'; left.style.backgroundPosition = 'center'; }
+  if (d.auth_grad_color1) left.style.background = `linear-gradient(135deg, ${d.auth_grad_color1} 0%, #8b5cf6 100%)`;
+  if (d.auth_left_title) { const el = document.querySelector('.auth-left-title'); if(el) el.textContent = d.auth_left_title; }
+  if (d.auth_left_sub) { const el = document.querySelector('.auth-left-sub'); if(el) el.textContent = d.auth_left_sub; }
+  const features = [d.auth_f1,d.auth_f2,d.auth_f3,d.auth_f4,d.auth_f5].filter(Boolean);
+  if (features.length) {
+    const ul = document.querySelector('.auth-feature-list');
+    if (ul) ul.innerHTML = features.map(f=>`<li>${f}</li>`).join('');
+  }
+  // Preview güncelle
+  const prev = document.getElementById('auth-preview');
+  if (prev && d.auth_grad_color1) prev.style.background = `linear-gradient(135deg, ${d.auth_grad_color1}, #8b5cf6)`;
+  const pt = document.getElementById('prev-auth-title');
+  const ps = document.getElementById('prev-auth-sub');
+  if (pt && d.auth_left_title) pt.textContent = d.auth_left_title;
+  if (ps && d.auth_left_sub) ps.textContent = d.auth_left_sub;
+}
+async function saveAuthCustomization() {
+  const g = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+  const upd = {
+    auth_bg_url: g('auth-bg-url'), auth_grad_color1: g('auth-grad-color1'),
+    auth_left_title: g('auth-left-title'), auth_left_sub: g('auth-left-sub'),
+    auth_f1: g('auth-f1'), auth_f2: g('auth-f2'), auth_f3: g('auth-f3'),
+    auth_f4: g('auth-f4'), auth_f5: g('auth-f5'),
+    updated_at: new Date().toISOString()
+  };
+  const { error } = await sb.from('admin_settings').upsert({ id: 1, ...upd });
+  if (error) { toast('Hata: ' + error.message, 'error'); return; }
+  toast('Giriş sayfası güncellendi!');
+  applyAuthCustomization(upd);
+  // Live preview input listeners
+  document.getElementById('auth-left-title')?.addEventListener('input', e => {
+    const pt = document.getElementById('prev-auth-title'); if (pt) pt.textContent = e.target.value;
+  });
+  document.getElementById('auth-grad-color1')?.addEventListener('input', e => {
+    const prev = document.getElementById('auth-preview'); if (prev) prev.style.background = `linear-gradient(135deg, ${e.target.value}, #8b5cf6)`;
+  });
+}
+
 
 /* ══════════════════════════════════════
    LOGOUT
