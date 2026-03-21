@@ -3,297 +3,544 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Randevu Al | Premium</title>
+<title>Randevu Al</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
   --accent: #6366f1;
-  --accent-rgb: 99, 102, 241;
+  --accent-rgb: 99,102,241;
   --font: 'Plus Jakarta Sans', sans-serif;
   --radius: 24px;
 }
-[data-theme="light"] { --bg: #f8fafc; --surface: #ffffff; --text: #0f172a; --border: #e2e8f0; --text-muted: #64748b; }
-[data-theme="dark"] { --bg: #020617; --surface: #0f172a; --text: #f8fafc; --border: #1e293b; --text-muted: #94a3b8; }
+[data-theme="light"] { --bg:#f8fafc; --surface:#fff; --text:#0f172a; --text2:#334155; --border:#e2e8f0; --muted:#64748b; }
+[data-theme="dark"]  { --bg:#020617; --surface:#0f172a; --text:#f8fafc; --text2:#cbd5e1; --border:#1e293b; --muted:#94a3b8; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;padding-bottom:60px;transition:background .3s,color .3s;}
 
-body { background: var(--bg); color: var(--text); font-family: var(--font); margin: 0; padding-bottom: 40px; }
+/* LOADER */
+#loader{position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .4s;}
+#loader.hide{opacity:0;pointer-events:none;}
+.spin{width:36px;height:36px;border:3px solid rgba(var(--accent-rgb),.2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
 
-/* HERO SECTION */
-.hero {
-    position: relative; height: 280px; background: #1e293b;
-    background-size: cover; background-position: center;
-    display: flex; align-items: flex-end; padding: 30px 20px;
-}
-.hero-overlay {
-    position: absolute; inset: 0;
-    background: linear-gradient(to top, var(--bg) 0%, rgba(0,0,0,0.4) 100%);
-}
-.hero-content { position: relative; z-index: 2; display: flex; align-items: center; gap: 20px; width: 100%; max-width: 600px; margin: 0 auto; }
-.biz-logo { 
-    width: 90px; height: 90px; border-radius: 24px; border: 4px solid var(--surface); 
-    background: #fff; object-fit: cover; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-}
-.biz-info h1 { font-size: 1.8rem; font-weight: 800; margin: 0; letter-spacing: -1px; }
+/* CLOSED/404 */
+#page-closed,#page-404{display:none;min-height:100vh;align-items:center;justify-content:center;flex-direction:column;gap:12px;text-align:center;padding:40px 20px;}
+.closed-icon{font-size:4rem;}
+.closed-title{font-size:1.6rem;font-weight:800;}
+.closed-sub{color:var(--muted);font-size:.95rem;max-width:360px;line-height:1.6;}
 
-/* WRAPPER */
-.wrap { max-width: 600px; margin: 0 auto; padding: 0 16px; position: relative; z-index: 10; }
+/* HERO */
+.hero{position:relative;min-height:260px;background:var(--accent);background-size:cover;background-position:center;display:flex;align-items:flex-end;padding:28px 18px;overflow:hidden;}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7) 0%,rgba(0,0,0,.15) 100%);}
+.hero-top{position:absolute;top:14px;right:14px;z-index:3;display:flex;gap:7px;}
+.hbtn{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:10px;padding:7px 13px;font-family:var(--font);font-size:.78rem;font-weight:700;cursor:pointer;backdrop-filter:blur(8px);transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;gap:5px;}
+.hbtn:hover{background:rgba(255,255,255,.3);}
+.hero-content{position:relative;z-index:2;display:flex;align-items:flex-end;gap:16px;width:100%;max-width:640px;margin:0 auto;}
+.biz-logo{width:78px;height:78px;border-radius:20px;border:3px solid rgba(255,255,255,.9);background:#fff;object-fit:cover;box-shadow:0 8px 24px rgba(0,0,0,.25);flex-shrink:0;}
+.biz-logo-ph{width:78px;height:78px;border-radius:20px;border:3px solid rgba(255,255,255,.4);background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;backdrop-filter:blur(6px);}
+.biz-info{flex:1;}
+.biz-pill{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.2);color:rgba(255,255,255,.9);border-radius:20px;padding:3px 10px;font-size:.7rem;font-weight:700;margin-bottom:6px;border:1px solid rgba(255,255,255,.25);}
+.biz-name{font-size:clamp(1.4rem,4vw,2.1rem);font-weight:800;color:#fff;letter-spacing:-.03em;line-height:1.1;}
+.biz-desc{color:rgba(255,255,255,.8);font-size:.84rem;margin-top:5px;line-height:1.4;}
+.biz-meta{display:flex;gap:12px;flex-wrap:wrap;margin-top:7px;}
+.meta-tag{color:rgba(255,255,255,.85);font-size:.76rem;display:flex;align-items:center;gap:4px;}
+.meta-tag a{color:inherit;text-decoration:none;}
 
-/* STEPS INDICATOR */
-.steps-nav { 
-    background: var(--surface); border-radius: var(--radius); padding: 12px; 
-    display: flex; justify-content: space-between; border: 1px solid var(--border);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.03); margin-top: -30px; margin-bottom: 24px;
-}
-.s-dot { width: 40px; height: 40px; border-radius: 14px; background: var(--bg); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; color: var(--text-muted); transition: 0.3s; }
-.s-dot.active { background: var(--accent); color: #fff; transform: translateY(-5px); box-shadow: 0 8px 15px rgba(var(--accent-rgb), 0.3); }
-.s-dot.done { background: #10b981; color: #fff; }
+/* SOCIAL STRIP */
+.soc-strip{background:var(--surface);border-bottom:1px solid var(--border);padding:9px 14px;display:flex;gap:7px;justify-content:center;flex-wrap:wrap;}
+.soc-btn{display:flex;align-items:center;gap:5px;background:var(--bg);border:1px solid var(--border);color:var(--text2);border-radius:8px;padding:5px 12px;font-size:.76rem;font-weight:600;text-decoration:none;transition:all .15s;}
+.soc-btn:hover{border-color:var(--accent);color:var(--accent);}
 
-/* SELECTION CARDS */
-.card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 20px; margin-bottom: 16px; }
-.m-card { 
-    background: var(--bg); border: 2px solid var(--border); border-radius: 18px; 
-    padding: 15px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 15px; margin-bottom: 10px;
-}
-.m-card:hover { border-color: var(--accent); background: var(--surface); }
-.m-card.selected { border-color: var(--accent); background: rgba(var(--accent-rgb), 0.05); border-width: 2px; }
+/* WRAP */
+.wrap{max-width:640px;margin:0 auto;padding:0 14px;}
 
-/* TAKVİM (CANAVAR GİBİ) */
-.cal-month { font-weight: 800; font-size: 1.1rem; text-align: center; margin: 10px 0; }
-.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 15px; }
-.cal-d { 
-    aspect-ratio: 1; display: flex; align-items: center; justify-content: center; 
-    border-radius: 12px; font-size: 0.9rem; font-weight: 700; cursor: pointer;
-    transition: 0.2s; background: var(--bg);
-}
-.cal-d.past { opacity: 0.2; cursor: not-allowed; text-decoration: line-through; }
-.cal-d.sel { background: var(--accent); color: #fff; transform: scale(1.1); box-shadow: 0 5px 15px rgba(var(--accent-rgb), 0.3); }
-.cal-d.today { color: var(--accent); border: 2px solid var(--accent); }
-.cal-d:hover:not(.past) { border-color: var(--accent); }
+/* STEPS */
+.steps-nav{background:var(--surface);border-radius:var(--radius);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);box-shadow:0 6px 20px rgba(0,0,0,.04);margin-top:-28px;margin-bottom:20px;position:relative;z-index:5;}
+.s-step{display:flex;align-items:center;gap:6px;}
+.s-dot{width:34px;height:34px;border-radius:12px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.8rem;color:var(--muted);transition:all .3s;border:1.5px solid var(--border);}
+.s-dot.active{background:var(--accent);color:#fff;border-color:var(--accent);transform:translateY(-4px);box-shadow:0 6px 16px rgba(var(--accent-rgb),.35);}
+.s-dot.done{background:#10b981;color:#fff;border-color:#10b981;transform:none;}
+.s-label{font-size:.72rem;font-weight:700;color:var(--muted);display:none;}
+.s-step.active .s-label{color:var(--accent);}
+@media(min-width:480px){.s-label{display:block;}}
+.s-line{flex:1;height:2px;background:var(--border);margin:0 5px;transition:background .3s;}
+.s-line.done{background:#10b981;}
 
-/* TIME SLOTS */
-.time-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
-.t-btn { padding: 14px; border: 2px solid var(--border); border-radius: 14px; text-align: center; font-weight: 800; cursor: pointer; background: var(--bg); }
-.t-btn.selected { background: var(--accent); color: #fff; border-color: var(--accent); }
-.t-btn.taken { opacity: 0.2; pointer-events: none; background: #eee; }
+/* CARD */
+.card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);padding:20px;margin-bottom:14px;box-shadow:0 4px 16px rgba(0,0,0,.04);}
+.card h3{font-size:1rem;font-weight:800;margin-bottom:16px;letter-spacing:-.02em;}
 
-/* ANIMATION */
-[id^="step"] { animation: slideUp 0.4s ease-out; }
-@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+/* SERVICE CARDS */
+.m-card{background:var(--bg);border:2px solid var(--border);border-radius:16px;padding:14px 15px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:13px;margin-bottom:9px;}
+.m-card:hover{border-color:var(--accent);background:var(--surface);transform:translateY(-1px);}
+.m-card.selected{border-color:var(--accent);background:rgba(var(--accent-rgb),.05);}
+.m-card:last-child{margin-bottom:0;}
+.svc-icon{width:44px;height:44px;border-radius:12px;background:rgba(var(--accent-rgb),.1);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;transition:all .2s;}
+.m-card.selected .svc-icon{background:var(--accent);}
+.svc-info{flex:1;}
+.svc-name{font-weight:700;font-size:.9rem;}
+.svc-meta{font-size:.76rem;color:var(--muted);margin-top:3px;}
+.svc-price{font-weight:800;font-size:.98rem;color:var(--accent);flex-shrink:0;}
 
-.btn-primary { 
-    background: var(--accent); color: #fff; border: none; padding: 18px; 
-    border-radius: 18px; font-weight: 800; width: 100%; cursor: pointer;
-    font-size: 1.1rem; box-shadow: 0 10px 20px rgba(var(--accent-rgb), 0.2); transition: 0.2s;
-}
-.btn-primary:active { transform: scale(0.98); }
-.btn-primary:disabled { opacity: 0.3; }
+/* STAFF */
+.staff-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;}
+.staff-card{background:var(--bg);border:2px solid var(--border);border-radius:16px;padding:14px 10px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;}
+.staff-card:hover{border-color:var(--accent);transform:translateY(-2px);}
+.staff-card.selected{border-color:var(--accent);background:rgba(var(--accent-rgb),.05);}
+.staff-photo{width:56px;height:56px;border-radius:14px;object-fit:cover;}
+.staff-photo-ph{width:56px;height:56px;border-radius:14px;background:rgba(var(--accent-rgb),.1);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.5rem;}
+.staff-sname{font-weight:700;font-size:.84rem;}
+.staff-stitle{font-size:.72rem;color:var(--muted);}
+
+/* CALENDAR */
+.cal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;}
+.cal-month{font-weight:800;font-size:.98rem;}
+.cal-nav{width:32px;height:32px;border-radius:9px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-size:.86rem;color:var(--text);display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.cal-nav:hover{border-color:var(--accent);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
+.cal-dh{text-align:center;font-size:.67rem;font-weight:800;color:var(--muted);padding:4px 0;}
+.cal-d{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:10px;font-size:.86rem;font-weight:700;cursor:pointer;transition:all .18s;background:var(--bg);border:2px solid transparent;}
+.cal-d:hover:not(.off){border-color:var(--accent);background:rgba(var(--accent-rgb),.08);}
+.cal-d.today{color:var(--accent);border-color:var(--accent);}
+.cal-d.sel{background:var(--accent);color:#fff;border-color:var(--accent);transform:scale(1.08);box-shadow:0 4px 12px rgba(var(--accent-rgb),.3);}
+.cal-d.off{opacity:.22;cursor:not-allowed;pointer-events:none;}
+
+/* TIME */
+.time-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.t-btn{padding:11px 5px;border:2px solid var(--border);border-radius:11px;text-align:center;font-weight:800;font-size:.84rem;cursor:pointer;background:var(--bg);color:var(--text2);transition:all .15s;}
+.t-btn:hover{border-color:var(--accent);background:rgba(var(--accent-rgb),.07);}
+.t-btn.selected{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 4px 12px rgba(var(--accent-rgb),.3);}
+.t-btn.taken{opacity:.2;cursor:not-allowed;pointer-events:none;text-decoration:line-through;}
+@media(max-width:400px){.time-grid{grid-template-columns:repeat(3,1fr);}}
+
+/* FORM */
+.form-group{margin-bottom:13px;}
+.form-group label{display:block;font-size:.73rem;font-weight:800;color:var(--muted);margin-bottom:7px;text-transform:uppercase;letter-spacing:.07em;}
+.form-group input,.form-group textarea{width:100%;background:var(--bg);border:2px solid var(--border);border-radius:12px;padding:12px 13px;color:var(--text);font-family:var(--font);font-size:.9rem;outline:none;transition:all .2s;}
+.form-group input:focus,.form-group textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(var(--accent-rgb),.1);background:var(--surface);}
+.form-group textarea{resize:vertical;min-height:70px;}
+.form-2col{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+@media(max-width:460px){.form-2col{grid-template-columns:1fr;}}
+
+/* BUTTONS */
+.btn-primary{background:var(--accent);color:#fff;border:none;padding:15px 22px;border-radius:16px;font-weight:800;width:100%;cursor:pointer;font-size:.98rem;font-family:var(--font);box-shadow:0 8px 20px rgba(var(--accent-rgb),.25);transition:all .2s;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(var(--accent-rgb),.35);}
+.btn-primary:active{transform:scale(.98);}
+.btn-primary:disabled{opacity:.35;pointer-events:none;}
+.btn-ghost{background:var(--bg);color:var(--text2);border:2px solid var(--border);padding:13px 18px;border-radius:16px;font-weight:700;cursor:pointer;font-size:.9rem;font-family:var(--font);transition:all .2s;}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+.btn-row{display:flex;gap:10px;margin-top:15px;}
+.btn-row .btn-ghost{flex-shrink:0;}
+.btn-row .btn-primary{flex:1;}
+
+/* SUMMARY */
+.sum-item{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border);}
+.sum-item:last-child{border-bottom:none;}
+.sum-icon{font-size:1rem;flex-shrink:0;margin-top:2px;}
+.sum-lbl{font-size:.72rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;}
+.sum-val{font-size:.88rem;font-weight:700;}
+
+/* SUCCESS */
+#success-section{display:none;max-width:640px;margin:0 auto;padding:40px 14px 60px;text-align:center;}
+.success-circle{width:86px;height:86px;border-radius:50%;background:linear-gradient(135deg,#10b981,#34d399);margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:2.3rem;animation:popIn .45s cubic-bezier(.34,1.56,.64,1);box-shadow:0 10px 28px rgba(16,185,129,.3);}
+@keyframes popIn{from{transform:scale(0);opacity:0;}to{transform:scale(1);opacity:1;}}
+.success-title{font-size:1.75rem;font-weight:800;margin-bottom:8px;letter-spacing:-.03em;}
+.success-sub{color:var(--muted);font-size:.9rem;line-height:1.65;margin-bottom:22px;}
+.success-box{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:18px;text-align:left;margin-bottom:18px;}
+.sbox-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:.85rem;}
+.sbox-row:last-child{border-bottom:none;}
+.sbox-lbl{color:var(--muted);}
+.sbox-val{font-weight:700;}
+.wa-btn{display:flex;align-items:center;justify-content:center;gap:8px;background:#25d366;color:#fff;border-radius:16px;padding:13px 20px;font-weight:800;font-size:.9rem;text-decoration:none;margin-top:10px;transition:all .2s;}
+.wa-btn:hover{background:#20b858;transform:translateY(-1px);}
+
+/* FOOTER */
+.site-footer{background:var(--surface);border-top:1px solid var(--border);padding:18px 14px;text-align:center;margin-top:18px;}
+.footer-note{font-size:.78rem;color:var(--muted);margin-bottom:10px;}
+.footer-soc{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-bottom:10px;}
+.powered{font-size:.7rem;color:var(--muted);}
+.powered strong{color:var(--accent);}
+
+/* WA FLOAT */
+#wa-float{position:fixed;bottom:18px;right:18px;z-index:100;display:none;}
+#wa-float a{display:flex;align-items:center;gap:7px;background:#25d366;color:#fff;border-radius:50px;padding:11px 17px;font-weight:800;font-size:.84rem;text-decoration:none;box-shadow:0 6px 20px rgba(37,211,102,.4);animation:floatIn .5s cubic-bezier(.34,1.56,.64,1);}
+@keyframes floatIn{from{transform:scale(0) translateY(20px);}to{transform:scale(1) translateY(0);}}
+
+/* TOAST */
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--text);color:var(--bg);border-radius:12px;padding:12px 22px;font-size:.86rem;font-weight:700;z-index:9999;opacity:0;transition:all .3s;max-width:90vw;text-align:center;}
+#toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+#toast.err{background:#ef4444;color:#fff;}
+
+[id^="step"]{animation:slideUp .35s ease-out;}
+@keyframes slideUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:none;}}
 </style>
 </head>
 <body>
 
-<div id="loader" style="position:fixed; inset:0; background:var(--bg); z-index:1000; display:flex; align-items:center; justify-content:center; font-weight:800">Dükkan Hazırlanıyor...</div>
+<div id="loader"><div class="spin"></div><div style="font-size:.85rem;color:var(--muted);font-weight:700">Hazırlanıyor...</div></div>
 
-<div id="app" style="display:none">
-    <div class="hero" id="hero-bg">
-        <div class="hero-overlay"></div>
-        <div class="hero-content">
-            <img id="biz-logo" class="biz-logo" src="" alt="">
-            <div class="biz-info">
-                <h1 id="biz-name"></h1>
-                <div style="color:var(--accent); font-weight:700; font-size:0.9rem">Hoş Geldiniz 👋</div>
-            </div>
-        </div>
+<div id="page-404"><div class="closed-icon">🔍</div><div class="closed-title">Sayfa Bulunamadı</div><div class="closed-sub">Bu randevu sayfası mevcut değil veya kaldırılmış.</div></div>
+
+<div id="page-closed"><div class="closed-icon">🔒</div><div class="closed-title" id="closed-biz">İşletme</div><div class="closed-sub">Şu an online randevu alınmıyor. Lütfen telefon ile iletişime geçin.</div><div id="closed-phone" style="margin-top:14px;font-size:1.1rem;font-weight:800;color:var(--accent)"></div></div>
+
+<div id="main-app" style="display:none">
+
+  <div class="hero" id="hero-el">
+    <div class="hero-overlay"></div>
+    <div class="hero-top">
+      <button class="hbtn" onclick="toggleTheme()">🌓</button>
+      <a class="hbtn" id="map-btn" href="#" target="_blank" style="display:none">📍 Harita</a>
+    </div>
+    <div class="hero-content">
+      <img id="logo-img" class="biz-logo" src="" alt="" style="display:none" onerror="this.style.display='none'">
+      <div id="logo-ph" class="biz-logo-ph" style="display:none">🏪</div>
+      <div class="biz-info">
+        <div class="biz-pill">📍 <span id="h-type">İşletme</span></div>
+        <div class="biz-name" id="h-name"></div>
+        <div class="biz-desc" id="h-desc" style="display:none"></div>
+        <div class="biz-meta" id="h-meta"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="soc-strip" id="soc-strip" style="display:none"></div>
+
+  <div class="wrap" id="booking-area">
+    <div class="steps-nav">
+      <div class="s-step active" id="sst1"><div class="s-dot active" id="sd1">1</div><div class="s-label">Hizmet</div></div>
+      <div class="s-line" id="sl1"></div>
+      <div class="s-step" id="sst2"><div class="s-dot" id="sd2">2</div><div class="s-label">Personel</div></div>
+      <div class="s-line" id="sl2"></div>
+      <div class="s-step" id="sst3"><div class="s-dot" id="sd3">3</div><div class="s-label">Tarih</div></div>
+      <div class="s-line" id="sl3"></div>
+      <div class="s-step" id="sst4"><div class="s-dot" id="sd4">4</div><div class="s-label">Bilgiler</div></div>
+      <div class="s-line" id="sl4"></div>
+      <div class="s-step" id="sst5"><div class="s-dot" id="sd5">5</div><div class="s-label">Onay</div></div>
     </div>
 
-    <div class="wrap">
-        <div class="steps-nav">
-            <div class="s-dot active" id="sd1">1</div>
-            <div class="s-dot" id="sd2">2</div>
-            <div class="s-dot" id="sd3">3</div>
-            <div class="s-dot" id="sd4">4</div>
-        </div>
-
-        <div id="step1">
-            <h2 style="margin-bottom:15px; font-weight:800">Hizmet Seçin</h2>
-            <div id="svc-list"></div>
-            <button class="btn-primary" onclick="nextStep(2)" id="btn1" disabled>Devam Et →</button>
-        </div>
-
-        <div id="step2" style="display:none">
-            <h2 style="margin-bottom:15px; font-weight:800">Personel Seçin</h2>
-            <div id="staff-list"></div>
-            <button class="btn-primary" onclick="nextStep(3)" id="btn2" disabled>Zaman Seçimine Geç →</button>
-        </div>
-
-        <div id="step3" style="display:none">
-            <h2 style="margin-bottom:15px; font-weight:800">Tarih ve Saat</h2>
-            <div class="card">
-                <div style="display:flex; justify-content:space-between; align-items:center">
-                    <button onclick="calPrev()" style="border:none; background:none; cursor:pointer; font-size:1.2rem">◀</button>
-                    <div id="cal-month" class="cal-month">Mart 2026</div>
-                    <button onclick="calNext()" style="border:none; background:none; cursor:pointer; font-size:1.2rem">▶</button>
-                </div>
-                <div class="cal-grid" style="opacity:0.5; font-size:0.7rem; font-weight:800; text-align:center">
-                    <div>PZT</div><div>SAL</div><div>ÇAR</div><div>PER</div><div>CUM</div><div>CMT</div><div>PAZ</div>
-                </div>
-                <div id="cal-grid" class="cal-grid"></div>
-            </div>
-            <div id="time-card" style="display:none" class="card">
-                <div class="time-grid" id="time-list"></div>
-            </div>
-            <button class="btn-primary" onclick="nextStep(4)" id="btn3" disabled>Bilgilerimi Gir →</button>
-        </div>
-
-        <div id="step4" style="display:none">
-            <h2 style="margin-bottom:15px; font-weight:800">Bilgilerinizi Onaylayın</h2>
-            <div class="card">
-                <input type="text" id="cust-name" placeholder="Adınız Soyadınız" style="width:100%; padding:15px; border-radius:12px; border:2px solid var(--border); margin-bottom:10px; font-family:inherit">
-                <input type="tel" id="cust-phone" placeholder="Telefon Numaranız" style="width:100%; padding:15px; border-radius:12px; border:2px solid var(--border); margin-bottom:10px; font-family:inherit">
-                <textarea id="cust-note" placeholder="Eklemek istediğiniz not..." style="width:100%; padding:15px; border-radius:12px; border:2px solid var(--border); height:80px; font-family:inherit"></textarea>
-            </div>
-            <button class="btn-primary" id="final-btn" onclick="completeBooking()">Randevuyu Tamamla 🎉</button>
-        </div>
+    <div id="step1">
+      <div class="card">
+        <h3>Hizmet Seçin</h3>
+        <div id="welcome-msg" style="color:var(--muted);font-size:.87rem;margin-bottom:14px;line-height:1.5;display:none"></div>
+        <div id="svc-list"></div>
+      </div>
+      <button class="btn-primary" onclick="goStep(2)" id="btn1" disabled>Devam Et →</button>
     </div>
+
+    <div id="step2" style="display:none">
+      <div class="card">
+        <h3>Personel Seçin</h3>
+        <div class="staff-grid" id="staff-list"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-ghost" onclick="goStep(1)">← Geri</button>
+        <button class="btn-primary" onclick="goStep(3)" id="btn2" disabled>Devam Et →</button>
+      </div>
+    </div>
+
+    <div id="step3" style="display:none">
+      <div class="card">
+        <h3>Tarih Seçin</h3>
+        <div class="cal-hdr">
+          <button class="cal-nav" onclick="calPrev()">◀</button>
+          <div class="cal-month" id="cal-month"></div>
+          <button class="cal-nav" onclick="calNext()">▶</button>
+        </div>
+        <div class="cal-grid">
+          <div class="cal-dh">Pzt</div><div class="cal-dh">Sal</div><div class="cal-dh">Çar</div>
+          <div class="cal-dh">Per</div><div class="cal-dh">Cum</div><div class="cal-dh">Cmt</div><div class="cal-dh">Paz</div>
+        </div>
+        <div id="cal-grid" class="cal-grid" style="margin-top:4px"></div>
+      </div>
+      <div class="card" id="time-card" style="display:none">
+        <h3>Saat Seçin</h3>
+        <div class="time-grid" id="time-list"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-ghost" onclick="goStep(2)">← Geri</button>
+        <button class="btn-primary" onclick="goStep(4)" id="btn3" disabled>Devam Et →</button>
+      </div>
+    </div>
+
+    <div id="step4" style="display:none">
+      <div class="card">
+        <h3>Bilgilerinizi Girin</h3>
+        <div class="form-2col">
+          <div class="form-group"><label>👤 Ad Soyad *</label><input type="text" id="cust-name" placeholder="Ad Soyad" oninput="checkS4()"></div>
+          <div class="form-group"><label>📞 Telefon *</label><input type="tel" id="cust-phone" placeholder="0555 000 00 00" oninput="checkS4()"></div>
+        </div>
+        <div class="form-group" id="email-grp"><label>📧 E-posta</label><input type="email" id="cust-email" placeholder="email@ornek.com"></div>
+        <div class="form-group" id="note-grp"><label>📝 Not</label><textarea id="cust-note" placeholder="Eklemek istediğiniz not..."></textarea></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-ghost" onclick="goStep(3)">← Geri</button>
+        <button class="btn-primary" onclick="goStep(5)" id="btn4" disabled>Devam Et →</button>
+      </div>
+    </div>
+
+    <div id="step5" style="display:none">
+      <div class="card"><h3>Randevu Özeti</h3><div id="summary"></div></div>
+      <div class="btn-row">
+        <button class="btn-ghost" onclick="goStep(4)">← Geri</button>
+        <button class="btn-primary" onclick="confirmBooking()" id="final-btn">🎉 Randevuyu Onayla</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="success-section">
+    <div class="success-circle">✓</div>
+    <div class="success-title">Randevunuz Alındı!</div>
+    <div class="success-sub">Talebiniz iletildi. İşletme onayladığında sizi arayabilir.</div>
+    <div class="success-box" id="sbox"></div>
+    <button class="btn-primary" onclick="resetBooking()" style="margin-bottom:10px">🔄 Yeni Randevu Al</button>
+    <a href="#" id="wa-success" class="wa-btn" target="_blank" style="display:none">💬 WhatsApp'ta Paylaş</a>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-note" id="footer-note"></div>
+    <div class="footer-soc" id="footer-soc"></div>
+    <div class="powered">Powered by <strong>RandevuPanel</strong></div>
+  </footer>
 </div>
+
+<div id="wa-float"><a href="#" id="wa-link" target="_blank"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.528 5.849L.057 23.5l5.797-1.519A11.934 11.934 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg> WhatsApp</a></div>
+<div id="toast"></div>
 
 <script>
 const SB_URL='https://sqjlqoznuxuwybgygoqy.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNxamxxb3pudXh1d3liZ3lnb3F5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjU3OTUsImV4cCI6MjA4OTI0MTc5NX0.raU-m-id4dj1y_962sTvb2nlXJBdLyfZ9MBzPb3IY2Q';
 const sb=supabase.createClient(SB_URL,SB_KEY);
 
-let profile, services, staff, selSvc, selStaff, selDate, selTime;
-let calDate = new Date();
+let profile,services=[],staff=[],selSvc,selStaff,selDate,selTime,curStep=1,maxDays=30;
+let calDate=new Date();
 
-async function init() {
-    const pid = new URLSearchParams(window.location.search).get('id');
-    if(!pid) return;
+function toast(msg,err=false){const t=document.getElementById('toast');t.textContent=msg;t.className='show'+(err?' err':'');setTimeout(()=>t.className='',3500);}
+function hideLoader(){document.getElementById('loader').classList.add('hide');}
 
-    const {data:p} = await sb.from('profiles').select('*').eq('id', pid).single();
-    const {data:s} = await sb.from('services').select('*').eq('profile_id', pid).eq('is_active', true);
-    const {data:st} = await sb.from('staff').select('*').eq('profile_id', pid);
+function toggleTheme(){const h=document.documentElement,n=h.getAttribute('data-theme')==='dark'?'light':'dark';h.setAttribute('data-theme',n);localStorage.setItem('theme',n);}
+(()=>{document.documentElement.setAttribute('data-theme',localStorage.getItem('theme')||'light');})();
 
-    profile = p; services = s; staff = st;
-
-    document.getElementById('biz-name').innerText = p.business_name;
-    document.getElementById('biz-logo').src = p.logo_url || '';
-    document.getElementById('hero-bg').style.backgroundImage = `url('${p.logo_url}')`; // Banner olarak logoyu kullanıyoruz
-    
-    if(p.theme_color) document.documentElement.style.setProperty('--accent', p.theme_color);
-
-    renderServices();
-    renderStaff();
-    
-    document.getElementById('loader').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
+function setAccent(hex){
+  if(!hex)return;
+  document.documentElement.style.setProperty('--accent',hex);
+  const m=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  if(m)document.documentElement.style.setProperty('--accent-rgb',`${parseInt(m[1],16)},${parseInt(m[2],16)},${parseInt(m[3],16)}`);
+  document.getElementById('hero-el').style.background=hex;
 }
 
-function renderServices() {
-    document.getElementById('svc-list').innerHTML = services.map(s => `
-        <div class="m-card" onclick="selectSvc('${s.id}')" id="svc-${s.id}">
-            <div style="font-size:1.5rem">${s.icon || '✂️'}</div>
-            <div style="flex:1"><b>${s.name}</b><br><small style="color:var(--text-muted)">${s.duration} dk • ₺${s.price}</small></div>
-        </div>
-    `).join('');
+async function init(){
+  const pid=new URLSearchParams(window.location.search).get('id');
+  if(!pid){hideLoader();show('page-404');return;}
+  const[{data:p},{data:s},{data:st},{data:cfg}]=await Promise.all([
+    sb.from('profiles').select('*').eq('id',pid).single(),
+    sb.from('services').select('*').eq('profile_id',pid).eq('is_active',true).order('created_at'),
+    sb.from('staff').select('*').eq('profile_id',pid).eq('is_active',true).order('created_at'),
+    sb.from('admin_settings').select('*').eq('id',1).single()
+  ]);
+  hideLoader();
+  if(!p){show('page-404');return;}
+  if(!p.is_active){
+    document.getElementById('closed-biz').textContent=p.business_name||'İşletme';
+    if(p.phone&&p.show_phone!==false)document.getElementById('closed-phone').textContent='📞 '+p.phone;
+    show('page-closed');return;
+  }
+  profile=p;services=s||[];staff=st||[];maxDays=cfg?.max_advance_days||30;
+  if(p.theme_color)setAccent(p.theme_color);
+  document.title=`Randevu Al — ${p.business_name}`;
+  buildUI();
+  renderServices();
+  renderStaff();
+  if(!staff.length){hideStep2();}
+  document.getElementById('main-app').style.display='block';
 }
 
-function selectSvc(id) {
-    selSvc = services.find(x => x.id === id);
-    document.querySelectorAll('#svc-list .m-card').forEach(c => c.classList.remove('selected'));
-    document.getElementById('svc-'+id).classList.add('selected');
-    document.getElementById('btn1').disabled = false;
+function show(id){const el=document.getElementById(id);el.style.display='flex';el.style.flexDirection='column';}
+
+function buildUI(){
+  const p=profile;
+  if(p.banner_url)document.getElementById('hero-el').style.backgroundImage=`url('${p.banner_url}')`;
+  if(p.logo_url){const i=document.getElementById('logo-img');i.src=p.logo_url;i.style.display='block';}
+  else document.getElementById('logo-ph').style.display='flex';
+  document.getElementById('h-type').textContent=p.business_type||'İşletme';
+  document.getElementById('h-name').textContent=p.business_name||'';
+  if(p.description){const d=document.getElementById('h-desc');d.textContent=p.description;d.style.display='block';}
+  // meta
+  const meta=[];
+  if(p.phone&&p.show_phone!==false)meta.push(`<div class="meta-tag">📞 <a href="tel:${p.phone}">${p.phone}</a></div>`);
+  if(p.address&&p.show_address!==false)meta.push(`<div class="meta-tag">📍 ${p.address}</div>`);
+  if(p.business_email)meta.push(`<div class="meta-tag">✉️ <a href="mailto:${p.business_email}">${p.business_email}</a></div>`);
+  if(p.website)meta.push(`<div class="meta-tag">🌐 <a href="${p.website}" target="_blank">${p.website.replace(/https?:\/\//,'')}</a></div>`);
+  document.getElementById('h-meta').innerHTML=meta.join('');
+  if(p.map_link){const mb=document.getElementById('map-btn');mb.href=p.map_link;mb.style.display='inline-flex';}
+  // WhatsApp float
+  if(p.show_whatsapp&&p.whatsapp){document.getElementById('wa-link').href=`https://wa.me/${p.whatsapp.replace(/\D/g,'')}?text=${encodeURIComponent('Merhaba, randevu almak istiyorum.')}`;document.getElementById('wa-float').style.display='block';}
+  // sosyal
+  const soc=[];
+  if(p.instagram)soc.push(`<a href="https://instagram.com/${p.instagram.replace('@','')}" class="soc-btn" target="_blank"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg> ${p.instagram}</a>`);
+  if(p.facebook)soc.push(`<a href="${p.facebook.startsWith('http')?p.facebook:'https://facebook.com/'+p.facebook}" class="soc-btn" target="_blank"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg> Facebook</a>`);
+  if(p.twitter)soc.push(`<a href="https://twitter.com/${p.twitter.replace('@','')}" class="soc-btn" target="_blank"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg> ${p.twitter}</a>`);
+  if(p.tiktok)soc.push(`<a href="https://tiktok.com/${p.tiktok.replace('@','')}" class="soc-btn" target="_blank"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.21 8.21 0 0 0 4.79 1.52V6.73a4.85 4.85 0 0 1-1.02-.04z"/></svg> TikTok</a>`);
+  if(soc.length){document.getElementById('soc-strip').innerHTML=soc.join('');document.getElementById('soc-strip').style.display='flex';}
+  if(p.welcome_message){const w=document.getElementById('welcome-msg');w.textContent=p.welcome_message;w.style.display='block';}
+  if(p.ask_email===false)document.getElementById('email-grp').style.display='none';
+  if(p.ask_note===false)document.getElementById('note-grp').style.display='none';
+  if(p.footer_note)document.getElementById('footer-note').textContent=p.footer_note;
+  const fsoc=[];
+  if(p.instagram)fsoc.push(`<a href="https://instagram.com/${p.instagram.replace('@','')}" class="soc-btn" target="_blank">📸 Instagram</a>`);
+  if(p.facebook)fsoc.push(`<a href="${p.facebook.startsWith('http')?p.facebook:'https://fb.com/'+p.facebook}" class="soc-btn" target="_blank"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg> Facebook</a>`);
+  if(p.twitter)fsoc.push(`<a href="https://twitter.com/${p.twitter.replace('@','')}" class="soc-btn" target="_blank">🐦 Twitter</a>`);
+  if(p.tiktok)fsoc.push(`<a href="https://tiktok.com/${p.tiktok.replace('@','')}" class="soc-btn" target="_blank"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.21 8.21 0 0 0 4.79 1.52V6.73a4.85 4.85 0 0 1-1.02-.04z"/></svg> TikTok</a>`);
+  document.getElementById('footer-soc').innerHTML=fsoc.join('');
 }
 
-function renderStaff() {
-    document.getElementById('staff-list').innerHTML = staff.map(s => `
-        <div class="m-card" onclick="selectStaff('${s.id}')" id="staff-${s.id}">
-            <img src="${s.image_url || ''}" style="width:50px; height:50px; border-radius:12px; object-fit:cover">
-            <div style="flex:1"><b>${s.name}</b><br><small style="color:var(--text-muted)">${s.title || 'Uzman'}</small></div>
-        </div>
-    `).join('');
+function hideStep2(){
+  document.getElementById('sst2').style.display='none';
+  document.getElementById('sl2').style.display='none';
 }
 
-function selectStaff(id) {
-    selStaff = staff.find(x => x.id === id);
-    document.querySelectorAll('#staff-list .m-card').forEach(c => c.classList.remove('selected'));
-    document.getElementById('staff-'+id).classList.add('selected');
-    document.getElementById('btn2').disabled = false;
+function renderServices(){
+  const el=document.getElementById('svc-list');
+  if(!services.length){el.innerHTML='<p style="color:var(--muted);text-align:center;padding:20px">Hizmet bulunamadı.</p>';return;}
+  el.innerHTML=services.map(s=>`
+    <div class="m-card" id="svc-${s.id}" onclick="selSvcFn('${s.id}')">
+      <div class="svc-icon">${s.icon||'✂️'}</div>
+      <div class="svc-info">
+        <div class="svc-name">${s.name}</div>
+        <div class="svc-meta">${profile.show_duration!==false?`⏱ ${s.duration} dk`:''} ${s.description?`&nbsp;·&nbsp; ${s.description}`:''}</div>
+      </div>
+      ${profile.show_price!==false?`<div class="svc-price">${s.price>0?'₺'+Number(s.price).toFixed(0):'Ücretsiz'}</div>`:''}
+    </div>`).join('');
+}
+function selSvcFn(id){selSvc=services.find(x=>x.id===id);document.querySelectorAll('#svc-list .m-card').forEach(c=>c.classList.remove('selected'));document.getElementById('svc-'+id).classList.add('selected');document.getElementById('btn1').disabled=false;}
+
+function renderStaff(){
+  const el=document.getElementById('staff-list');
+  if(!staff.length){el.innerHTML='<p style="color:var(--muted);text-align:center;padding:20px;grid-column:span 3">Personel bulunamadı.</p>';return;}
+  el.innerHTML=staff.map(s=>`
+    <div class="staff-card" id="stf-${s.id}" onclick="selStaffFn('${s.id}')">
+      ${s.image_url?`<img src="${s.image_url}" class="staff-photo" alt="${s.name}" onerror="this.style.display='none'">`:`<div class="staff-photo-ph">👤</div>`}
+      <div class="staff-sname">${s.name}</div>
+      <div class="staff-stitle">${s.title||'Uzman'}</div>
+    </div>`).join('');
+}
+function selStaffFn(id){selStaff=staff.find(x=>x.id===id);document.querySelectorAll('#staff-list .staff-card').forEach(c=>c.classList.remove('selected'));document.getElementById('stf-'+id).classList.add('selected');document.getElementById('btn2').disabled=false;}
+
+/* STEP NAV */
+function goStep(n){
+  if(n===2&&staff.length===0)n=3;
+  if(n===3&&curStep===2&&staff.length===0)n=1;
+  document.getElementById('step'+curStep).style.display='none';
+  document.getElementById('step'+n).style.display='block';
+  if(n===3)renderCal();
+  if(n===5)buildSummary();
+  updateDots(n); curStep=n;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function updateDots(a){
+  for(let i=1;i<=5;i++){
+    const d=document.getElementById('sd'+i),s=document.getElementById('sst'+i);
+    if(!d)continue;
+    d.className='s-dot'+(i<a?' done':i===a?' active':'');
+    d.textContent=i<a?'✓':i;
+    if(s)s.className='s-step'+(i===a?' active':'');
+  }
+  for(let i=1;i<=4;i++){const l=document.getElementById('sl'+i);if(l)l.className='s-line'+(i<a?' done':'');}
+}
+function checkS4(){document.getElementById('btn4').disabled=!(document.getElementById('cust-name').value.trim()&&document.getElementById('cust-phone').value.trim());}
+
+/* CALENDAR */
+const MONTHS=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+const DK=['sun','mon','tue','wed','thu','fri','sat'];
+function renderCal(){
+  const y=calDate.getFullYear(),m=calDate.getMonth();
+  document.getElementById('cal-month').textContent=MONTHS[m]+' '+y;
+  const first=new Date(y,m,1),last=new Date(y,m+1,0);
+  const today=new Date();today.setHours(0,0,0,0);
+  const maxDate=new Date(today);maxDate.setDate(maxDate.getDate()+maxDays);
+  const hrs=profile.working_hours||{};
+  let html='';
+  let startDay=first.getDay()===0?6:first.getDay()-1;
+  for(let i=0;i<startDay;i++)html+='<div></div>';
+  for(let d=1;d<=last.getDate();d++){
+    const dt=new Date(y,m,d);
+    const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dk=DK[dt.getDay()];
+    const off=dt<today||dt>maxDate||hrs[dk]?.active===false;
+    const isToday=dt.getTime()===today.getTime();
+    html+=`<div class="cal-d ${off?'off':''} ${isToday?'today':''} ${ds===selDate?'sel':''}" ${!off?`onclick="pickDate('${ds}')"`:''}>${d}</div>`;
+  }
+  document.getElementById('cal-grid').innerHTML=html;
+}
+function calPrev(){calDate.setMonth(calDate.getMonth()-1);renderCal();}
+function calNext(){calDate.setMonth(calDate.getMonth()+1);renderCal();}
+async function pickDate(ds){
+  selDate=ds;selTime=null;document.getElementById('btn3').disabled=true;renderCal();
+  const tc=document.getElementById('time-card');tc.style.display='block';
+  const tl=document.getElementById('time-list');tl.innerHTML='<div style="grid-column:span 4;text-align:center;padding:14px;color:var(--muted)">Yükleniyor...</div>';
+  let q=sb.from('appointments').select('appointment_time').eq('profile_id',profile.id).eq('appointment_date',ds).neq('status','cancelled');
+  if(selStaff)q=q.eq('staff_id',selStaff.id);
+  const{data:booked}=await q;
+  const taken=(booked||[]).map(b=>b.appointment_time.slice(0,5));
+  const dt=new Date(ds+'T00:00'),dk=DK[dt.getDay()];
+  const h=profile.working_hours||{},dh=h[dk]||{open:'09:00',close:'18:00',active:true};
+  if(!dh.active){tl.innerHTML='<div style="grid-column:span 4;text-align:center;padding:16px;color:var(--muted)">Bu gün kapalı.</div>';return;}
+  const dur=selSvc?.duration||profile.slot_duration||30;
+  const slots=genSlots(dh.open,dh.close,dur);
+  if(!slots.length){tl.innerHTML='<div style="grid-column:span 4;text-align:center;padding:16px;color:var(--muted)">Müsait saat yok.</div>';return;}
+  tl.innerHTML=slots.map(s=>`<div class="t-btn ${taken.includes(s)?'taken':''}" ${!taken.includes(s)?`onclick="pickTime('${s}')"`:''}>${s}</div>`).join('');
+}
+function genSlots(o,c,d){const sl=[];const[oh,om]=o.split(':').map(Number);const[ch,cm]=c.split(':').map(Number);let cur=oh*60+om,end=ch*60+cm;while(cur+d<=end){sl.push(`${String(Math.floor(cur/60)).padStart(2,'0')}:${String(cur%60).padStart(2,'0')}`);cur+=d;}return sl;}
+function pickTime(t){selTime=t;document.querySelectorAll('.t-btn').forEach(b=>b.classList.remove('selected'));event.currentTarget.classList.add('selected');document.getElementById('btn3').disabled=false;}
+
+/* SUMMARY */
+function buildSummary(){
+  const dt=new Date(selDate+'T00:00'),ds=`${dt.getDate()} ${MONTHS[dt.getMonth()]} ${dt.getFullYear()}`;
+  const name=document.getElementById('cust-name').value.trim(),phone=document.getElementById('cust-phone').value.trim();
+  document.getElementById('summary').innerHTML=`
+    <div class="sum-item"><div class="sum-icon">🏢</div><div><div class="sum-lbl">İşletme</div><div class="sum-val">${profile.business_name}</div></div></div>
+    <div class="sum-item"><div class="sum-icon">${selSvc?.icon||'✂️'}</div><div><div class="sum-lbl">Hizmet</div><div class="sum-val">${selSvc?.name||'—'}</div></div></div>
+    ${selStaff?`<div class="sum-item"><div class="sum-icon">👤</div><div><div class="sum-lbl">Personel</div><div class="sum-val">${selStaff.name}</div></div></div>`:''}
+    <div class="sum-item"><div class="sum-icon">📅</div><div><div class="sum-lbl">Tarih</div><div class="sum-val">${ds}</div></div></div>
+    <div class="sum-item"><div class="sum-icon">🕐</div><div><div class="sum-lbl">Saat</div><div class="sum-val">${selTime}</div></div></div>
+    <div class="sum-item"><div class="sum-icon">👤</div><div><div class="sum-lbl">Ad Soyad</div><div class="sum-val">${name}</div></div></div>
+    <div class="sum-item"><div class="sum-icon">📞</div><div><div class="sum-lbl">Telefon</div><div class="sum-val">${phone}</div></div></div>`;
 }
 
-function renderCal() {
-    const y = calDate.getFullYear(), m = calDate.getMonth();
-    const months = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
-    document.getElementById('cal-month').innerText = months[m] + " " + y;
-    
-    const first = new Date(y, m, 1).getDay();
-    const last = new Date(y, m + 1, 0).getDate();
-    const today = new Date(); today.setHours(0,0,0,0);
-
-    let html = '';
-    const spaces = first === 0 ? 6 : first - 1;
-    for(let i=0; i<spaces; i++) html += '<div></div>';
-
-    for(let d=1; d<=last; d++) {
-        const curr = new Date(y, m, d);
-        const ds = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-        const isPast = curr < today;
-        html += `<div class="cal-d ${isPast?'past':''} ${ds==selDate?'sel':''} ${curr.getTime()==today.getTime()?'today':''}" onclick="${isPast?'':'pickDate(\''+ds+'\')'}">${d}</div>`;
-    }
-    document.getElementById('cal-grid').innerHTML = html;
+/* CONFIRM */
+async function confirmBooking(){
+  const btn=document.getElementById('final-btn');btn.disabled=true;btn.textContent='⏳ İşleniyor...';
+  let chk=sb.from('appointments').select('id').eq('profile_id',profile.id).eq('appointment_date',selDate).eq('appointment_time',selTime).neq('status','cancelled');
+  if(selStaff)chk=chk.eq('staff_id',selStaff.id);
+  const{data:ex}=await chk;
+  if(ex?.length){toast('Bu saat doldu! Başka saat seçin.',true);btn.disabled=false;btn.textContent='🎉 Randevuyu Onayla';goStep(3);return;}
+  const name=document.getElementById('cust-name').value.trim(),phone=document.getElementById('cust-phone').value.trim(),email=document.getElementById('cust-email').value.trim(),note=document.getElementById('cust-note').value.trim();
+  const{error}=await sb.from('appointments').insert({profile_id:profile.id,service_id:selSvc?.id||null,staff_id:selStaff?.id||null,customer_name:name,customer_phone:phone,customer_email:email||null,appointment_date:selDate,appointment_time:selTime,status:'pending',notes:note||null});
+  if(error){toast('Hata: '+error.message,true);btn.disabled=false;btn.textContent='🎉 Randevuyu Onayla';return;}
+  const dt=new Date(selDate+'T00:00'),ds=`${dt.getDate()} ${MONTHS[dt.getMonth()]} ${dt.getFullYear()}`;
+  document.getElementById('sbox').innerHTML=`
+    <div class="sbox-row"><span class="sbox-lbl">Hizmet</span><span class="sbox-val">${selSvc?.name||'—'}</span></div>
+    ${selStaff?`<div class="sbox-row"><span class="sbox-lbl">Personel</span><span class="sbox-val">${selStaff.name}</span></div>`:''}
+    <div class="sbox-row"><span class="sbox-lbl">Tarih</span><span class="sbox-val">${ds}</span></div>
+    <div class="sbox-row"><span class="sbox-lbl">Saat</span><span class="sbox-val">${selTime}</span></div>
+    <div class="sbox-row"><span class="sbox-lbl">Ad Soyad</span><span class="sbox-val">${name}</span></div>`;
+  if(profile.show_whatsapp&&profile.whatsapp){const msg=`Randevum alındı!\n🏢 ${profile.business_name}\n✂️ ${selSvc?.name||''}\n${selStaff?`👤 ${selStaff.name}\n`:''}📅 ${ds} ${selTime}`;const wa=document.getElementById('wa-success');wa.href=`https://wa.me/${profile.whatsapp.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`;wa.style.display='flex';}
+  document.getElementById('booking-area').style.display='none';
+  document.getElementById('success-section').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
-async function pickDate(ds) {
-    selDate = ds; renderCal();
-    document.getElementById('time-card').style.display = 'block';
-    
-    const {data:booked} = await sb.from('appointments').select('appointment_time').eq('appointment_date', ds).eq('staff_id', selStaff.id).neq('status', 'cancelled');
-    const taken = (booked||[]).map(b => b.appointment_time.slice(0,5));
-    const hours = ["09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00"];
-
-    document.getElementById('time-list').innerHTML = hours.map(h => `
-        <div class="t-btn ${taken.includes(h)?'taken':''}" onclick="selectTime('${h}')" id="t-${h.replace(':','')}">${h}</div>
-    `).join('');
-}
-
-function selectTime(h) {
-    selTime = h;
-    document.querySelectorAll('.t-btn').forEach(b => b.classList.remove('selected'));
-    document.getElementById('t-'+h.replace(':','')).classList.add('selected');
-    document.getElementById('btn3').disabled = false;
-}
-
-function calNext() { calDate.setMonth(calDate.getMonth()+1); renderCal(); }
-function calPrev() { calDate.setMonth(calDate.getMonth()-1); renderCal(); }
-
-function nextStep(n) {
-    [1,2,3,4].forEach(s => document.getElementById('step'+s).style.display = 'none');
-    document.getElementById('step'+n).style.display = 'block';
-    if(n==3) renderCal();
-    document.querySelectorAll('.s-dot').forEach((d, i) => {
-        if(i+1 < n) d.className = 's-dot done';
-        else if(i+1 === n) d.className = 's-dot active';
-        else d.className = 's-dot';
-    });
-}
-
-async function completeBooking() {
-    const btn = document.getElementById('final-btn');
-    btn.disabled = true; btn.innerText = "Kaydediliyor...";
-    
-    const {error} = await sb.from('appointments').insert({
-        profile_id: profile.id, service_id: selSvc.id, staff_id: selStaff.id,
-        customer_name: document.getElementById('cust-name').value,
-        customer_phone: document.getElementById('cust-phone').value,
-        appointment_date: selDate, appointment_time: selTime,
-        status: 'pending', notes: document.getElementById('cust-note').value
-    });
-
-    if(!error) {
-        alert("Randevu Alındı! 🎉");
-        location.reload();
-    } else {
-        alert("Hata oluştu.");
-        btn.disabled = false;
-    }
+/* RESET */
+function resetBooking(){
+  selSvc=null;selStaff=null;selDate=null;selTime=null;curStep=1;
+  ['cust-name','cust-phone','cust-email','cust-note'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('booking-area').style.display='block';
+  document.getElementById('success-section').style.display='none';
+  for(let i=1;i<=5;i++)document.getElementById('step'+i).style.display=i===1?'block':'none';
+  document.querySelectorAll('.m-card,.staff-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('btn1').disabled=true;document.getElementById('btn4').disabled=true;
+  updateDots(1);calDate=new Date();
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
 init();
