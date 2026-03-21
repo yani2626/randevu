@@ -3117,36 +3117,6 @@ function loadSettings() {
   document.getElementById('acc-email').value = CU?.email||'';
 }
 
-async function saveSettings() {
-  const g=(id)=>{const el=document.getElementById(id);return el?el.value.trim():'';}
-  const gt=(id)=>document.getElementById(id)?.classList.contains('on')??true;
-  const hours={};
-  DAY_KEYS.forEach(d=>{hours[d]={open:document.getElementById('ho-'+d)?.value||'09:00',close:document.getElementById('hc-'+d)?.value||'18:00',active:document.getElementById('ha-'+d)?.classList.contains('on')??true};});
-  const upd={
-    business_name:g('s-bizname'), business_type:g('s-biztype'), phone:g('s-phone'),
-    whatsapp:g('s-whatsapp'), business_email:g('s-bemail'), website:g('s-website'),
-    address:g('s-address'), map_link:g('s-maplink'), description:g('s-desc'),
-    welcome_message:g('s-welcome'), footer_note:g('s-footernote'),
-    slot_duration:parseInt(g('s-slot'))||30, advance_days:parseInt(g('s-advdays'))||30,
-    theme_color:g('s-colorhex')||g('s-color'),
-    logo_url:document.getElementById('settings-logo-base64')?.value || g('s-logo'),
-    banner_url:document.getElementById('settings-banner-base64')?.value || g('s-banner'),
-    gallery_images: JSON.parse(document.getElementById('gallery-data')?.value || 'null') || undefined,
-    instagram:g('s-instagram'), facebook:g('s-facebook'),
-    twitter:g('s-twitter'), tiktok:g('s-tiktok'),
-    show_phone:gt('t-showphone'), show_address:gt('t-showaddress'),
-    show_whatsapp:gt('t-whatsapp'), show_price:gt('t-showprice'),
-    show_duration:gt('t-showdur'), ask_email:gt('t-askemail'),
-    ask_note:gt('t-asknote'), is_active:gt('t-isactive'),
-    working_hours:hours
-  };
-  const { error } = await sb.from('profiles').update(upd).eq('id',UP.id);
-  if(error){toast('Hata: '+error.message,'error');return;}
-  Object.assign(UP,upd);
-  document.getElementById('sb-biz').textContent=upd.business_name;
-  toast('Tüm ayarlar kaydedildi! ✅');
-}
-
 /* ══════════════════════════════════════
    ACCOUNT
 ══════════════════════════════════════ */
@@ -3179,11 +3149,6 @@ async function deleteAccount() {
 /* ══════════════════════════════════════
    MY LINK
 ══════════════════════════════════════ */
-function updateMyLink() {
-  if (!UP) return;
-  const url = `${window.location.origin.replace('panel.html','').replace(/\/$/, '')}/randevu.html?id=${UP.id}`;
-  document.getElementById('my-link').textContent = url;
-}
 function copyMyLink() { navigator.clipboard.writeText(document.getElementById('my-link').textContent).then(()=>toast('Link kopyalandı!')); }
 function openPreview() { window.open(document.getElementById('my-link').textContent,'_blank'); }
 function shareWhatsApp() { const url=document.getElementById('my-link').textContent; window.open(`https://wa.me/?text=Online randevu sayfamız: ${encodeURIComponent(url)}`,'_blank'); }
@@ -3252,7 +3217,7 @@ async function toggleUser(id, cur) {
     .select('id');
   if (error || !data?.length) {
     // RLS hatası olabilir - kullanıcıya bilgi ver
-    toast('Güncelleme başarısız. Supabase'de admin policy gerekiyor.', 'error');
+    toast('Güncelleme başarısız. Supabase RLS policy gerekiyor.', 'error');
     console.error('toggleUser error:', error);
     showAdminPolicyWarning();
     return;
@@ -3907,39 +3872,6 @@ async function doLogout() {
 ══════════════════════════════════════ */
 
 // Personelleri Veritabanından Çek ve Listele
-async function loadStaff() {
-  if (!UP) return;
-  const { data, error } = await sb.from('staff').select('*').eq('profile_id', UP.id).order('created_at');
-  
-  if (error) { toast('Personel yüklenirken hata oluştu', 'error'); return; }
-  
-  const container = document.getElementById('staff-list');
-  if (!data || data.length === 0) {
-    container.innerHTML = `
-      <div class="empty" style="grid-column: 1/-1; padding: 40px;">
-        <div class="empty-icon">👨‍⚕️</div>
-        <div class="empty-sub">Henüz personel eklenmemiş.</div>
-      </div>`;
-    return;
-  }
-
-  container.innerHTML = data.map(s => `
-    <div class="staff-card">
-      <img src="${s.image_url || 'https://via.placeholder.com/60'}" class="staff-img" alt="${s.name}">
-      <div class="staff-info">
-        <div class="staff-name">${s.name} ${!s.is_active ? '<span class="badge badge-gray">Pasif</span>' : ''}</div>
-        <div class="staff-title">${s.title || 'Personel'}</div>
-      </div>
-      <div class="staff-actions">
-        <button class="btn btn-ghost btn-xs" onclick='editStaff(${JSON.stringify(s)})'>✏️</button>
-        <button class="btn btn-danger btn-xs" onclick="deleteStaff('${s.id}')">🗑</button>
-      </div>
-    </div>
-  `).join('');
-
-  // Randevu ekleme modalındaki personel seçim listesini de güncelle
-  updateStaffSelect(data);
-}
 
 // Randevu Modalındaki Personel Dropdown'ını Doldur
 function updateStaffSelect(staffData) {
@@ -3951,17 +3883,6 @@ function updateStaffSelect(staffData) {
 }
 
 // Personel Ekleme Modalı Aç
-function showStaffModal() {
-  document.getElementById('staff-modal-title').textContent = 'Personel Ekle';
-  ['mst-id','mst-name','mst-title','mst-email','mst-password','mst-img'].forEach(id => {
-    const el = document.getElementById(id); if (el) el.value = '';
-  });
-  const prev = document.getElementById('mst-img-preview');
-  if (prev) prev.style.display = 'none';
-  const tog = document.getElementById('mst-active');
-  if (tog) tog.className = 'toggle on';
-  openModal('modal-staff');
-}
 // Personel Düzenleme
 function editStaff(s) {
   document.getElementById('staff-modal-title').textContent = 'Personel Düzenle';
