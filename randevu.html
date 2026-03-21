@@ -174,6 +174,59 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 
 [id^="step"]{animation:slideUp .35s ease-out;}
 @keyframes slideUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:none;}}
+
+/* ══ GALERİ ══ */
+.gallery-section { margin-bottom: 14px; }
+.gallery-strip {
+  display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory;
+  scrollbar-width: none; -ms-overflow-style: none; padding-bottom: 4px;
+}
+.gallery-strip::-webkit-scrollbar { display: none; }
+.gallery-img {
+  width: 140px; height: 100px; object-fit: cover; border-radius: 14px;
+  flex-shrink: 0; scroll-snap-align: start; cursor: pointer;
+  transition: transform 0.2s; border: 2px solid transparent;
+}
+.gallery-img:hover { transform: scale(1.04); border-color: var(--accent); }
+.gallery-count {
+  font-size: 0.76rem; color: var(--text-muted); margin-top: 6px; text-align: right;
+}
+
+/* Galeri lightbox */
+.lightbox {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.92);
+  z-index: 9999; display: none; align-items: center; justify-content: center;
+  flex-direction: column; gap: 14px; padding: 20px;
+}
+.lightbox.open { display: flex; }
+.lightbox-img { max-width: 90vw; max-height: 80vh; border-radius: 16px; object-fit: contain; }
+.lightbox-close {
+  position: absolute; top: 16px; right: 16px;
+  background: rgba(255,255,255,0.15); border: none; color: #fff;
+  width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
+  font-size: 1.1rem; display: flex; align-items: center; justify-content: center;
+}
+.lightbox-nav {
+  display: flex; gap: 10px;
+}
+.lightbox-nav button {
+  background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);
+  color: #fff; border-radius: 10px; padding: 8px 20px; cursor: pointer;
+  font-family: var(--font); font-size: 0.88rem; font-weight: 600;
+}
+.lightbox-nav button:hover { background: rgba(255,255,255,0.3); }
+
+/* ══ HİZMET GÖRSELLER ══ */
+.svc-cover {
+  width: 52px; height: 52px; border-radius: 12px; object-fit: cover;
+  flex-shrink: 0; border: 1.5px solid var(--border);
+}
+.svc-cover-placeholder {
+  width: 52px; height: 52px; border-radius: 12px;
+  background: rgba(var(--accent-rgb),.1); color: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; flex-shrink: 0;
+}
 </style>
 </head>
 <body>
@@ -205,6 +258,17 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
   </div>
 
   <div class="soc-strip" id="soc-strip" style="display:none"></div>
+
+<!-- FOTOĞRAF GALERİSİ -->
+<div class="wrap" id="gallery-area" style="margin-top:18px;display:none">
+  <div class="gallery-section card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div style="font-weight:700;font-size:0.88rem">Fotoğraflar</div>
+      <div class="gallery-count" id="gallery-count"></div>
+    </div>
+    <div class="gallery-strip" id="gallery-strip"></div>
+  </div>
+</div>
 
   <div class="wrap" id="booking-area">
     <div class="steps-nav">
@@ -386,6 +450,8 @@ function buildUI(){
   if(p.ask_email===false)document.getElementById('email-grp').style.display='none';
   if(p.ask_note===false)document.getElementById('note-grp').style.display='none';
   if(p.footer_note)document.getElementById('footer-note').textContent=p.footer_note;
+  // Galeri
+  renderGallery(p.gallery_images);
   const fsoc=[];
   if(p.instagram)fsoc.push(`<a href="https://instagram.com/${p.instagram.replace('@','')}" class="soc-btn" target="_blank">📸 Instagram</a>`);
   if(p.facebook)fsoc.push(`<a href="${p.facebook.startsWith('http')?p.facebook:'https://fb.com/'+p.facebook}" class="soc-btn" target="_blank"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg> Facebook</a>`);
@@ -404,10 +470,15 @@ function renderServices(){
   if(!services.length){el.innerHTML='<p style="color:var(--muted);text-align:center;padding:20px">Hizmet bulunamadı.</p>';return;}
   el.innerHTML=services.map(s=>`
     <div class="m-card" id="svc-${s.id}" onclick="selSvcFn('${s.id}')">
-      <div class="svc-icon">${s.icon||'✂️'}</div>
+      ${s.image_url
+        ? `<img src="${s.image_url}" class="svc-cover" alt="${s.name}" onerror="this.style.display='none'">`
+        : `<div class="svc-cover-placeholder">${s.icon||'✂️'}</div>`}
       <div class="svc-info">
         <div class="svc-name">${s.name}</div>
-        <div class="svc-meta">${profile.show_duration!==false?`⏱ ${s.duration} dk`:''} ${s.description?`&nbsp;·&nbsp; ${s.description}`:''}</div>
+        <div class="svc-meta">
+          ${profile.show_duration!==false?`⏱ ${s.duration} dk`:''}
+          ${s.description?`&nbsp;·&nbsp; ${s.description}`:''}
+        </div>
       </div>
       ${profile.show_price!==false?`<div class="svc-price">${s.price>0?'₺'+Number(s.price).toFixed(0):'Ücretsiz'}</div>`:''}
     </div>`).join('');
@@ -543,7 +614,67 @@ function resetBooking(){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
+
+/* ══ GALERİ ══ */
+let galleryImages = [];
+let lightboxIndex = 0;
+
+function renderGallery(images) {
+  if (!images || !images.length) return;
+  galleryImages = images;
+  const area = document.getElementById('gallery-area');
+  const strip = document.getElementById('gallery-strip');
+  const count = document.getElementById('gallery-count');
+  if (!area || !strip) return;
+  area.style.display = 'block';
+  count.textContent = images.length + ' fotoğraf';
+  strip.innerHTML = images.map((src, i) =>
+    `<img src="${src}" class="gallery-img" alt="Fotoğraf ${i+1}" onclick="openLightbox(${i})" onerror="this.style.display='none'">`
+  ).join('');
+}
+
+function openLightbox(index) {
+  lightboxIndex = index;
+  document.getElementById('lightbox-img').src = galleryImages[index];
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function lightboxPrev() {
+  lightboxIndex = (lightboxIndex - 1 + galleryImages.length) % galleryImages.length;
+  document.getElementById('lightbox-img').src = galleryImages[lightboxIndex];
+}
+
+function lightboxNext() {
+  lightboxIndex = (lightboxIndex + 1) % galleryImages.length;
+  document.getElementById('lightbox-img').src = galleryImages[lightboxIndex];
+}
+
+// Klavye navigasyonu
+document.addEventListener('keydown', e => {
+  const lb = document.getElementById('lightbox');
+  if (!lb.classList.contains('open')) return;
+  if (e.key === 'Escape') closeLightbox();
+  if (e.key === 'ArrowLeft') lightboxPrev();
+  if (e.key === 'ArrowRight') lightboxNext();
+});
+
 init();
 </script>
+
+<!-- GALERİ LİGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img class="lightbox-img" id="lightbox-img" src="" alt="" onclick="event.stopPropagation()">
+  <div class="lightbox-nav" onclick="event.stopPropagation()">
+    <button onclick="lightboxPrev()">← Önceki</button>
+    <button onclick="lightboxNext()">Sonraki →</button>
+  </div>
+</div>
 </body>
 </html>
