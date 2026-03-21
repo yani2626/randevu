@@ -2028,7 +2028,7 @@ tr:hover td { background: var(--surface2); }
           <div class="card">
             <div class="card-header"><div class="card-title">🗑️ Hesap Silme</div></div>
             <p style="color:var(--text-muted);font-size:0.88rem;margin-bottom:16px">Bu işlem geri alınamaz. Tüm randevularınız ve verileriniz silinir.</p>
-            <button class="btn btn-danger btn-sm" onclick="if(confirm('Hesabınızı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.'))deleteAccount()">Hesabımı Sil</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteAccount()">Hesabımı Sil</button>
           </div>
         </div>
 
@@ -3158,19 +3158,19 @@ async function changePassword() {
   document.getElementById('acc-pass').value=''; document.getElementById('acc-pass2').value='';
 }
 async function deleteAccount() {
-  const btn = event?.target;
+  if (!confirm('Hesabınızı SİLMEK istediğinizden emin misiniz?\n\nTüm randevular, hizmetler ve veriler kalıcı olarak silinir.')) return;
+  const btn = document.querySelector('[onclick*="deleteAccount"]');
   if (btn) { btn.disabled = true; btn.textContent = 'Siliniyor...'; }
   try {
-    // Bağlı verileri sil
     await sb.from('appointments').delete().eq('profile_id', UP.id);
     await sb.from('services').delete().eq('profile_id', UP.id);
     await sb.from('staff').delete().eq('profile_id', UP.id);
     const { error } = await sb.from('profiles').delete().eq('id', UP.id);
     if (error) throw error;
-    // Auth oturumunu kapat
     await sb.auth.signOut();
-    toast('Hesap ve tüm veriler silindi');
-    setTimeout(() => { UP = null; CU = null; showLanding(); }, 1200);
+    UP = null; CU = null;
+    toast('Hesap silindi');
+    setTimeout(() => showLanding(), 1000);
   } catch(err) {
     toast('Hata: ' + err.message, 'error');
     if (btn) { btn.disabled = false; btn.textContent = 'Hesabımı Sil'; }
@@ -4125,7 +4125,14 @@ async function saveSettings() {
   if (gallery) upd.gallery_images = gallery;
 
   const { error } = await sb.from('profiles').update(upd).eq('id', UP.id);
-  if (error) { toast('Hata: ' + error.message, 'error'); return; }
+  if (error) {
+    if (error.message?.includes('permission') || error.code === '42501') {
+      toast('Veritabanı izin hatası — Supabase RLS kapatın (SQL notuna bakın)', 'error');
+    } else {
+      toast('Hata: ' + error.message, 'error');
+    }
+    return;
+  }
   Object.assign(UP, upd);
   document.getElementById('sb-biz').textContent = upd.business_name;
   toast('Ayarlar kaydedildi!');
