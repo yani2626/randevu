@@ -1887,30 +1887,29 @@ tr:hover td { background: var(--surface2); }
 
         <!-- ═ SETTINGS ═ -->
         <div class="page" id="page-settings">
-          <!-- BİZNES BİLGİLERİ -->
           <div class="card">
-            <div class="card-header"><div><div class="card-title">🏢 İşletme Bilgileri</div><div class="card-sub">Randevu sayfasında görünecek bilgiler</div></div></div>
+            <div class="card-header"><div><div class="card-title">İşletme Bilgileri</div><div class="card-sub">Randevu sayfasında görünecek bilgiler</div></div></div>
             <div class="settings-section">
               <div class="settings-section-title">Temel Bilgiler</div>
               <div class="settings-grid">
-                <div class="form-group"><label>İşletme Adı</label><input type="text" id="s-bizname"></div>
+                <div class="form-group"><label>İşletme Adı</label><input type="text" id="s-bizname" placeholder="Ali Berber Salonu"></div>
                 <div class="form-group"><label>İşletme Türü</label>
                   <select id="s-biztype"><option>Berber</option><option>Kuaför</option><option>Diş Hekimi</option><option>Güzellik Salonu</option><option>Tırnak Salonu</option><option>Masaj Merkezi</option><option>Veteriner</option><option>Psikolog</option><option>Diyetisyen</option><option>Fizyoterapist</option><option>Estetik Klinik</option><option>Genel</option></select>
                 </div>
                 <div class="form-group"><label>Telefon</label><input type="text" id="s-phone" placeholder="+90 555 000 00 00"></div>
-                <div class="form-group"><label>WhatsApp (İsteğe Bağlı)</label><input type="text" id="s-whatsapp" placeholder="+90 555 000 00 00"></div>
+                <div class="form-group"><label>WhatsApp</label><input type="text" id="s-whatsapp" placeholder="+90 555 000 00 00"></div>
                 <div class="form-group"><label>E-posta</label><input type="email" id="s-bemail"></div>
                 <div class="form-group"><label>Website</label><input type="text" id="s-website" placeholder="https://..."></div>
                 <div class="form-group full"><label>Adres</label><input type="text" id="s-address"></div>
-                <div class="form-group full"><label>Harita Linki (Google Maps)</label><input type="text" id="s-maplink" placeholder="https://maps.google.com/..."></div>
-                <div class="form-group full"><label>Kısa Açıklama</label><textarea id="s-desc" rows="2" placeholder="İşletmeniz hakkında kısa bir açıklama..."></textarea></div>
+                <div class="form-group full"><label>Google Maps Linki</label><input type="text" id="s-maplink" placeholder="https://maps.google.com/..."></div>
+                <div class="form-group full"><label>Kısa Açıklama</label><textarea id="s-desc" rows="2"></textarea></div>
               </div>
             </div>
             <div class="settings-section">
               <div class="settings-section-title">Randevu Sayfası Metinleri</div>
               <div class="settings-grid">
                 <div class="form-group full"><label>Karşılama Mesajı</label><textarea id="s-welcome" rows="2"></textarea></div>
-                <div class="form-group full"><label>Alt Bilgi Notu</label><input type="text" id="s-footernote" placeholder="Alt kısımda görünecek küçük not..."></div>
+                <div class="form-group full"><label>Alt Bilgi Notu</label><input type="text" id="s-footernote" placeholder="Alt kısımda görünecek not..."></div>
               </div>
             </div>
             <div class="settings-section">
@@ -1921,48 +1920,6 @@ tr:hover td { background: var(--surface2); }
                 </div>
                 <div class="form-group"><label>Kaç Gün İlerisine Randevu?</label><input type="number" id="s-advdays" value="30" min="1" max="180"></div>
               </div>
-               <div class="card" style="margin-top:20px;">
-              <div class="card-header"><div class="card-title">Randevu Sitesi Görünümü</div></div>
-  
-              <div class="form-row">
-              <div class="form-group">
-                <label>Sitenin Ana Rengi (Accent)</label>
-                <input type="color" id="set-site-color" value="#6366f1">
-              </div>
-    
-              <div class="form-group">
-                <label>Tasarım Stili</label>
-                <select id="set-site-style">
-                  <option value="modern">Modern & Hafif (Soft)</option>
-                  <option value="dark-premium">Koyu & Premium (Gold)</option>
-                  <option value="minimal">Minyatür & Net</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label>Sitedeki Karşılama Metni</label>
-              <input type="text" id="set-site-welcome" placeholder="Örn: Merhaba, Randevunu Hemen Oluştur!">
-            </div>
-          </div>
-               <div class="card">
-  <div class="card-header"><div class="card-title">Mağaza Görünümü</div></div>
-  <div class="card-body">
-    <div class="form-row">
-      <div class="form-group">
-        <label>İşletme Logosu</label>
-        <input type="file" id="inp-logo-file" accept="image/*" onchange="handleLogoUpload(this)">
-        <input type="hidden" id="set-logo-url"> </div>
-      
-      <div class="form-group">
-        <label>Sitenin Ana Rengi</label>
-        <input type="color" id="set-theme-color" style="height:45px; cursor:pointer">
-      </div>
-    </div>
-  </div>
-</div>
-
-
             </div>
             <div class="settings-section">
               <div class="settings-section-title">Görünüm & Tema</div>
@@ -1991,7 +1948,7 @@ tr:hover td { background: var(--surface2); }
                   <div style="display:flex; gap:10px; align-items:center;">
                     <img id="settings-logo-preview" src="" style="width:50px; height:50px; border-radius:10px; object-fit:cover; border:1px solid var(--border); display:none;">
     
-                    <input type="file" id="settings-logo-file" accept="image/*" style="padding: 10px 0;">
+                    <input type="file" id="settings-logo-file" accept="image/*" onchange="handleLogoUpload(this)" style="padding:8px 0;font-size:0.82rem">
     
                     <input type="hidden" id="settings-logo-base64">
                   </div>
@@ -3201,12 +3158,23 @@ async function changePassword() {
   document.getElementById('acc-pass').value=''; document.getElementById('acc-pass2').value='';
 }
 async function deleteAccount() {
-  await sb.from('appointments').delete().eq('profile_id',UP.id);
-  await sb.from('services').delete().eq('profile_id',UP.id);
-  await sb.from('profiles').delete().eq('id',UP.id);
-  await sb.auth.signOut();
-  toast('Hesap silindi');
-  setTimeout(()=>showLanding(),1500);
+  const btn = event?.target;
+  if (btn) { btn.disabled = true; btn.textContent = 'Siliniyor...'; }
+  try {
+    // Bağlı verileri sil
+    await sb.from('appointments').delete().eq('profile_id', UP.id);
+    await sb.from('services').delete().eq('profile_id', UP.id);
+    await sb.from('staff').delete().eq('profile_id', UP.id);
+    const { error } = await sb.from('profiles').delete().eq('id', UP.id);
+    if (error) throw error;
+    // Auth oturumunu kapat
+    await sb.auth.signOut();
+    toast('Hesap ve tüm veriler silindi');
+    setTimeout(() => { UP = null; CU = null; showLanding(); }, 1200);
+  } catch(err) {
+    toast('Hata: ' + err.message, 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Hesabımı Sil'; }
+  }
 }
 
 /* ══════════════════════════════════════
@@ -3531,14 +3499,14 @@ function copyShareText() {
 }
 function updateMyLink() {
   if (!UP) return;
-  // Mevcut sayfanın URL'inden randevu.html'in yolunu türet
-  const base = window.location.href.split('/').slice(0,-1).join('/');
+  let base = window.location.href;
+  // index.html varsa kaldır
+  base = base.replace(/index\.html.*$/, '').replace(/\/+$/, '');
   const url = base + '/randevu.html?id=' + UP.id;
   const el = document.getElementById('my-link');
   if (el) el.textContent = url;
   setTimeout(() => generateQR(url), 500);
-}
-/* ══════════════════════════════════════
+}/* ══════════════════════════════════════
    İSTATİSTİKLER
 ══════════════════════════════════════ */
 async function loadStats() {
@@ -4106,50 +4074,61 @@ document.getElementById('settings-logo-file')?.addEventListener('change', functi
 
 
 async function saveSettings() {
-  // Butonu manuel bulalım (event.target bazen null dönebilir)
-  const btn = document.querySelector('button[onclick="saveSettings()"]') || event?.target;
-  
-  // Input verilerini alıyoruz
-  const bizName = document.getElementById('set-biz-name')?.value.trim();
-  const logoData = document.getElementById('settings-logo-base64')?.value; 
-  const bannerData = document.getElementById('settings-banner-base64')?.value;
-  const themeColor = document.getElementById('set-theme-color')?.value;
+  const g = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+  const gt = (id) => document.getElementById(id)?.classList.contains('on') ?? true;
+  const hours = {};
+  const DAY_KEYS = ['mon','tue','wed','thu','fri','sat','sun'];
+  DAY_KEYS.forEach(d => {
+    hours[d] = {
+      open: document.getElementById('ho-'+d)?.value || '09:00',
+      close: document.getElementById('hc-'+d)?.value || '18:00',
+      active: document.getElementById('ha-'+d)?.classList.contains('on') ?? true
+    };
+  });
+  const logoBase64 = document.getElementById('settings-logo-base64')?.value || null;
+  const bannerBase64 = document.getElementById('settings-banner-base64')?.value || null;
+  const galleryData = document.getElementById('gallery-data')?.value;
+  const gallery = galleryData ? JSON.parse(galleryData) : undefined;
 
-  // Temel Kontrol
-  if (!bizName) { 
-    toast('İşletme adı boş bırakılamaz!', 'err'); 
-    return; 
-  }
+  const upd = {
+    business_name: g('s-bizname') || UP?.business_name || 'İşletme',
+    business_type: g('s-biztype'),
+    phone: g('s-phone'),
+    whatsapp: g('s-whatsapp'),
+    business_email: g('s-bemail'),
+    website: g('s-website'),
+    address: g('s-address'),
+    map_link: g('s-maplink'),
+    description: g('s-desc'),
+    welcome_message: g('s-welcome'),
+    footer_note: g('s-footernote'),
+    slot_duration: parseInt(g('s-slot')) || 30,
+    advance_days: parseInt(g('s-advdays')) || 30,
+    theme_color: g('s-colorhex') || g('s-color') || '#6366f1',
+    logo_url: logoBase64 || g('s-logo') || UP?.logo_url,
+    banner_url: bannerBase64 || g('s-banner') || UP?.banner_url,
+    instagram: g('s-instagram'),
+    facebook: g('s-facebook'),
+    twitter: g('s-twitter'),
+    tiktok: g('s-tiktok'),
+    show_phone: gt('t-showphone'),
+    show_address: gt('t-showaddress'),
+    show_whatsapp: gt('t-whatsapp'),
+    show_price: gt('t-showprice'),
+    show_duration: gt('t-showdur'),
+    ask_email: gt('t-askemail'),
+    ask_note: gt('t-asknote'),
+    is_active: gt('t-isactive'),
+    staff_login_enabled: gt('t-stafflogin'),
+    working_hours: hours,
+  };
+  if (gallery) upd.gallery_images = gallery;
 
-  // Buton Yükleniyor Durumu
-  if(btn) { btn.disabled = true; btn.innerHTML = '⏳ Güncelleniyor...'; }
-
-  try {
-    // Supabase Güncelleme
-    const { error } = await sb
-      .from('profiles')
-      .update({ 
-        business_name: bizName,
-        logo_url: logoData,
-        banner_url: bannerData || logoData, // Banner yoksa logoyu bas
-        theme_color: themeColor || '#6366f1' 
-      })
-      .eq('id', UP.id);
-
-    if (error) throw error;
-
-    toast('Ayarlar ve Tasarım Başarıyla Kaydedildi! 🎨✨');
-    
-    // Dashboard'u tazele (logonun her yerde değişmesi için)
-    if (typeof loadDashboard === "function") loadDashboard();
-
-  } catch (err) {
-    console.error("Kaydetme Hatası:", err);
-    toast('Hata: ' + err.message, 'err');
-  } finally {
-    // Butonu eski haline getir
-    if(btn) { btn.disabled = false; btn.innerHTML = 'Ayarları Kaydet'; }
-  }
+  const { error } = await sb.from('profiles').update(upd).eq('id', UP.id);
+  if (error) { toast('Hata: ' + error.message, 'error'); return; }
+  Object.assign(UP, upd);
+  document.getElementById('sb-biz').textContent = upd.business_name;
+  toast('Ayarlar kaydedildi!');
 }
 
 
