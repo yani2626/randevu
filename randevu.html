@@ -178,18 +178,34 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 /* ══ GALERİ ══ */
 .gallery-section { margin-bottom: 14px; }
 .gallery-strip {
-  display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory;
-  scrollbar-width: none; -ms-overflow-style: none; padding-bottom: 4px;
+  position: relative; border-radius: 16px; overflow: hidden; line-height: 0;
 }
-.gallery-strip::-webkit-scrollbar { display: none; }
 .gallery-img {
-  width: 140px; height: 100px; object-fit: cover; border-radius: 14px;
-  flex-shrink: 0; scroll-snap-align: start; cursor: pointer;
-  transition: transform 0.2s; border: 2px solid transparent;
+  width: 100%; height: 200px; object-fit: cover; display: none;
+  cursor: pointer; transition: opacity 0.4s;
 }
-.gallery-img:hover { transform: scale(1.04); border-color: var(--accent); }
+.gallery-img.active { display: block; }
+.gallery-nav {
+  position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 6px; align-items: center;
+}
+.gallery-nav-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: rgba(255,255,255,0.5); cursor: pointer; transition: all 0.2s;
+}
+.gallery-nav-dot.active { background: #fff; transform: scale(1.3); }
+.gallery-prev, .gallery-next {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  background: rgba(0,0,0,0.4); color: #fff; border: none; border-radius: 8px;
+  width: 32px; height: 32px; cursor: pointer; font-size: 0.9rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+}
+.gallery-prev:hover, .gallery-next:hover { background: rgba(0,0,0,0.7); }
+.gallery-prev { left: 8px; }
+.gallery-next { right: 8px; }
 .gallery-count {
-  font-size: 0.76rem; color: var(--text-muted); margin-top: 6px; text-align: right;
+  font-size: 0.73rem; color: var(--text-muted); margin-top: 6px; text-align: right;
 }
 
 /* Galeri lightbox */
@@ -233,23 +249,23 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 
 <div id="loader"><div class="spin"></div><div style="font-size:.85rem;color:var(--muted);font-weight:700">Hazırlanıyor...</div></div>
 
-<div id="page-404"><div class="closed-icon">🔍</div><div class="closed-title">Sayfa Bulunamadı</div><div class="closed-sub">Bu randevu sayfası mevcut değil veya kaldırılmış.</div></div>
+<div id="page-404"><div class="closed-icon"><svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><div class="closed-title">Sayfa Bulunamadı</div><div class="closed-sub">Bu randevu sayfası bulunamadı. Link doğru mu? Eğer yeni bir hesapsa birkaç saniye bekleyip tekrar deneyin.</div></div>
 
-<div id="page-closed"><div class="closed-icon">🔒</div><div class="closed-title" id="closed-biz">İşletme</div><div class="closed-sub">Şu an online randevu alınmıyor. Lütfen telefon ile iletişime geçin.</div><div id="closed-phone" style="margin-top:14px;font-size:1.1rem;font-weight:800;color:var(--accent)"></div></div>
+<div id="page-closed"><div class="closed-icon"><svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div class="closed-title" id="closed-biz">İşletme</div><div class="closed-sub">Şu an online randevu alınmıyor. Lütfen telefon ile iletişime geçin.</div><div id="closed-phone" style="margin-top:14px;font-size:1.1rem;font-weight:800;color:var(--accent)"></div></div>
 
 <div id="main-app" style="display:none">
 
   <div class="hero" id="hero-el">
     <div class="hero-overlay"></div>
     <div class="hero-top">
-      <button class="hbtn" onclick="toggleTheme()">🌓</button>
-      <a class="hbtn" id="map-btn" href="#" target="_blank" style="display:none">📍 Harita</a>
+      <button class="hbtn" onclick="toggleTheme()"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+      <a class="hbtn" id="map-btn" href="#" target="_blank" style="display:none"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Harita</a>
     </div>
     <div class="hero-content">
       <img id="logo-img" class="biz-logo" src="" alt="" style="display:none" onerror="this.style.display='none'">
-      <div id="logo-ph" class="biz-logo-ph" style="display:none">🏪</div>
+      <div id="logo-ph" class="biz-logo-ph" style="display:none"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
       <div class="biz-info">
-        <div class="biz-pill">📍 <span id="h-type">İşletme</span></div>
+        <div class="biz-pill"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> <span id="h-type">İşletme</span></div>
         <div class="biz-name" id="h-name"></div>
         <div class="biz-desc" id="h-desc" style="display:none"></div>
         <div class="biz-meta" id="h-meta"></div>
@@ -331,11 +347,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
       <div class="card">
         <h3>Bilgilerinizi Girin</h3>
         <div class="form-2col">
-          <div class="form-group"><label>👤 Ad Soyad *</label><input type="text" id="cust-name" placeholder="Ad Soyad" oninput="checkS4()"></div>
-          <div class="form-group"><label>📞 Telefon *</label><input type="tel" id="cust-phone" placeholder="0555 000 00 00" oninput="checkS4()"></div>
+          <div class="form-group"><label><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Ad Soyad *</label><input type="text" id="cust-name" placeholder="Ad Soyad" oninput="checkS4()"></div>
+          <div class="form-group"><label><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> Telefon *</label><input type="tel" id="cust-phone" placeholder="0555 000 00 00" oninput="checkS4()"></div>
         </div>
-        <div class="form-group" id="email-grp"><label>📧 E-posta</label><input type="email" id="cust-email" placeholder="email@ornek.com"></div>
-        <div class="form-group" id="note-grp"><label>📝 Not</label><textarea id="cust-note" placeholder="Eklemek istediğiniz not..."></textarea></div>
+        <div class="form-group" id="email-grp"><label><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> E-posta</label><input type="email" id="cust-email" placeholder="email@ornek.com"></div>
+        <div class="form-group" id="note-grp"><label><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Not</label><textarea id="cust-note" placeholder="Eklemek istediğiniz not..."></textarea></div>
       </div>
       <div class="btn-row">
         <button class="btn-ghost" onclick="goStep(3)">← Geri</button>
@@ -347,7 +363,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
       <div class="card"><h3>Randevu Özeti</h3><div id="summary"></div></div>
       <div class="btn-row">
         <button class="btn-ghost" onclick="goStep(4)">← Geri</button>
-        <button class="btn-primary" onclick="confirmBooking()" id="final-btn">🎉 Randevuyu Onayla</button>
+        <button class="btn-primary" onclick="confirmBooking()" id="final-btn">Randevuyu Onayla</button>
       </div>
     </div>
   </div>
@@ -357,8 +373,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
     <div class="success-title">Randevunuz Alındı!</div>
     <div class="success-sub">Talebiniz iletildi. İşletme onayladığında sizi arayabilir.</div>
     <div class="success-box" id="sbox"></div>
-    <button class="btn-primary" onclick="resetBooking()" style="margin-bottom:10px">🔄 Yeni Randevu Al</button>
-    <a href="#" id="wa-success" class="wa-btn" target="_blank" style="display:none">💬 WhatsApp'ta Paylaş</a>
+    <button class="btn-primary" onclick="resetBooking()" style="margin-bottom:10px">Yeni Randevu Al</button>
+    <a href="#" id="wa-success" class="wa-btn" target="_blank" style="display:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.528 5.849L.057 23.5l5.797-1.519A11.934 11.934 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg> WhatsApp'ta Paylaş</a>
   </div>
 
   <footer class="site-footer">
@@ -403,10 +419,17 @@ async function init(){
     sb.from('admin_settings').select('*').eq('id',1).single()
   ]);
   hideLoader();
-  if(!p){show('page-404');return;}
+  if(!p){
+    // RLS hatası veya profil yok — 3 saniye sonra tekrar dene
+    setTimeout(async () => {
+      const {data:p2} = await sb.from('profiles').select('*').eq('id',pid).single();
+      if(p2){ location.reload(); } else { hideLoader(); show('page-404'); }
+    }, 2000);
+    return;
+  }
   if(!p.is_active){
     document.getElementById('closed-biz').textContent=p.business_name||'İşletme';
-    if(p.phone&&p.show_phone!==false)document.getElementById('closed-phone').textContent='📞 '+p.phone;
+    if(p.phone&&p.show_phone!==false)document.getElementById('closed-phone').textContent='<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> '+p.phone;
     show('page-closed');return;
   }
   profile=p;services=s||[];staff=st||[];maxDays=cfg?.max_advance_days||30;
@@ -431,10 +454,10 @@ function buildUI(){
   if(p.description){const d=document.getElementById('h-desc');d.textContent=p.description;d.style.display='block';}
   // meta
   const meta=[];
-  if(p.phone&&p.show_phone!==false)meta.push(`<div class="meta-tag">📞 <a href="tel:${p.phone}">${p.phone}</a></div>`);
-  if(p.address&&p.show_address!==false)meta.push(`<div class="meta-tag">📍 ${p.address}</div>`);
-  if(p.business_email)meta.push(`<div class="meta-tag">✉️ <a href="mailto:${p.business_email}">${p.business_email}</a></div>`);
-  if(p.website)meta.push(`<div class="meta-tag">🌐 <a href="${p.website}" target="_blank">${p.website.replace(/https?:\/\//,'')}</a></div>`);
+  if(p.phone&&p.show_phone!==false)meta.push(`<div class="meta-tag"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> <a href="tel:${p.phone}">${p.phone}</a></div>`);
+  if(p.address&&p.show_address!==false)meta.push(`<div class="meta-tag"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> ${p.address}</div>`);
+  if(p.business_email)meta.push(`<div class="meta-tag"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> <a href="mailto:${p.business_email}">${p.business_email}</a></div>`);
+  if(p.website)meta.push(`<div class="meta-tag"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> <a href="${p.website}" target="_blank">${p.website.replace(/https?:\/\//,'')}</a></div>`);
   document.getElementById('h-meta').innerHTML=meta.join('');
   if(p.map_link){const mb=document.getElementById('map-btn');mb.href=p.map_link;mb.style.display='inline-flex';}
   // WhatsApp float
@@ -453,7 +476,7 @@ function buildUI(){
   // Galeri
   renderGallery(p.gallery_images);
   const fsoc=[];
-  if(p.instagram)fsoc.push(`<a href="https://instagram.com/${p.instagram.replace('@','')}" class="soc-btn" target="_blank">📸 Instagram</a>`);
+  if(p.instagram)fsoc.push(`<a href="https://instagram.com/${p.instagram.replace('@','')}" class="soc-btn" target="_blank"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg> Instagram</a>`);
   if(p.facebook)fsoc.push(`<a href="${p.facebook.startsWith('http')?p.facebook:'https://fb.com/'+p.facebook}" class="soc-btn" target="_blank"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg> Facebook</a>`);
   if(p.twitter)fsoc.push(`<a href="https://twitter.com/${p.twitter.replace('@','')}" class="soc-btn" target="_blank">🐦 Twitter</a>`);
   if(p.tiktok)fsoc.push(`<a href="https://tiktok.com/${p.tiktok.replace('@','')}" class="soc-btn" target="_blank"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.21 8.21 0 0 0 4.79 1.52V6.73a4.85 4.85 0 0 1-1.02-.04z"/></svg> TikTok</a>`);
@@ -490,7 +513,7 @@ function renderStaff(){
   if(!staff.length){el.innerHTML='<p style="color:var(--muted);text-align:center;padding:20px;grid-column:span 3">Personel bulunamadı.</p>';return;}
   el.innerHTML=staff.map(s=>`
     <div class="staff-card" id="stf-${s.id}" onclick="selStaffFn('${s.id}')">
-      ${s.image_url?`<img src="${s.image_url}" class="staff-photo" alt="${s.name}" onerror="this.style.display='none'">`:`<div class="staff-photo-ph">👤</div>`}
+      ${s.image_url?`<img src="${s.image_url}" class="staff-photo" alt="${s.name}" onerror="this.style.display='none'">`:`<div class="staff-photo-ph"><svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>`}
       <div class="staff-sname">${s.name}</div>
       <div class="staff-stitle">${s.title||'Uzman'}</div>
     </div>`).join('');
@@ -569,13 +592,13 @@ function buildSummary(){
   const dt=new Date(selDate+'T00:00'),ds=`${dt.getDate()} ${MONTHS[dt.getMonth()]} ${dt.getFullYear()}`;
   const name=document.getElementById('cust-name').value.trim(),phone=document.getElementById('cust-phone').value.trim();
   document.getElementById('summary').innerHTML=`
-    <div class="sum-item"><div class="sum-icon">🏢</div><div><div class="sum-lbl">İşletme</div><div class="sum-val">${profile.business_name}</div></div></div>
+    <div class="sum-item"><div class="sum-icon"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8L2 7h20z"/></svg></div><div><div class="sum-lbl">İşletme</div><div class="sum-val">${profile.business_name}</div></div></div>
     <div class="sum-item"><div class="sum-icon">${selSvc?.icon||'✂️'}</div><div><div class="sum-lbl">Hizmet</div><div class="sum-val">${selSvc?.name||'—'}</div></div></div>
-    ${selStaff?`<div class="sum-item"><div class="sum-icon">👤</div><div><div class="sum-lbl">Personel</div><div class="sum-val">${selStaff.name}</div></div></div>`:''}
-    <div class="sum-item"><div class="sum-icon">📅</div><div><div class="sum-lbl">Tarih</div><div class="sum-val">${ds}</div></div></div>
-    <div class="sum-item"><div class="sum-icon">🕐</div><div><div class="sum-lbl">Saat</div><div class="sum-val">${selTime}</div></div></div>
-    <div class="sum-item"><div class="sum-icon">👤</div><div><div class="sum-lbl">Ad Soyad</div><div class="sum-val">${name}</div></div></div>
-    <div class="sum-item"><div class="sum-icon">📞</div><div><div class="sum-lbl">Telefon</div><div class="sum-val">${phone}</div></div></div>`;
+    ${selStaff?`<div class="sum-item"><div class="sum-icon"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div><div class="sum-lbl">Personel</div><div class="sum-val">${selStaff.name}</div></div></div>`:''}
+    <div class="sum-item"><div class="sum-icon"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div><div class="sum-lbl">Tarih</div><div class="sum-val">${ds}</div></div></div>
+    <div class="sum-item"><div class="sum-icon"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><div class="sum-lbl">Saat</div><div class="sum-val">${selTime}</div></div></div>
+    <div class="sum-item"><div class="sum-icon"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div><div class="sum-lbl">Ad Soyad</div><div class="sum-val">${name}</div></div></div>
+    <div class="sum-item"><div class="sum-icon"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div><div><div class="sum-lbl">Telefon</div><div class="sum-val">${phone}</div></div></div>`;
 }
 
 /* CONFIRM */
@@ -619,18 +642,44 @@ function resetBooking(){
 let galleryImages = [];
 let lightboxIndex = 0;
 
+let galleryCurrentIndex = 0;
+
 function renderGallery(images) {
   if (!images || !images.length) return;
   galleryImages = images;
   const area = document.getElementById('gallery-area');
   const strip = document.getElementById('gallery-strip');
-  const count = document.getElementById('gallery-count');
   if (!area || !strip) return;
   area.style.display = 'block';
-  count.textContent = images.length + ' fotoğraf';
+
+  // Slideshow HTML
   strip.innerHTML = images.map((src, i) =>
-    `<img src="${src}" class="gallery-img" alt="Fotoğraf ${i+1}" onclick="openLightbox(${i})" onerror="this.style.display='none'">`
-  ).join('');
+    `<img src="${src}" class="gallery-img ${i===0?'active':''}" alt="Fotoğraf ${i+1}" onclick="openLightbox(${i})" onerror="this.style.display='none'">`
+  ).join('') +
+  (images.length > 1 ? `
+    <button class="gallery-prev" onclick="gallerySlide(-1)">&#8249;</button>
+    <button class="gallery-next" onclick="gallerySlide(1)">&#8250;</button>
+    <div class="gallery-nav">${images.map((_,i)=>`<div class="gallery-nav-dot ${i===0?'active':''}" onclick="galleryGoTo(${i})"></div>`).join('')}</div>
+  ` : '');
+
+  const count = document.getElementById('gallery-count');
+  if (count) count.textContent = images.length > 1 ? images.length + ' fotoğraf' : '';
+  galleryCurrentIndex = 0;
+}
+
+function gallerySlide(dir) {
+  if (!galleryImages.length) return;
+  galleryGoTo((galleryCurrentIndex + dir + galleryImages.length) % galleryImages.length);
+}
+
+function galleryGoTo(index) {
+  const strip = document.getElementById('gallery-strip');
+  if (!strip) return;
+  const imgs = strip.querySelectorAll('.gallery-img');
+  const dots = strip.querySelectorAll('.gallery-nav-dot');
+  imgs.forEach((img, i) => img.classList.toggle('active', i === index));
+  dots.forEach((dot, i) => dot.classList.toggle('active', i === index));
+  galleryCurrentIndex = index;
 }
 
 function openLightbox(index) {
@@ -669,7 +718,7 @@ init();
 
 <!-- GALERİ LİGHTBOX -->
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
-  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <button class="lightbox-close" onclick="closeLightbox()"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
   <img class="lightbox-img" id="lightbox-img" src="" alt="" onclick="event.stopPropagation()">
   <div class="lightbox-nav" onclick="event.stopPropagation()">
     <button onclick="lightboxPrev()">← Önceki</button>
