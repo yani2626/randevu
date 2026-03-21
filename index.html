@@ -350,7 +350,7 @@ body {
 }
 
 /* ═══════════════════════════════════════════════
-   AUTH SCREEN
+   AUTH SCREEN — VISUAL REDESIGN
 ═══════════════════════════════════════════════ */
 #auth-screen {
   min-height: 100vh;
@@ -361,43 +361,200 @@ body {
   padding: 20px;
 }
 .auth-wrap {
-  display: grid; grid-template-columns: 1fr 1fr;
-  max-width: 880px; width: 100%;
-  background: var(--surface);
-  border-radius: 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  max-width: 920px; width: 100%;
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.18);
   border: 1px solid var(--border);
-  box-shadow: var(--shadow-lg);
+}
+
+/* LEFT PANEL */
+.auth-left {
+  position: relative;
+  background: linear-gradient(135deg, var(--accent) 0%, #8b5cf6 100%);
+  background-size: cover;
+  background-position: center;
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
   overflow: hidden;
 }
-.auth-left {
-  background: linear-gradient(135deg, var(--accent) 0%, #8b5cf6 100%);
-  padding: 48px 36px;
-  display: flex; flex-direction: column; justify-content: center;
-  position: relative; overflow: hidden;
+.auth-left-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.15) 60%, transparent 100%);
+  z-index: 1;
 }
+/* When background image is set, overlay kicks in */
+.auth-left[style*="backgroundImage"] .auth-left-overlay {
+  background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0.1) 100%);
+}
+.auth-left-content {
+  position: relative;
+  z-index: 2;
+  padding: 36px 36px 40px;
+}
+.auth-left-logo {
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: rgba(255,255,255,0.9);
+  margin-bottom: 10px;
+}
+.auth-left-badge {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: rgba(255,255,255,0.9);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+  backdrop-filter: blur(8px);
+}
+.auth-left-title {
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  margin-bottom: 10px;
+}
+.auth-left-sub {
+  font-size: 0.88rem;
+  color: rgba(255,255,255,0.75);
+  line-height: 1.6;
+  margin-bottom: 22px;
+}
+.auth-feature-list {
+  list-style: none;
+  margin-bottom: 24px;
+}
+.auth-feature-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255,255,255,0.88);
+  font-size: 0.83rem;
+  padding: 4px 0;
+  font-weight: 500;
+}
+.auth-feat-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.auth-stats {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 14px;
+  padding: 12px 16px;
+  backdrop-filter: blur(10px);
+}
+.auth-stat-chip {
+  flex: 1;
+  text-align: center;
+}
+.auth-stat-num {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+.auth-stat-label {
+  display: block;
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.7);
+  margin-top: 1px;
+  font-weight: 500;
+}
+.auth-stat-sep {
+  width: 1px;
+  height: 30px;
+  background: rgba(255,255,255,0.2);
+  margin: 0 8px;
+}
+
+/* Decorative floating elements on left panel */
 .auth-left::before {
-  content: ''; position: absolute; top: -60px; right: -60px;
-  width: 200px; height: 200px; border-radius: 50%;
-  background: rgba(255,255,255,0.08);
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 220px; height: 220px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  z-index: 1;
 }
 .auth-left::after {
-  content: ''; position: absolute; bottom: -40px; left: -40px;
-  width: 160px; height: 160px; border-radius: 50%;
-  background: rgba(255,255,255,0.06);
+  content: '';
+  position: absolute;
+  top: 40%; left: -30px;
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+  z-index: 1;
 }
-.auth-left-logo { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.04em; color: #fff; margin-bottom: 24px; position: relative; z-index: 1; }
-.auth-left-title { font-size: 1.6rem; font-weight: 700; color: #fff; margin-bottom: 12px; line-height: 1.2; position: relative; z-index: 1; }
-.auth-left-sub { color: rgba(255,255,255,0.75); font-size: 0.9rem; line-height: 1.6; position: relative; z-index: 1; margin-bottom: 32px; }
-.auth-feature-list { list-style: none; position: relative; z-index: 1; }
-.auth-feature-list li { color: rgba(255,255,255,0.85); font-size: 0.85rem; padding: 5px 0; display: flex; align-items: center; gap: 8px; }
-.auth-feature-list li::before { content: '✓'; font-weight: 700; color: rgba(255,255,255,0.9); }
-.auth-right { padding: 48px 40px; display: flex; flex-direction: column; justify-content: center; }
-.auth-form-title { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 6px; }
-.auth-form-sub { color: var(--text-muted); font-size: 0.88rem; margin-bottom: 28px; }
-.auth-tabs { display: flex; gap: 4px; background: var(--bg); border-radius: 10px; padding: 4px; margin-bottom: 24px; }
-.auth-tab { flex: 1; padding: 8px; border: none; border-radius: 7px; font-family: var(--font); font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: var(--transition); background: transparent; color: var(--text-muted); }
-.auth-tab.active { background: var(--surface); color: var(--accent); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-@media(max-width: 640px) { .auth-wrap { grid-template-columns: 1fr; } .auth-left { display: none; } }
+
+/* RIGHT PANEL */
+.auth-right {
+  padding: 44px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: var(--surface);
+}
+.auth-form-title {
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 4px;
+}
+.auth-form-sub {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 24px;
+}
+.auth-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--bg);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 22px;
+}
+.auth-tab {
+  flex: 1; padding: 9px; border: none; border-radius: 9px;
+  font-family: var(--font); font-size: 0.86rem; font-weight: 600;
+  cursor: pointer; transition: var(--transition);
+  background: transparent; color: var(--text-muted);
+}
+.auth-tab.active {
+  background: var(--surface);
+  color: var(--accent);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+@media(max-width: 680px) {
+  .auth-wrap { grid-template-columns: 1fr; }
+  .auth-left { display: none; }
+  .auth-right { padding: 32px 24px; }
+}
 
 /* ═══════════════════════════════════════════════
    PIN SCREEN
@@ -1031,44 +1188,137 @@ tr:hover td { background: var(--surface2); }
 <!-- ═══ AUTH SCREEN ═══ -->
 <div id="auth-screen">
   <div class="auth-wrap">
-    <div class="auth-left">
-      <div class="auth-left-logo">RandevuPanel</div>
-      <div class="auth-left-title">İşletmenizi dijitale taşıyın</div>
-      <div class="auth-left-sub">Müşterilerinize özel randevu sayfası oluşturun. Takvim yönetimi, hizmet tanımlama ve daha fazlası.</div>
-      <ul class="auth-feature-list">
-        <li>Kolay kurulum, hızlı başlangıç</li>
-        <li>Özelleştirilebilir randevu sayfası</li>
-        <li>Gerçek zamanlı takvim yönetimi</li>
-        <li>Hizmet ve fiyat yönetimi</li>
-        <li>Müşteri geçmişi takibi</li>
-      </ul>
+    <!-- SOL PANEL: Görsel + İçerik (Admin'den düzenlenebilir) -->
+    <div class="auth-left" id="auth-left-panel">
+      <!-- Arka plan görseli overlay -->
+      <div class="auth-left-overlay"></div>
+      <!-- İçerik -->
+      <div class="auth-left-content">
+        <div class="auth-left-logo" id="auth-brand-name">RandevuPanel</div>
+        <div class="auth-left-badge" id="auth-badge-text">Profesyonel Randevu Sistemi</div>
+        <h2 class="auth-left-title" id="auth-panel-title">İşletmenizi dijitale taşıyın</h2>
+        <p class="auth-left-sub" id="auth-panel-sub">Müşterilerinize özel randevu sayfası oluşturun. Takvim yönetimi, personel takibi ve çok daha fazlası.</p>
+        <ul class="auth-feature-list" id="auth-feature-list">
+          <li>
+            <span class="auth-feat-icon"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+            Kolay kurulum, hızlı başlangıç
+          </li>
+          <li>
+            <span class="auth-feat-icon"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+            Özelleştirilebilir randevu sayfası
+          </li>
+          <li>
+            <span class="auth-feat-icon"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+            Personel & hizmet yönetimi
+          </li>
+          <li>
+            <span class="auth-feat-icon"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+            Gerçek zamanlı takvim
+          </li>
+          <li>
+            <span class="auth-feat-icon"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+            Müşteri geçmişi takibi
+          </li>
+        </ul>
+        <!-- Stat chips -->
+        <div class="auth-stats">
+          <div class="auth-stat-chip">
+            <span class="auth-stat-num" id="auth-stat-num1">500+</span>
+            <span class="auth-stat-label" id="auth-stat-lbl1">İşletme</span>
+          </div>
+          <div class="auth-stat-sep"></div>
+          <div class="auth-stat-chip">
+            <span class="auth-stat-num" id="auth-stat-num2">7/24</span>
+            <span class="auth-stat-label" id="auth-stat-lbl2">Randevu</span>
+          </div>
+          <div class="auth-stat-sep"></div>
+          <div class="auth-stat-chip">
+            <span class="auth-stat-num" id="auth-stat-num3">%99</span>
+            <span class="auth-stat-label" id="auth-stat-lbl3">Uptime</span>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <!-- SAĞ PANEL: Form -->
     <div class="auth-right">
-      <div class="auth-form-title">Hoş Geldiniz</div>
-      <div class="auth-form-sub">Hesabınıza giriş yapın veya yeni hesap oluşturun</div>
+      <div style="margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div class="auth-form-title">Hoş Geldiniz</div>
+          <div class="auth-form-sub">Hesabınıza giriş yapın veya yeni hesap oluşturun</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="toggleTheme()" style="flex-shrink:0">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
       <div class="auth-tabs">
         <button class="auth-tab active" onclick="switchAuthTab('login')">Giriş Yap</button>
         <button class="auth-tab" onclick="switchAuthTab('register')">Hesap Oluştur</button>
       </div>
       <!-- LOGIN -->
       <div id="auth-login">
-        <div class="form-group"><label>E-posta</label><input type="email" id="l-email" placeholder="isletme@email.com"></div>
-        <div class="form-group"><label>Şifre</label><input type="password" id="l-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
-        <button class="btn btn-primary btn-full" onclick="doLogin()" id="l-btn">Giriş Yap</button>
+        <div class="form-group">
+          <label>
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            E-posta
+          </label>
+          <input type="email" id="l-email" placeholder="isletme@email.com">
+        </div>
+        <div class="form-group">
+          <label>
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Şifre
+          </label>
+          <input type="password" id="l-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+        </div>
+        <button class="btn btn-primary btn-full" onclick="doLogin()" id="l-btn">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+          Giriş Yap
+        </button>
       </div>
       <!-- REGISTER -->
       <div id="auth-register" style="display:none">
-        <div class="form-group"><label>Kayıt Anahtarı</label><input type="text" id="r-key" placeholder="XXXX-XXXX-XXXX"></div>
-        <div class="form-group"><label>İşletme Adı</label><input type="text" id="r-biz" placeholder="Ali Berber Salonu"></div>
-        <div class="form-row">
-          <div class="form-group"><label>E-posta</label><input type="email" id="r-email"></div>
-          <div class="form-group"><label>Şifre</label><input type="password" id="r-pass"></div>
+        <div class="form-group">
+          <label>
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+            Kayıt Anahtarı
+          </label>
+          <input type="text" id="r-key" placeholder="XXXX-XXXX-XXXX">
         </div>
-        <button class="btn btn-primary btn-full" onclick="doRegister()" id="r-btn">Hesap Oluştur</button>
+        <div class="form-group">
+          <label>
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8L2 7h20z"/></svg>
+            İşletme Adı
+          </label>
+          <input type="text" id="r-biz" placeholder="Ali Berber Salonu">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              E-posta
+            </label>
+            <input type="email" id="r-email">
+          </div>
+          <div class="form-group">
+            <label>
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              Şifre
+            </label>
+            <input type="password" id="r-pass">
+          </div>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="doRegister()" id="r-btn">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+          Hesap Oluştur
+        </button>
       </div>
       <div class="auth-error" id="auth-err"></div>
-      <div style="margin-top:16px;text-align:center">
-        <button class="btn btn-ghost btn-sm" onclick="showLanding()">← Ana Sayfaya Dön</button>
+      <div style="margin-top:14px;text-align:center">
+        <button class="btn btn-ghost btn-sm" onclick="showLanding()">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          Ana Sayfaya Dön
+        </button>
       </div>
     </div>
   </div>
@@ -1401,6 +1651,21 @@ tr:hover td { background: var(--surface2); }
             <div class="settings-section">
               <div class="settings-section-title">Sosyal Medya</div>
               <div class="settings-grid">
+                <div class="form-group">
+                  <label>
+                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>
+                    Banner Görseli (Randevu Sayfası Üstü)
+                  </label>
+                  <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px">
+                    <img id="settings-banner-preview" src="" style="width:80px;height:44px;border-radius:8px;object-fit:cover;border:1.5px solid var(--border);display:none;flex-shrink:0">
+                    <div style="flex:1">
+                      <input type="file" id="settings-banner-file" accept="image/*" onchange="handleBannerUpload(this)" style="width:100%;font-size:0.82rem;padding:6px 0">
+                      <input type="hidden" id="settings-banner-base64">
+                      <div class="form-hint">Geniş yatay görsel önerilir (1200×400px).</div>
+                    </div>
+                  </div>
+                  <input type="text" id="s-banner" placeholder="Veya banner URL'si girin...">
+                </div>
                 <div class="form-group"><label>Instagram</label><input type="text" id="s-instagram" placeholder="@kullaniciadiniz"></div>
                 <div class="form-group"><label>Facebook</label><input type="text" id="s-facebook" placeholder="facebook.com/sayfa"></div>
                 <div class="form-group"><label>Twitter/X</label><input type="text" id="s-twitter" placeholder="@kullaniciadiniz"></div>
@@ -1617,7 +1882,7 @@ tr:hover td { background: var(--surface2); }
                 <div class="aff-link-box" style="margin-bottom:12px"><span id="aff-link">Yükleniyor...</span><button class="btn btn-ghost btn-xs" onclick="copyAffLink()">Kopyala</button></div>
                 <button class="btn btn-primary btn-sm" onclick="shareAffWhatsApp()">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.528 5.849L.057 23.5l5.797-1.519A11.934 11.934 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.85 0-3.585-.504-5.07-1.381l-.361-.214-3.744.982.998-3.648-.235-.374A9.975 9.975 0 0 1 2 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
-                  WhatsApp'ta Paylaş
+                  Instagram'dan İletişim
                 </button>
               </div>
               <div class="card">
@@ -1647,55 +1912,88 @@ tr:hover td { background: var(--surface2); }
           </div>
         </div>
 
-        <!-- ═ ADMIN: AUTH CUSTOMIZATION ═ -->
+                <!-- ═ ADMIN: AUTH CUSTOMIZATION ═ -->
         <div class="page" id="page-admin-auth">
-          <div class="card">
-            <div class="card-header"><div><div class="card-title">Giriş Sayfası Düzenleyici</div><div class="card-sub">Auth ekranının sol panelini özelleştirin</div></div></div>
-            <div class="settings-section">
-              <div class="settings-section-title">Sol Panel Görseli</div>
-              <div class="settings-grid">
-                <div class="form-group">
-                  <label>Arka Plan Görseli URL</label>
-                  <input type="text" id="auth-bg-url" placeholder="https://images.unsplash.com/...">
-                  <div class="form-hint">Unsplash, Pexels veya herhangi bir görsel URL</div>
+          <div class="grid2">
+            <div>
+              <div class="card">
+                <div class="card-header"><div><div class="card-title">Sol Panel Görseli</div><div class="card-sub">Giriş sayfasının sol tarafını özelleştirin</div></div></div>
+                <div class="settings-section">
+                  <div class="settings-section-title">Arka Plan</div>
+                  <div class="form-group">
+                    <label>Arka Plan Görseli (Dosyadan Yükle)</label>
+                    <input type="file" id="auth-bg-file" accept="image/*" onchange="handleAuthBgUpload(this)" style="padding:8px 0">
+                    <input type="hidden" id="auth-bg-data">
+                    <div class="form-hint">Veya URL girin:</div>
+                    <input type="text" id="auth-bg-url" placeholder="https://images.unsplash.com/..." style="margin-top:6px">
+                  </div>
+                  <div class="form-group">
+                    <label>Gradient Rengi (Görsel yoksa kullanılır)</label>
+                    <div style="display:flex;gap:8px;align-items:center">
+                      <input type="color" id="auth-grad-color1" value="#6366f1" style="height:42px;width:60px;border-radius:9px;border:1.5px solid var(--border);cursor:pointer" oninput="liveAuthPreview()">
+                      <input type="color" id="auth-grad-color2" value="#8b5cf6" style="height:42px;width:60px;border-radius:9px;border:1.5px solid var(--border);cursor:pointer" oninput="liveAuthPreview()">
+                      <span style="font-size:0.78rem;color:var(--text-muted)">Başlangıç → Bitiş</span>
+                    </div>
+                  </div>
                 </div>
-                <div class="form-group">
-                  <label>Gradient Rengi (Üst)</label>
-                  <input type="color" id="auth-grad-color1" value="#6366f1" style="height:42px;width:100%">
+                <div class="settings-section">
+                  <div class="settings-section-title">Yazılar</div>
+                  <div class="form-group"><label>Marka Adı (Üst)</label><input type="text" id="auth-brand" placeholder="RandevuPanel" oninput="liveAuthPreview()"></div>
+                  <div class="form-group"><label>Rozet Yazısı</label><input type="text" id="auth-badge" placeholder="Profesyonel Randevu Sistemi" oninput="liveAuthPreview()"></div>
+                  <div class="form-group"><label>Ana Başlık</label><input type="text" id="auth-left-title" placeholder="İşletmenizi dijitale taşıyın" oninput="liveAuthPreview()"></div>
+                  <div class="form-group"><label>Alt Yazı</label><textarea id="auth-left-sub" rows="2" oninput="liveAuthPreview()"></textarea></div>
                 </div>
-                <div class="form-group">
-                  <label>Sol Panel Başlık</label>
-                  <input type="text" id="auth-left-title" placeholder="İşletmenizi dijitale taşıyın">
+                <div class="settings-section">
+                  <div class="settings-section-title">İstatistik Çipleri</div>
+                  <div class="form-row">
+                    <div class="form-group"><label>Sayı 1</label><input type="text" id="auth-stat-n1" placeholder="500+"></div>
+                    <div class="form-group"><label>Etiket 1</label><input type="text" id="auth-stat-l1" placeholder="İşletme"></div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group"><label>Sayı 2</label><input type="text" id="auth-stat-n2" placeholder="7/24"></div>
+                    <div class="form-group"><label>Etiket 2</label><input type="text" id="auth-stat-l2" placeholder="Randevu"></div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group"><label>Sayı 3</label><input type="text" id="auth-stat-n3" placeholder="%99"></div>
+                    <div class="form-group"><label>Etiket 3</label><input type="text" id="auth-stat-l3" placeholder="Uptime"></div>
+                  </div>
                 </div>
-                <div class="form-group">
-                  <label>Sol Panel Alt Yazı</label>
-                  <textarea id="auth-left-sub" rows="2"></textarea>
+                <div class="settings-section">
+                  <div class="settings-section-title">Özellik Maddeleri</div>
+                  <div class="form-group"><label>Madde 1</label><input type="text" id="auth-f1" placeholder="Kolay kurulum, hızlı başlangıç"></div>
+                  <div class="form-group"><label>Madde 2</label><input type="text" id="auth-f2" placeholder="Özelleştirilebilir randevu sayfası"></div>
+                  <div class="form-group"><label>Madde 3</label><input type="text" id="auth-f3"></div>
+                  <div class="form-group"><label>Madde 4</label><input type="text" id="auth-f4"></div>
+                  <div class="form-group"><label>Madde 5</label><input type="text" id="auth-f5"></div>
                 </div>
+                <button class="btn btn-primary" onclick="saveAuthCustomization()">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                  Kaydet ve Uygula
+                </button>
               </div>
             </div>
-            <div class="settings-section">
-              <div class="settings-section-title">Özellik Maddeleri (Sol Panel)</div>
-              <div class="settings-grid">
-                <div class="form-group"><label>Madde 1</label><input type="text" id="auth-f1" placeholder="Kolay kurulum, hızlı başlangıç"></div>
-                <div class="form-group"><label>Madde 2</label><input type="text" id="auth-f2" placeholder="Özelleştirilebilir randevu sayfası"></div>
-                <div class="form-group"><label>Madde 3</label><input type="text" id="auth-f3" placeholder="Gerçek zamanlı takvim yönetimi"></div>
-                <div class="form-group"><label>Madde 4</label><input type="text" id="auth-f4" placeholder="Hizmet ve fiyat yönetimi"></div>
-                <div class="form-group"><label>Madde 5</label><input type="text" id="auth-f5" placeholder="Müşteri geçmişi takibi"></div>
-              </div>
-            </div>
-            <div class="settings-section">
-              <div class="settings-section-title">Canlı Önizleme</div>
-              <div class="preview-frame">
-                <div class="preview-bar"><div class="preview-dot" style="background:#ff5f56"></div><div class="preview-dot" style="background:#ffbd2e"></div><div class="preview-dot" style="background:#27c93f"></div></div>
-                <div id="auth-preview" style="padding:20px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:0 0 12px 12px;min-height:120px;display:flex;align-items:center;justify-content:center">
-                  <div style="color:#fff;text-align:center">
-                    <div style="font-size:1.1rem;font-weight:800;margin-bottom:6px" id="prev-auth-title">İşletmenizi dijitale taşıyın</div>
-                    <div style="font-size:0.78rem;opacity:0.8" id="prev-auth-sub">Müşterilerinize özel randevu sayfası oluşturun.</div>
+            <div class="card">
+              <div class="card-header"><div class="card-title">Canlı Önizleme</div></div>
+              <div class="preview-frame" style="overflow:hidden;border-radius:12px">
+                <div id="auth-live-preview" style="min-height:420px;background:linear-gradient(135deg,#6366f1,#8b5cf6);padding:28px;display:flex;flex-direction:column;justify-content:flex-end;position:relative">
+                  <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.7),transparent)"></div>
+                  <div style="position:relative;z-index:2">
+                    <div style="font-size:0.88rem;font-weight:800;color:rgba(255,255,255,0.8);margin-bottom:6px" id="prev-brand">RandevuPanel</div>
+                    <div style="display:inline-block;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);color:rgba(255,255,255,0.9);border-radius:20px;padding:3px 10px;font-size:0.68rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:12px" id="prev-badge">Profesyonel Randevu Sistemi</div>
+                    <div style="font-size:1.3rem;font-weight:800;color:#fff;line-height:1.2;margin-bottom:6px;letter-spacing:-0.02em" id="prev-title">İşletmenizi dijitale taşıyın</div>
+                    <div style="font-size:0.78rem;color:rgba(255,255,255,0.75);line-height:1.5;margin-bottom:16px" id="prev-sub">Müşterilerinize özel randevu sayfası oluşturun.</div>
+                    <div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:10px;padding:10px 14px;display:flex;gap:0">
+                      <div style="flex:1;text-align:center"><div style="font-size:0.95rem;font-weight:800;color:#fff" id="prev-n1">500+</div><div style="font-size:0.65rem;color:rgba(255,255,255,0.7)" id="prev-l1">İşletme</div></div>
+                      <div style="width:1px;background:rgba(255,255,255,0.2);margin:0 4px"></div>
+                      <div style="flex:1;text-align:center"><div style="font-size:0.95rem;font-weight:800;color:#fff" id="prev-n2">7/24</div><div style="font-size:0.65rem;color:rgba(255,255,255,0.7)" id="prev-l2">Randevu</div></div>
+                      <div style="width:1px;background:rgba(255,255,255,0.2);margin:0 4px"></div>
+                      <div style="flex:1;text-align:center"><div style="font-size:0.95rem;font-weight:800;color:#fff" id="prev-n3">%99</div><div style="font-size:0.65rem;color:rgba(255,255,255,0.7)" id="prev-l3">Uptime</div></div>
+                    </div>
                   </div>
                 </div>
               </div>
+              <p style="font-size:0.78rem;color:var(--text-muted);margin-top:10px;text-align:center">Değişiklikler anında giriş sayfasına yansır</p>
             </div>
-            <button class="btn btn-primary" onclick="saveAuthCustomization()">Kaydet</button>
           </div>
         </div>
 
@@ -2258,6 +2556,9 @@ function loadSettings() {
   setVal('s-color', p.theme_color||'#6366f1');
   setVal('s-colorhex', p.theme_color||'#6366f1');
   setVal('s-logo', p.logo_url);
+  setVal('s-banner', p.banner_url);
+  if (p.logo_url) { const pr = document.getElementById('settings-logo-preview'); if(pr){pr.src=p.logo_url;pr.style.display='block';} }
+  if (p.banner_url) { const pr = document.getElementById('settings-banner-preview'); if(pr){pr.src=p.banner_url;pr.style.display='block';} }
   setVal('s-instagram', p.instagram);
   setVal('s-facebook', p.facebook);
   setVal('s-twitter', p.twitter);
@@ -2297,7 +2598,7 @@ async function saveSettings() {
     welcome_message:g('s-welcome'), footer_note:g('s-footernote'),
     slot_duration:parseInt(g('s-slot'))||30, advance_days:parseInt(g('s-advdays'))||30,
     theme_color:g('s-colorhex')||g('s-color'),
-    logo_url:g('s-logo'), instagram:g('s-instagram'), facebook:g('s-facebook'),
+    logo_url:document.getElementById('settings-logo-base64')?.value || g('s-logo'), banner_url:document.getElementById('settings-banner-base64')?.value || g('s-banner'), instagram:g('s-instagram'), facebook:g('s-facebook'),
     twitter:g('s-twitter'), tiktok:g('s-tiktok'),
     show_phone:gt('t-showphone'), show_address:gt('t-showaddress'),
     show_whatsapp:gt('t-whatsapp'), show_price:gt('t-showprice'),
@@ -2390,7 +2691,18 @@ function renderUsers(users) {
     <td><button class="btn btn-ghost btn-xs" onclick="toggleUser('${p.id}',${p.is_active})">${p.is_active?'Devre Dışı':'Aktif Et'}</button></td>
   </tr>`).join('');
 }
-async function toggleUser(id,cur){await sb.from('profiles').update({is_active:!cur}).eq('id',id);toast('Güncellendi');loadAdminUsers();}
+async function toggleUser(id, cur) {
+  const newVal = !cur;
+  const { error } = await sb.from('profiles').update({ is_active: newVal }).eq('id', id);
+  if (error) {
+    toast('Hata: ' + error.message, 'error');
+    console.error('toggleUser error:', error);
+    return;
+  }
+  toast(newVal ? 'Kullanıcı aktif edildi' : 'Kullanıcı devre dışı bırakıldı');
+  loadAdminUsers();
+  loadAdminDash();
+}
 
 /* ══════════════════════════════════════
    ADMIN: KEYS
@@ -2629,7 +2941,9 @@ async function loadAffiliate() {
   rl.innerHTML = refs.map(r=>`<div class="referral-item"><div class="referral-av">${(r.business_name||'?')[0].toUpperCase()}</div><div><div class="referral-name">${r.business_name||r.email}</div><div class="referral-date">${new Date(r.created_at).toLocaleDateString('tr-TR')}</div></div><span class="badge badge-green referral-badge">Aktif</span></div>`).join('');
 }
 function copyAffLink() { navigator.clipboard.writeText(getAffLink()).then(()=>toast('Link kopyalandı!')); }
-function shareAffWhatsApp() { window.open(`https://wa.me/?text=${encodeURIComponent('RandevuPanel ile online randevu sistemi kur: ' + getAffLink())}`,'_blank'); }
+function shareAffWhatsApp() { 
+  window.open('https://www.instagram.com/karyazilim_', '_blank'); 
+}
 
 /* ══════════════════════════════════════
    AUTH CUSTOMIZATION
@@ -2637,56 +2951,102 @@ function shareAffWhatsApp() { window.open(`https://wa.me/?text=${encodeURICompon
 async function loadAuthCustomization() {
   const { data } = await sb.from('admin_settings').select('*').eq('id',1).single();
   if (!data) return;
-  const setVal = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+  const setVal = (id, val) => { const el = document.getElementById(id); if (el && val !== null && val !== undefined) el.value = val; };
   setVal('auth-bg-url', data.auth_bg_url);
   setVal('auth-grad-color1', data.auth_grad_color1 || '#6366f1');
+  setVal('auth-grad-color2', data.auth_grad_color2 || '#8b5cf6');
+  setVal('auth-brand', data.auth_brand);
+  setVal('auth-badge', data.auth_badge);
   setVal('auth-left-title', data.auth_left_title);
   setVal('auth-left-sub', data.auth_left_sub);
+  setVal('auth-stat-n1', data.auth_stat_n1); setVal('auth-stat-l1', data.auth_stat_l1);
+  setVal('auth-stat-n2', data.auth_stat_n2); setVal('auth-stat-l2', data.auth_stat_l2);
+  setVal('auth-stat-n3', data.auth_stat_n3); setVal('auth-stat-l3', data.auth_stat_l3);
   setVal('auth-f1', data.auth_f1); setVal('auth-f2', data.auth_f2);
   setVal('auth-f3', data.auth_f3); setVal('auth-f4', data.auth_f4); setVal('auth-f5', data.auth_f5);
-  // Canlı uygula
   applyAuthCustomization(data);
 }
-function applyAuthCustomization(d) {
-  const left = document.querySelector('.auth-left');
-  if (!left) return;
-  if (d.auth_bg_url) { left.style.backgroundImage = `url('${d.auth_bg_url}')`; left.style.backgroundSize = 'cover'; left.style.backgroundPosition = 'center'; }
-  if (d.auth_grad_color1) left.style.background = `linear-gradient(135deg, ${d.auth_grad_color1} 0%, #8b5cf6 100%)`;
-  if (d.auth_left_title) { const el = document.querySelector('.auth-left-title'); if(el) el.textContent = d.auth_left_title; }
-  if (d.auth_left_sub) { const el = document.querySelector('.auth-left-sub'); if(el) el.textContent = d.auth_left_sub; }
-  const features = [d.auth_f1,d.auth_f2,d.auth_f3,d.auth_f4,d.auth_f5].filter(Boolean);
-  if (features.length) {
-    const ul = document.querySelector('.auth-feature-list');
-    if (ul) ul.innerHTML = features.map(f=>`<li>${f}</li>`).join('');
-  }
-  // Preview güncelle
-  const prev = document.getElementById('auth-preview');
-  if (prev && d.auth_grad_color1) prev.style.background = `linear-gradient(135deg, ${d.auth_grad_color1}, #8b5cf6)`;
-  const pt = document.getElementById('prev-auth-title');
-  const ps = document.getElementById('prev-auth-sub');
-  if (pt && d.auth_left_title) pt.textContent = d.auth_left_title;
-  if (ps && d.auth_left_sub) ps.textContent = d.auth_left_sub;
+
+function handleAuthBgUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 3 * 1024 * 1024) { toast('Görsel max 3MB olmalı', 'error'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('auth-bg-data').value = e.target.result;
+    document.getElementById('auth-bg-url').value = '';
+    liveAuthPreview();
+  };
+  reader.readAsDataURL(file);
 }
+
+function liveAuthPreview() {
+  const g = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+  const preview = document.getElementById('auth-live-preview');
+  const bgData = g('auth-bg-data');
+  const bgUrl = g('auth-bg-url');
+  const c1 = g('auth-grad-color1') || '#6366f1';
+  const c2 = g('auth-grad-color2') || '#8b5cf6';
+  if (bgData || bgUrl) {
+    const src = bgData || bgUrl;
+    if (preview) { preview.style.backgroundImage = `url('${src}')`; preview.style.backgroundSize = 'cover'; preview.style.backgroundPosition = 'center'; }
+  } else {
+    if (preview) { preview.style.backgroundImage = ''; preview.style.background = `linear-gradient(135deg, ${c1}, ${c2})`; }
+  }
+  const fields = { 'prev-brand':'auth-brand', 'prev-badge':'auth-badge', 'prev-title':'auth-left-title', 'prev-sub':'auth-left-sub', 'prev-n1':'auth-stat-n1', 'prev-l1':'auth-stat-l1', 'prev-n2':'auth-stat-n2', 'prev-l2':'auth-stat-l2', 'prev-n3':'auth-stat-n3', 'prev-l3':'auth-stat-l3' };
+  Object.entries(fields).forEach(([pid, sid]) => { const v = g(sid); const el = document.getElementById(pid); if (el && v) el.textContent = v; });
+}
+
+function applyAuthCustomization(d) {
+  const left = document.getElementById('auth-left-panel');
+  if (!left) return;
+  const bgSrc = d.auth_bg_data || d.auth_bg_url;
+  if (bgSrc) {
+    left.style.backgroundImage = `url('${bgSrc}')`;
+    left.style.backgroundSize = 'cover';
+    left.style.backgroundPosition = 'center';
+  } else {
+    const c1 = d.auth_grad_color1 || '#6366f1';
+    const c2 = d.auth_grad_color2 || '#8b5cf6';
+    left.style.background = `linear-gradient(135deg, ${c1} 0%, ${c2} 100%)`;
+  }
+  const setText = (id, val) => { const el = document.getElementById(id); if (el && val) el.textContent = val; };
+  setText('auth-brand-name', d.auth_brand);
+  setText('auth-badge-text', d.auth_badge);
+  setText('auth-panel-title', d.auth_left_title);
+  setText('auth-panel-sub', d.auth_left_sub);
+  setText('auth-stat-num1', d.auth_stat_n1); setText('auth-stat-lbl1', d.auth_stat_l1);
+  setText('auth-stat-num2', d.auth_stat_n2); setText('auth-stat-lbl2', d.auth_stat_l2);
+  setText('auth-stat-num3', d.auth_stat_n3); setText('auth-stat-lbl3', d.auth_stat_l3);
+  const features = [d.auth_f1, d.auth_f2, d.auth_f3, d.auth_f4, d.auth_f5].filter(Boolean);
+  if (features.length) {
+    const ul = document.getElementById('auth-feature-list');
+    if (ul) ul.innerHTML = features.map(f => `<li><span class="auth-feat-icon"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>${f}</li>`).join('');
+  }
+}
+
 async function saveAuthCustomization() {
   const g = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
   const upd = {
-    auth_bg_url: g('auth-bg-url'), auth_grad_color1: g('auth-grad-color1'),
-    auth_left_title: g('auth-left-title'), auth_left_sub: g('auth-left-sub'),
+    auth_bg_url: g('auth-bg-url'),
+    auth_bg_data: g('auth-bg-data'),
+    auth_grad_color1: g('auth-grad-color1') || '#6366f1',
+    auth_grad_color2: g('auth-grad-color2') || '#8b5cf6',
+    auth_brand: g('auth-brand'),
+    auth_badge: g('auth-badge'),
+    auth_left_title: g('auth-left-title'),
+    auth_left_sub: g('auth-left-sub'),
+    auth_stat_n1: g('auth-stat-n1'), auth_stat_l1: g('auth-stat-l1'),
+    auth_stat_n2: g('auth-stat-n2'), auth_stat_l2: g('auth-stat-l2'),
+    auth_stat_n3: g('auth-stat-n3'), auth_stat_l3: g('auth-stat-l3'),
     auth_f1: g('auth-f1'), auth_f2: g('auth-f2'), auth_f3: g('auth-f3'),
     auth_f4: g('auth-f4'), auth_f5: g('auth-f5'),
     updated_at: new Date().toISOString()
   };
   const { error } = await sb.from('admin_settings').upsert({ id: 1, ...upd });
   if (error) { toast('Hata: ' + error.message, 'error'); return; }
-  toast('Giriş sayfası güncellendi!');
+  toast('Giriş sayfası güncellendi ve uygulandı!');
   applyAuthCustomization(upd);
-  // Live preview input listeners
-  document.getElementById('auth-left-title')?.addEventListener('input', e => {
-    const pt = document.getElementById('prev-auth-title'); if (pt) pt.textContent = e.target.value;
-  });
-  document.getElementById('auth-grad-color1')?.addEventListener('input', e => {
-    const prev = document.getElementById('auth-preview'); if (prev) prev.style.background = `linear-gradient(135deg, ${e.target.value}, #8b5cf6)`;
-  });
 }
 
 
@@ -2956,7 +3316,7 @@ document.getElementById('settings-logo-file')?.addEventListener('change', functi
   }
 });
 
-// 2. Ayarları Kaydetme Fonksiyonunu Güncelleasync function saveSettings() {
+
 async function saveSettings() {
   // Butonu manuel bulalım (event.target bazen null dönebilir)
   const btn = document.querySelector('button[onclick="saveSettings()"]') || event?.target;
@@ -3009,14 +3369,32 @@ async function saveSettings() {
 // Dosyayı okuyup Base64'e çeviren yardımcı fonksiyon
 function handleLogoUpload(input) {
   const file = input.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      document.getElementById('set-logo-url').value = e.target.result;
-      toast("Logo hazır! Kaydet butonuna basmayı unutmayın.");
-    };
-    reader.readAsDataURL(file);
-  }
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) { toast('Logo max 2MB olmalı', 'error'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('settings-logo-base64').value = e.target.result;
+    document.getElementById('s-logo').value = '';
+    const prev = document.getElementById('settings-logo-preview');
+    prev.src = e.target.result; prev.style.display = 'block';
+    toast('Logo yüklendi, kaydetmeyi unutmayın!');
+  };
+  reader.readAsDataURL(file);
+}
+
+function handleBannerUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 3 * 1024 * 1024) { toast('Banner max 3MB olmalı', 'error'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('settings-banner-base64').value = e.target.result;
+    document.getElementById('s-banner').value = '';
+    const prev = document.getElementById('settings-banner-preview');
+    prev.src = e.target.result; prev.style.display = 'block';
+    toast('Banner yüklendi, kaydetmeyi unutmayın!');
+  };
+  reader.readAsDataURL(file);
 }
 
 
