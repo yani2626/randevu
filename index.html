@@ -1233,6 +1233,76 @@ tr:hover td { background: var(--surface2); }
   .main { margin-left: 0 !important; }
   .topbar { padding: 0 16px; }
 }
+
+/* ═══ MOBILE IMPROVEMENTS ═══ */
+@media(max-width: 760px) {
+  /* Stats row */
+  .stats-row { grid-template-columns: 1fr 1fr; gap: 10px; }
+  
+  /* Tables — horizontal scroll */
+  .tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .tbl-wrap table { min-width: 600px; }
+  
+  /* Cards padding küçült */
+  .card { padding: 14px; }
+  .card-header { flex-wrap: wrap; gap: 8px; }
+  
+  /* Settings grid tek kolon */
+  .settings-grid { grid-template-columns: 1fr !important; }
+  .settings-grid .full { grid-column: span 1; }
+  
+  /* Grid2 tek kolon */
+  .grid2 { grid-template-columns: 1fr; }
+  
+  /* Modal tam genişlik */
+  .modal { width: calc(100vw - 24px); max-height: 90vh; overflow-y: auto; margin: 0 12px; }
+  .modal-bg { align-items: flex-end; padding: 0; }
+  .modal { border-radius: 20px 20px 0 0; }
+  
+  /* Form row tek kolon */
+  .form-row { flex-direction: column; }
+  
+  /* Topbar */
+  .topbar { gap: 8px; }
+  .topbar-title { font-size: 0.95rem; }
+  .topbar-actions { gap: 6px; }
+  
+  /* Staff grid */
+  .staff-grid { grid-template-columns: 1fr; }
+  
+  /* Auth wrap */
+  .auth-wrap { grid-template-columns: 1fr; border-radius: 0; min-height: 100vh; }
+  .auth-left { display: none; }
+  .auth-right { padding: 32px 20px; justify-content: center; min-height: 100vh; }
+  
+  /* Chips scroll */
+  .chips { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  
+  /* QR wrap */
+  .qr-wrap { padding: 16px; }
+  
+  /* Land nav */
+  .land-nav { padding: 14px 16px; }
+  .land-nav-links { display: none; }
+  
+  /* Compare grid */
+  .compare-grid { grid-template-columns: 1fr; }
+  
+  /* Affiliate grid */
+  .aff-link-box { font-size: 0.72rem; }
+  
+  /* Install banner */
+  #install-banner { bottom: 12px; }
+}
+
+@media(max-width: 480px) {
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .stat-box { padding: 12px; }
+  .stat-num { font-size: 1.4rem; }
+  .land-hero { padding: 50px 20px 30px; }
+  .land-counter-grid { grid-template-columns: 1fr 1fr; }
+}
 </style>
 </head>
 <body>
@@ -2791,6 +2861,8 @@ async function loadApp() {
 ══════════════════════════════════════ */
 const pageTitles = { dashboard:'Genel Bakış', appointments:'Randevular', services:'Hizmetler', staff:'Personeller', customers:'Müşteriler', stats:'İstatistikler', affiliate:'Affiliate', settings:'Ayarlar', account:'Hesabım', mylink:'Randevu Linkim', 'admin-dash':'Admin Genel', 'admin-users':'İşletmeler', 'admin-keys':'Kayıt Anahtarları', 'admin-landing':'Landing Sayfası', 'admin-auth':'Giriş Sayfası', 'admin-system':'Sistem Ayarları' };
 function nav(page, btn) {
+  // Her zaman ilk iş: mobilde sidebar'ı kapat
+  closeSidebar();
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   const pageEl = document.getElementById('page-'+page);
@@ -2800,8 +2872,6 @@ function nav(page, btn) {
   // İptal uyarısını randevular sayfasında göster
   const cn = document.getElementById('cancel-notice');
   if (cn) cn.style.display = page === 'appointments' ? 'flex' : 'none';
-  // Mobilde sidebar'ı kapat
-  if (window.innerWidth <= 760) closeSidebar();
   // Lazy load — sayfaya her geçişte taze veri çek
   if (page === 'staff') loadStaff();
   else if (page === 'customers') loadCustomers();
@@ -3547,28 +3617,45 @@ function handleSvcImgUpload(input) {
 ══════════════════════════════════════ */
 function generateQR(url) {
   const canvas = document.getElementById('qr-canvas');
-  if (!canvas) return;
-  // QRCode.js kütüphanesi ile üret
+  if (!canvas || !url) return;
+  canvas.width = 200; canvas.height = 200;
   const ctx = canvas.getContext('2d');
-  ctx.clearRect(0, 0, 200, 200);
-  // Simple QR placeholder - gerçek QR için qrcode kütüphanesi kullan
-  // Aşağıdaki basit bir görsel placeholder
-  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, 200, 200);
-  ctx.fillStyle = '#000';
-  // QR kütüphanesi yüklenince çalışır
+
   if (typeof QRCode !== 'undefined') {
-    canvas.width = 200; canvas.height = 200;
-    QRCode.toCanvas(canvas, url, { width: 200, margin: 2, color: { dark: '#000', light: '#fff' } });
+    // QRCode.js yüklü
+    try {
+      QRCode.toCanvas(canvas, url, {
+        width: 200, margin: 2,
+        color: { dark: '#000000', light: '#ffffff' }
+      }, function(err) {
+        if (err) {
+          console.error('QR error:', err);
+          drawQRFallback(ctx, url);
+        }
+      });
+    } catch(e) {
+      drawQRFallback(ctx, url);
+    }
   } else {
-    // Fallback: URL'i göster
-    ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillStyle = '#6366f1'; ctx.fillRect(70, 80, 60, 40);
-    ctx.fillStyle = '#fff'; ctx.fillText('QR', 100, 106);
-    ctx.fillStyle = '#333'; ctx.font = '8px sans-serif';
-    ctx.fillText('QR Kod', 100, 145);
+    // Kütüphane yüklenmemişse yükle
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js';
+    script.onload = () => generateQR(url);
+    script.onerror = () => drawQRFallback(ctx, url);
+    document.head.appendChild(script);
   }
 }
-function downloadQR() {
+
+function drawQRFallback(ctx, url) {
+  // QR yüklenemezse URL'i göster
+  ctx.fillStyle = '#fff'; ctx.fillRect(0,0,200,200);
+  ctx.fillStyle = '#6366f1';
+  ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('QR Kodu', 100, 90);
+  ctx.font = '10px sans-serif'; ctx.fillStyle = '#666';
+  const words = url.replace('https://','').split('/');
+  words.forEach((w,i) => ctx.fillText(w.slice(0,30), 100, 110+i*14));
+}function downloadQR() {
   const canvas = document.getElementById('qr-canvas');
   const link = document.createElement('a');
   link.download = `randevu-qr-${UP?.business_name||'panel'}.png`;
@@ -3968,7 +4055,10 @@ function toggleSidebar() {
   }
 }
 function closeSidebar() {
-  document.querySelector('.sidebar')?.classList.remove('open');
+  const sb = document.querySelector('.sidebar');
+  // Sadece mobilde veya sidebar açıksa çalıştır
+  if (!sb) return;
+  sb.classList.remove('open');
   document.getElementById('ham-btn')?.classList.remove('open');
   document.getElementById('sidebar-overlay')?.classList.remove('show');
   document.body.style.overflow = '';
