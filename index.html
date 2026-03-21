@@ -1188,6 +1188,42 @@ tr:hover td { background: var(--surface2); }
 .land-step-icon { width:52px; height:52px; border-radius:14px; background:var(--accent-soft); display:flex; align-items:center; justify-content:center; margin:0 auto 10px; }
 .land-who-icon { width:52px; height:52px; border-radius:14px; background:var(--surface3); display:flex; align-items:center; justify-content:center; margin:0 auto 10px; }
 .land-step-arrow { color:var(--text-muted); display:flex; align-items:center; justify-content:center; }
+
+/* ═══ HAMBURGER BUTTON ═══ */
+.ham-btn {
+  display: none;
+  flex-direction: column; justify-content: center; align-items: center;
+  gap: 5px; width: 38px; height: 38px; border-radius: 10px;
+  background: var(--surface2); border: 1px solid var(--border);
+  cursor: pointer; padding: 8px; flex-shrink: 0;
+  transition: var(--transition);
+}
+.ham-btn span {
+  display: block; width: 18px; height: 2px;
+  background: var(--text); border-radius: 2px;
+  transition: all 0.3s ease; transform-origin: center;
+}
+.ham-btn:hover { background: var(--accent-soft); border-color: var(--accent); }
+.ham-btn:hover span { background: var(--accent); }
+.ham-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.ham-btn.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.ham-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* Mobile overlay when sidebar open */
+.sidebar-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.4); z-index: 89;
+  backdrop-filter: blur(2px);
+}
+.sidebar-overlay.show { display: block; }
+
+@media(max-width: 760px) {
+  .ham-btn { display: flex; }
+  .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; z-index: 90; }
+  .sidebar.open { transform: translateX(0); box-shadow: 4px 0 30px rgba(0,0,0,0.2); }
+  .main { margin-left: 0 !important; }
+  .topbar { padding: 0 16px; }
+}
 </style>
 </head>
 <body>
@@ -1789,9 +1825,14 @@ tr:hover td { background: var(--surface2); }
     <!-- MAIN CONTENT -->
     <main class="main">
       <div class="topbar">
+        <button class="ham-btn" id="ham-btn" onclick="toggleSidebar()" aria-label="Menü">
+          <span></span><span></span><span></span>
+        </button>
         <div class="topbar-title" id="topbar-title">Genel Bakış</div>
         <div class="topbar-actions">
-          <button class="btn btn-ghost btn-sm" onclick="toggleTheme()">🌓</button>
+          <button class="btn btn-ghost btn-sm" onclick="toggleTheme()">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </button>
           <button class="btn btn-primary btn-sm" onclick="showAddAptModal()">+ Randevu</button>
         </div>
       </div>
@@ -3161,20 +3202,37 @@ async function deleteAccount() {
   if (!confirm('Hesabınızı SİLMEK istediğinizden emin misiniz?\n\nTüm randevular, hizmetler ve veriler kalıcı olarak silinir.')) return;
   const btn = document.querySelector('[onclick*="deleteAccount"]');
   if (btn) { btn.disabled = true; btn.textContent = 'Siliniyor...'; }
-  try {
-    await sb.from('appointments').delete().eq('profile_id', UP.id);
-    await sb.from('services').delete().eq('profile_id', UP.id);
-    await sb.from('staff').delete().eq('profile_id', UP.id);
-    const { error } = await sb.from('profiles').delete().eq('id', UP.id);
-    if (error) throw error;
-    await sb.auth.signOut();
-    UP = null; CU = null;
-    toast('Hesap silindi');
-    setTimeout(() => showLanding(), 1000);
-  } catch(err) {
-    toast('Hata: ' + err.message, 'error');
-    if (btn) { btn.disabled = false; btn.textContent = 'Hesabımı Sil'; }
+  const uid = UP?.id || CU?.id;
+  if (!uid) { toast('Kullanıcı bilgisi bulunamadı', 'error'); return; }
+
+  // Her adımı ayrı ayrı dene, hatayı logla
+  // Önce bu profile'e referans veren referred_by'ları temizle
+  await sb.from('profiles').update({ referred_by: null }).eq('referred_by', uid);
+
+  const steps = [
+    { table: 'appointments', col: 'profile_id' },
+    { table: 'services', col: 'profile_id' },
+    { table: 'staff', col: 'profile_id' },
+  ];
+  for (const step of steps) {
+    const { error: e } = await sb.from(step.table).delete().eq(step.col, uid);
+    if (e) console.warn(`${step.table} delete warn:`, e.message);
   }
+
+  // Profili sil
+  const { error: profileErr } = await sb.from('profiles').delete().eq('id', uid);
+  if (profileErr) {
+    console.error('Profile delete error:', JSON.stringify(profileErr));
+    toast('Profil silinemedi: ' + (profileErr.message || profileErr.details || JSON.stringify(profileErr)), 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Hesabımı Sil'; }
+    return;
+  }
+
+  // Auth oturumunu kapat (auth.users kaydı service_role olmadan silinemez)
+  await sb.auth.signOut();
+  UP = null; CU = null;
+  toast('Hesap ve veriler silindi');
+  setTimeout(() => showLanding(), 1000);
 }
 
 /* ══════════════════════════════════════
@@ -3228,12 +3286,32 @@ function renderUsers(users) {
 }
 async function adminDeleteUser(id, name) {
   if (!confirm(`"${name}" kullanıcısını ve tüm verilerini SİLMEK istediğinizden emin misiniz?\nBu işlem GERİ ALINAMAZ.`)) return;
-  // Sırayla sil: randevular → hizmetler → personeller → profil
-  await sb.from('appointments').delete().eq('profile_id', id);
-  await sb.from('services').delete().eq('profile_id', id);
-  await sb.from('staff').delete().eq('profile_id', id);
+
+  // Önce bu profile'e referans veren referred_by'ları temizle
+  await sb.from('profiles').update({ referred_by: null }).eq('referred_by', id);
+
+  const steps = [
+    { table: 'appointments', col: 'profile_id' },
+    { table: 'services', col: 'profile_id' },
+    { table: 'staff', col: 'profile_id' },
+  ];
+  for (const step of steps) {
+    const { error: e } = await sb.from(step.table).delete().eq(step.col, id);
+    if (e) console.warn(`${step.table} delete warn:`, e.message);
+  }
+
   const { error } = await sb.from('profiles').delete().eq('id', id);
-  if (error) { toast('Hata: ' + error.message, 'error'); return; }
+  if (error) {
+    console.error('Admin profile delete error:', JSON.stringify(error));
+    toast('Profil silinemedi: ' + (error.message || error.details || error.hint || JSON.stringify(error)), 'error');
+    // Eğer RLS hatası ise kullanıcıya SQL göster
+    if (error.message?.includes('permission') || error.code === '42501') {
+      setTimeout(() => {
+        alert('Supabase RLS aktif. SQL Editor da su komutu calistirin:\n\nALTER TABLE profiles DISABLE ROW LEVEL SECURITY;');
+      }, 500);
+    }
+    return;
+  }
   toast(`"${name}" silindi`);
   loadAdminUsers();
   loadAdminDash();
@@ -3862,6 +3940,34 @@ async function staffDelete(id) {
   loadStaffAppointments();
 }
 
+
+/* ══════════════════════════════════════
+   MOBILE SIDEBAR TOGGLE
+══════════════════════════════════════ */
+function toggleSidebar() {
+  const sb = document.querySelector('.sidebar');
+  const btn = document.getElementById('ham-btn');
+  const overlay = document.getElementById('sidebar-overlay');
+  const isOpen = sb?.classList.contains('open');
+  if (isOpen) { closeSidebar(); } else {
+    sb?.classList.add('open');
+    btn?.classList.add('open');
+    overlay?.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+}
+function closeSidebar() {
+  document.querySelector('.sidebar')?.classList.remove('open');
+  document.getElementById('ham-btn')?.classList.remove('open');
+  document.getElementById('sidebar-overlay')?.classList.remove('show');
+  document.body.style.overflow = '';
+}
+// Nav tıklayınca sidebar'ı kapat (mobile)
+const _origNav = nav;
+function nav(page, btn) {
+  _origNav(page, btn);
+  if (window.innerWidth <= 760) closeSidebar();
+}
 /* ══════════════════════════════════════
    LOGOUT
 ══════════════════════════════════════ */
@@ -4303,6 +4409,27 @@ function showInstallBanner(prompt) {
   }
   window.installApp = installApp;
 }
+
+function showIOSInstallTip() {
+  if (document.getElementById('ios-tip')) return;
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  if (!isIOS) return;
+  const d = document.createElement('div');
+  d.id = 'ios-tip';
+  d.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--surface);border:1.5px solid var(--accent);border-radius:16px;padding:14px 18px;z-index:9998;box-shadow:0 8px 32px rgba(99,102,241,0.2);max-width:300px;width:calc(100vw - 32px)';
+  d.innerHTML = `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><strong style="font-size:0.88rem">Ana Ekrana Ekle</strong><button onclick="this.closest('#ios-tip').remove()" style="margin-left:auto;background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--text-muted)">✕</button></div><div style="font-size:0.8rem;color:var(--text2);line-height:1.7">1. Alttaki <strong>Paylaş</strong> <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align:middle"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> butonuna bas<br>2. <strong>"Ana Ekrana Ekle"</strong> seç<br>3. <strong>Ekle</strong>'ye bas</div>`;
+  document.body.appendChild(d);
+  setTimeout(() => d?.remove(), 12000);
+}
+
+// iOS install tip — uygulama sayfası açılınca göster
+window.addEventListener('load', () => {
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.navigator.standalone;
+  if (isIOS && !isStandalone && document.getElementById('app')?.style.display !== 'none') {
+    setTimeout(showIOSInstallTip, 4000);
+  }
+});
 
 
 </script>
