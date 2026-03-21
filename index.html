@@ -1661,6 +1661,10 @@ tr:hover td { background: var(--surface2); }
           <label><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Şifre</label>
           <input type="password" id="st-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doStaffLogin()">
         </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <input type="checkbox" id="st-remember" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer">
+          <label for="st-remember" style="font-size:0.85rem;color:var(--text2);cursor:pointer;font-weight:500">Beni hatırla</label>
+        </div>
         <button class="btn btn-primary btn-full" onclick="doStaffLogin()" id="st-btn">
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
           Personel Girişi
@@ -1788,8 +1792,13 @@ tr:hover td { background: var(--surface2); }
         <div class="topbar-title" id="topbar-title">Genel Bakış</div>
         <div class="topbar-actions">
           <button class="btn btn-ghost btn-sm" onclick="toggleTheme()">🌓</button>
-          <button class="btn btn-primary btn-sm" onclick="nav('appointments',document.querySelector('.nav-item:nth-child(2)'));showAddAptModal()">+ Randevu</button>
+          <button class="btn btn-primary btn-sm" onclick="showAddAptModal()">+ Randevu</button>
         </div>
+      </div>
+      <div id="cancel-notice" style="background:rgba(245,158,11,0.1);border-bottom:1px solid rgba(245,158,11,0.25);padding:9px 28px;display:none;align-items:center;gap:9px;font-size:0.82rem;color:#92400e">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0;color:var(--warning)"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="cancel-notice-text">Randevuları iptal ettiğinizde müşterilerinize WhatsApp üzerinden bilgi vermeyi unutmayın.</span>
+        <button onclick="document.getElementById('cancel-notice').style.display='none'" style="margin-left:auto;background:none;border:none;cursor:pointer;color:inherit;font-size:1rem;opacity:0.6">✕</button>
       </div>
 
       <div class="content">
@@ -2279,9 +2288,8 @@ tr:hover td { background: var(--surface2); }
               <div class="card">
                 <div class="card-header"><div><div class="card-title">Referans Linkiniz</div><div class="card-sub">Bu linki paylaşın, her yeni üye için puan kazanın</div></div></div>
                 <div class="aff-link-box" style="margin-bottom:12px"><span id="aff-link">Yükleniyor...</span><button class="btn btn-ghost btn-xs" onclick="copyAffLink()">Kopyala</button></div>
-                <button class="btn btn-primary btn-sm" onclick="shareAffWhatsApp()">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.528 5.849L.057 23.5l5.797-1.519A11.934 11.934 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.85 0-3.585-.504-5.07-1.381l-.361-.214-3.744.982.998-3.648-.235-.374A9.975 9.975 0 0 1 2 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
-                  Instagram'dan İletişim
+                <button class="btn btn-primary btn-sm" onclick="contactForAffiliate()">
+                  İletişim İçin Tıklayın
                 </button>
               </div>
               <div class="card">
@@ -2404,6 +2412,16 @@ tr:hover td { background: var(--surface2); }
             <div class="stat-box y"><div class="stat-num" id="sp-pending">—</div><div class="stat-lbl">Bekleyen</div></div>
             <div class="stat-box g"><div class="stat-num" id="sp-total">—</div><div class="stat-lbl">Toplam</div></div>
           </div>
+          <div class="card" style="margin-bottom:18px">
+            <div class="card-header">
+              <div><div class="card-title">Şifre Değiştir</div></div>
+            </div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
+              <div class="form-group" style="flex:1;min-width:160px;margin:0"><label>Yeni Şifre</label><input type="password" id="sp-new-pass" placeholder="Yeni şifre"></div>
+              <div class="form-group" style="flex:1;min-width:160px;margin:0"><label>Tekrar</label><input type="password" id="sp-new-pass2" placeholder="Şifreyi tekrar girin"></div>
+              <button class="btn btn-primary btn-sm" onclick="changeStaffPassword()" style="margin-bottom:0">Güncelle</button>
+            </div>
+          </div>
           <div class="card">
             <div class="card-header">
               <div>
@@ -2434,6 +2452,8 @@ tr:hover td { background: var(--surface2); }
               <div class="form-group"><label>Site Başlığı</label><input type="text" id="sys-title"></div>
               <div class="form-group"><label>Destek E-posta</label><input type="text" id="sys-email"></div>
               <div class="form-group"><label>Maks. İleri Randevu (Gün)</label><input type="number" id="sys-days"></div>
+              <div class="form-group full"><label>İptal Uyarı Metni (Randevular Sayfası)</label><input type="text" id="sys-cancel-text" placeholder="Randevuları iptal ettiğinizde müşterilerinize bilgi vermeyi unutmayın."><div class="form-hint">İşletme sahiplerinin randevu panelinde göreceği uyarı</div></div>
+              <div class="form-group full"><label>Affiliate İletişim Linki</label><input type="text" id="sys-aff-link" placeholder="https://www.instagram.com/karyazilim_"><div class="form-hint">Kullanıcıların affiliate ödülü için tıklayacağı link</div></div>
             </div>
             <button class="btn btn-primary" onclick="saveSysSettings()">💾 Kaydet</button>
           </div>
@@ -2504,41 +2524,35 @@ tr:hover td { background: var(--surface2); }
    
 <div class="modal-bg" id="modal-staff">
   <div class="modal">
-    <div class="modal-title" id="staff-modal-title">👨‍⚕️ Personel Ekle</div>
+    <div class="modal-title" id="staff-modal-title">Personel Ekle</div>
     <input type="hidden" id="mst-id">
     <div class="form-row">
-      <div class="form-group"><label>Ad Soyad *</label><input type="text" id="mst-name" placeholder="Örn: Ahmet Yılmaz"></div>
-      <div class="form-group"><label>Ünvan / Uzmanlık</label><input type="text" id="mst-title" placeholder="Örn: Uzman Kuaför"></div>
+      <div class="form-group"><label>Ad Soyad *</label><input type="text" id="mst-name" placeholder="Ahmet Yılmaz"></div>
+      <div class="form-group"><label>Ünvan</label><input type="text" id="mst-title" placeholder="Uzman Kuaför"></div>
     </div>
     <div class="form-row">
       <div class="form-group">
-        <label>
-          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-          Giriş E-postası
-        </label>
-        <input type="email" id="mst-email" placeholder="ahmet@email.com">
+        <label>Giriş E-postası</label>
+        <input type="email" id="mst-email" placeholder="personel@email.com">
         <div class="form-hint">Personelin panele giriş yapacağı e-posta</div>
       </div>
       <div class="form-group">
-        <label>
-          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          Giriş Şifresi
-        </label>
-        <input type="password" id="mst-password" placeholder="En az 4 karakter">
-        <div class="form-hint">Personele vereceğiniz şifre</div>
+        <label>Şifre <span style="color:var(--text-muted);font-weight:400;font-size:0.78rem">(düzenlemede boş = değişmez)</span></label>
+        <input type="password" id="mst-password" placeholder="••••">
       </div>
     </div>
     <div class="form-group">
-      <label>Personel Fotoğrafı</label>
+      <label>Fotoğraf</label>
       <div style="display:flex;gap:10px;align-items:center">
-        <img id="mst-img-preview" src="" style="width:50px;height:50px;border-radius:12px;object-fit:cover;border:1.5px solid var(--border);display:none;flex-shrink:0">
-        <div style="flex:1">
-          <input type="file" id="mst-file" accept="image/*" style="padding:6px 0;font-size:0.82rem">
-          <input type="hidden" id="mst-img">
-        </div>
+        <img id="mst-img-preview" src="" style="width:48px;height:48px;border-radius:11px;object-fit:cover;border:1.5px solid var(--border);display:none;flex-shrink:0">
+        <div style="flex:1"><input type="file" id="mst-file" accept="image/*" onchange="handleStaffImgUpload(this)" style="padding:5px 0;font-size:0.82rem;width:100%"><input type="hidden" id="mst-img"></div>
       </div>
     </div>
-   <div class="modal-foot">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-top:1px solid var(--border);margin-top:4px">
+      <span style="font-size:0.88rem;font-weight:600;color:var(--text2)">Aktif</span>
+      <button class="toggle on" id="mst-active" onclick="this.classList.toggle('on')"></button>
+    </div>
+    <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeModal('modal-staff')">İptal</button>
       <button class="btn btn-primary" onclick="saveStaff(event)">Kaydet</button>
     </div>
@@ -2749,6 +2763,9 @@ function nav(page, btn) {
   document.getElementById('page-'+page)?.classList.add('active');
   if (btn) btn.classList.add('active');
   document.getElementById('topbar-title').textContent = pageTitles[page]||page;
+  // İptal uyarısını randevular sayfasında göster
+  const cn = document.getElementById('cancel-notice');
+  if (cn) cn.style.display = page === 'appointments' ? 'flex' : 'none';
 }
 
 /* ══════════════════════════════════════
@@ -3205,20 +3222,57 @@ function renderUsers(users) {
     <td class="td-bold">${p.business_name||'—'}</td>
     <td>${p.email||'—'}</td><td>${p.business_type||'—'}</td><td>${fmtDate(p.created_at)}</td>
     <td><span class="badge ${p.is_active?'badge-green':'badge-red'}">${p.is_active?'Aktif':'Pasif'}</span></td>
-    <td><button class="btn btn-ghost btn-xs" onclick="toggleUser('${p.id}',${p.is_active})">${p.is_active?'Devre Dışı':'Aktif Et'}</button></td>
+    <td>
+      <div style="display:flex;gap:4px">
+        <button class="btn btn-ghost btn-xs" onclick="toggleUser('${p.id}',${p.is_active})">${p.is_active?'Durdur':'Aktif Et'}</button>
+        <button class="btn btn-danger btn-xs" onclick="adminDeleteUser('${p.id}','${(p.business_name||p.email||'').replace(/'/g,'')}')">Sil</button>
+      </div>
+    </td>
   </tr>`).join('');
 }
-async function toggleUser(id, cur) {
-  const newVal = !cur;
-  const { error } = await sb.from('profiles').update({ is_active: newVal }).eq('id', id);
-  if (error) {
-    toast('Hata: ' + error.message, 'error');
-    console.error('toggleUser error:', error);
-    return;
-  }
-  toast(newVal ? 'Kullanıcı aktif edildi' : 'Kullanıcı devre dışı bırakıldı');
+async function adminDeleteUser(id, name) {
+  if (!confirm(`"${name}" kullanıcısını ve tüm verilerini SİLMEK istediğinizden emin misiniz?\nBu işlem GERİ ALINAMAZ.`)) return;
+  // Sırayla sil: randevular → hizmetler → personeller → profil
+  await sb.from('appointments').delete().eq('profile_id', id);
+  await sb.from('services').delete().eq('profile_id', id);
+  await sb.from('staff').delete().eq('profile_id', id);
+  const { error } = await sb.from('profiles').delete().eq('id', id);
+  if (error) { toast('Hata: ' + error.message, 'error'); return; }
+  toast(`"${name}" silindi`);
   loadAdminUsers();
   loadAdminDash();
+}
+
+async function toggleUser(id, cur) {
+  const newVal = !cur;
+  // Admin'in kendi profil_id'si üzerinden değil, direkt ID ile update
+  const { data, error } = await sb.from('profiles')
+    .update({ is_active: newVal })
+    .eq('id', id)
+    .select('id');
+  if (error || !data?.length) {
+    // RLS hatası olabilir - kullanıcıya bilgi ver
+    toast('Güncelleme başarısız. Supabase'de admin policy gerekiyor.', 'error');
+    console.error('toggleUser error:', error);
+    showAdminPolicyWarning();
+    return;
+  }
+  toast(newVal ? 'Kullanıcı aktif edildi ✓' : 'Kullanıcı devre dışı bırakıldı');
+  loadAdminUsers();
+  loadAdminDash();
+}
+
+function showAdminPolicyWarning() {
+  // Eğer policy yoksa kullanıcıya SQL'i göster
+  if (document.getElementById('policy-warn')) return;
+  const div = document.createElement('div');
+  div.id = 'policy-warn';
+  div.style.cssText = 'position:fixed;bottom:80px;right:20px;background:var(--surface);border:1px solid var(--warning);border-radius:12px;padding:14px 18px;max-width:320px;z-index:9999;box-shadow:var(--shadow-lg);font-size:0.82rem';
+  div.innerHTML = `<div style="font-weight:700;color:var(--warning);margin-bottom:6px">Supabase Policy Gerekli</div>
+<div style="color:var(--text2);margin-bottom:10px">Admin'in diğer kullanıcıları güncelleyebilmesi için Supabase SQL'de şunu çalıştırın:</div>
+<code style="background:var(--bg);display:block;padding:8px;border-radius:6px;font-size:0.75rem;color:var(--accent)">DROP POLICY IF EXISTS "profiles_own" ON profiles;<br>CREATE POLICY "profiles_rw" ON profiles FOR ALL USING (auth.uid() = id OR (SELECT email FROM auth.users WHERE id=auth.uid()) = 'karahanyagiz38@gmail.com');</code>
+<button onclick="this.parentElement.remove()" style="margin-top:8px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.8rem">Kapat</button>`;
+  document.body.appendChild(div);
 }
 
 /* ══════════════════════════════════════
@@ -3334,9 +3388,14 @@ async function loadAdminSysSettings() {
   document.getElementById('sys-title').value=data.site_title||'';
   document.getElementById('sys-email').value=data.support_email||'';
   document.getElementById('sys-days').value=data.max_advance_days||30;
+  if(document.getElementById('sys-aff-link')) document.getElementById('sys-aff-link').value=data.affiliate_contact_link||'https://www.instagram.com/karyazilim_';
+  if(document.getElementById('sys-cancel-text')) document.getElementById('sys-cancel-text').value=data.cancel_notice_text||'';
+  // Cancel notice'i uygula
+  if (data.cancel_notice_text) { const el = document.getElementById('cancel-notice-text'); if(el) el.textContent = data.cancel_notice_text; }
 }
 async function saveSysSettings() {
-  const {error}=await sb.from('admin_settings').upsert({id:1,site_title:document.getElementById('sys-title').value.trim(),support_email:document.getElementById('sys-email').value.trim(),max_advance_days:parseInt(document.getElementById('sys-days').value)||30,updated_at:new Date().toISOString()});
+  const {error}=await sb.from('admin_settings').upsert({id:1,site_title:document.getElementById('sys-title').value.trim(),support_email:document.getElementById('sys-email').value.trim(),max_advance_days:parseInt(document.getElementById('sys-days').value)||30,affiliate_contact_link:document.getElementById('sys-aff-link')?.value.trim()||'https://www.instagram.com/karyazilim_',
+    cancel_notice_text:document.getElementById('sys-cancel-text')?.value.trim()||null,updated_at:new Date().toISOString()});
   if(error){toast('Hata: '+error.message,'error');return;}
   toast('Sistem ayarları kaydedildi!');
 }
@@ -3509,28 +3568,32 @@ async function loadStats() {
    AFFİLİATE
 ══════════════════════════════════════ */
 function getAffLink() {
-  if (!UP) return '';
-  return window.location.href.replace('index.html','').replace(/\/$/, '') + '/index.html?ref=' + UP.id;
+  // Admin panelinden belirlenen sabit affiliate linki döndür
+  return window._affContactLink || 'https://www.instagram.com/karyazilim_';
 }
+
 async function loadAffiliate() {
   if (!UP) return;
+  // Admin'den gelen affiliate contact link
+  const { data: cfg } = await sb.from('admin_settings').select('affiliate_contact_link').eq('id',1).single();
+  window._affContactLink = cfg?.affiliate_contact_link || 'https://www.instagram.com/karyazilim_';
   const el = document.getElementById('aff-link');
-  if (el) el.textContent = getAffLink();
+  if (el) el.textContent = window._affContactLink;
   // Referansları çek
-  const { data } = await sb.from('profiles').select('id,business_name,email,created_at').eq('referred_by', UP.id);
+  const { data } = await sb.from('profiles').select('id,business_name,email,created_at,is_active').eq('referred_by', UP.id);
   const refs = data || [];
-  document.getElementById('aff-total') && (document.getElementById('aff-total').textContent = refs.length);
-  document.getElementById('aff-active') && (document.getElementById('aff-active').textContent = refs.filter(r=>r.is_active).length);
-  document.getElementById('aff-pending') && (document.getElementById('aff-pending').textContent = refs.filter(r=>!r.is_active).length);
+  if (document.getElementById('aff-total')) document.getElementById('aff-total').textContent = refs.length;
+  if (document.getElementById('aff-active')) document.getElementById('aff-active').textContent = refs.filter(r=>r.is_active).length;
+  if (document.getElementById('aff-pending')) document.getElementById('aff-pending').textContent = refs.filter(r=>!r.is_active).length;
   const rl = document.getElementById('referral-list');
   if (!rl) return;
   if (!refs.length) { rl.innerHTML = '<div class="empty"><div class="empty-sub">Henüz referans yok. Linkinizi paylaşın!</div></div>'; return; }
   rl.innerHTML = refs.map(r=>`<div class="referral-item"><div class="referral-av">${(r.business_name||'?')[0].toUpperCase()}</div><div><div class="referral-name">${r.business_name||r.email}</div><div class="referral-date">${new Date(r.created_at).toLocaleDateString('tr-TR')}</div></div><span class="badge badge-green referral-badge">Aktif</span></div>`).join('');
 }
-function copyAffLink() { navigator.clipboard.writeText(getAffLink()).then(()=>toast('Link kopyalandı!')); }
-function shareAffWhatsApp() { 
-  window.open('https://www.instagram.com/karyazilim_', '_blank'); 
-}
+
+function copyAffLink() { const link = window._affContactLink || 'https://www.instagram.com/karyazilim_'; navigator.clipboard.writeText(link).then(()=>toast('Link kopyalandı!')); }
+function contactForAffiliate() { window.open(window._affContactLink || 'https://www.instagram.com/karyazilim_', '_blank'); }
+function shareAffWhatsApp() { contactForAffiliate(); }
 
 /* ══════════════════════════════════════
    AUTH CUSTOMIZATION
@@ -3683,7 +3746,10 @@ async function doStaffLogin() {
 
   currentStaff = staffData;
   staffProfile = profile;
-  sessionStorage.setItem('staffSession', JSON.stringify({ id: staffData.id, name: staffData.name, profile_id: staffData.profile_id }));
+  const remember = document.getElementById('st-remember')?.checked;
+  const sessionData = JSON.stringify({ id: staffData.id, name: staffData.name, profile_id: staffData.profile_id });
+  sessionStorage.setItem('staffSession', sessionData);
+  if (remember) localStorage.setItem('staffSessionPersist', sessionData);
   await loadStaffPanel();
 }
 
@@ -3712,6 +3778,19 @@ async function loadStaffPanel() {
   await loadStaffAppointments();
 }
 
+
+async function changeStaffPassword() {
+  if (!currentStaff) return;
+  const p1 = document.getElementById('sp-new-pass')?.value.trim();
+  const p2 = document.getElementById('sp-new-pass2')?.value.trim();
+  if (!p1 || p1.length < 4) { toast('Şifre en az 4 karakter olmalı', 'error'); return; }
+  if (p1 !== p2) { toast('Şifreler eşleşmiyor', 'error'); return; }
+  const { error } = await sb.from('staff').update({ password_hash: p1 }).eq('id', currentStaff.id);
+  if (error) { toast('Hata: ' + error.message, 'error'); return; }
+  toast('Şifre güncellendi!');
+  document.getElementById('sp-new-pass').value = '';
+  document.getElementById('sp-new-pass2').value = '';
+}
 async function loadStaffAppointments() {
   if (!currentStaff) return;
 
@@ -3792,6 +3871,7 @@ async function staffDelete(id) {
 ══════════════════════════════════════ */
 async function doLogout() {
   sessionStorage.removeItem('staffSession');
+  localStorage.removeItem('staffSessionPersist');
   currentStaff = null; staffProfile = null; staffApts = [];
   await sb.auth.signOut();
   CU=null; isAdmin=false; UP=null; pinBuf='';
@@ -3872,59 +3952,30 @@ function updateStaffSelect(staffData) {
 
 // Personel Ekleme Modalı Aç
 function showStaffModal() {
-  document.getElementById('staff-modal-title').textContent = '👨‍⚕️ Yeni Personel Ekle';
-  document.getElementById('mst-id').value = '';
-  document.getElementById('mst-name').value = '';
-  document.getElementById('mst-title').value = '';
-  document.getElementById('mst-img').value = '';
-  document.getElementById('mst-active').classList.add('on');
+  document.getElementById('staff-modal-title').textContent = 'Personel Ekle';
+  ['mst-id','mst-name','mst-title','mst-email','mst-password','mst-img'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  const prev = document.getElementById('mst-img-preview');
+  if (prev) prev.style.display = 'none';
+  const tog = document.getElementById('mst-active');
+  if (tog) tog.className = 'toggle on';
   openModal('modal-staff');
 }
-
 // Personel Düzenleme
 function editStaff(s) {
-  document.getElementById('staff-modal-title').textContent = '✏️ Personel Düzenle';
-  document.getElementById('mst-id').value = s.id;
-  document.getElementById('mst-name').value = s.name;
-  document.getElementById('mst-title').value = s.title || '';
-  document.getElementById('mst-img').value = s.image_url || '';
-  document.getElementById('mst-active').classList.toggle('on', s.is_active);
+  document.getElementById('staff-modal-title').textContent = 'Personel Düzenle';
+  const sv = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+  sv('mst-id', s.id); sv('mst-name', s.name); sv('mst-title', s.title);
+  sv('mst-email', s.email); sv('mst-img', s.image_url);
+  document.getElementById('mst-password').value = '';
+  const tog = document.getElementById('mst-active');
+  if (tog) tog.className = 'toggle ' + (s.is_active !== false ? 'on' : '');
+  const prev = document.getElementById('mst-img-preview');
+  if (prev && s.image_url) { prev.src = s.image_url; prev.style.display = 'block'; }
+  else if (prev) { prev.style.display = 'none'; }
   openModal('modal-staff');
 }
-
-// Personel Kaydet (Insert veya Update)
-async function saveStaff() {
-  const id = document.getElementById('mst-id').value;
-  const name = document.getElementById('mst-name').value.trim();
-  const title = document.getElementById('mst-title').value.trim();
-  const image_url = document.getElementById('mst-img').value.trim();
-  const is_active = document.getElementById('mst-active').classList.contains('on');
-
-  if (!name) { toast('Lütfen isim giriniz', 'error'); return; }
-
-  const payload = {
-    profile_id: UP.id,
-    name,
-    title,
-    image_url,
-    is_active
-  };
-
-  let error;
-  if (id) {
-    ({ error } = await sb.from('staff').update(payload).eq('id', id));
-  } else {
-    ({ error } = await sb.from('staff').insert(payload));
-  }
-
-  if (error) { toast('Hata: ' + error.message, 'error'); }
-  else {
-    toast('Personel kaydedildi!');
-    closeModal('modal-staff');
-    loadStaff();
-  }
-}
-
 // Personel Sil
 async function deleteStaff(id) {
   if (!confirm('Bu personeli silmek istediğinize emin misiniz?')) return;
@@ -3991,33 +4042,21 @@ async function saveStaff(e) {
   const id = document.getElementById('mst-id').value;
   const name = document.getElementById('mst-name').value.trim();
   const title = document.getElementById('mst-title').value.trim();
-  const email = document.getElementById('mst-email').value.trim();
-  const password = document.getElementById('mst-password').value.trim();
+  const email = document.getElementById('mst-email')?.value.trim() || null;
+  const password = document.getElementById('mst-password')?.value.trim() || null;
   const image_url = document.getElementById('mst-img').value || null;
   const is_active = document.getElementById('mst-active')?.classList.contains('on') ?? true;
-
   if (!name) { toast('İsim zorunludur', 'error'); return; }
-
-  const payload = {
-    profile_id: UP?.id || CU?.id,
-    name, title, image_url, is_active,
-    email: email || null,
-  };
+  const payload = { profile_id: UP?.id || CU?.id, name, title, image_url, is_active, email };
   if (password) payload.password_hash = password;
-
   let error;
-  if (id) {
-    ({ error } = await sb.from('staff').update(payload).eq('id', id));
-  } else {
-    ({ error } = await sb.from('staff').insert(payload));
-  }
-
+  if (id) ({ error } = await sb.from('staff').update(payload).eq('id', id));
+  else ({ error } = await sb.from('staff').insert(payload));
   if (error) { toast('Hata: ' + error.message, 'error'); return; }
   toast('Personel kaydedildi!');
   closeModal('modal-staff');
   loadStaff();
 }
-
 // 1. Dosya Seçildiğinde Çalışan Kod (Base64'e Çevirme)
 document.getElementById('settings-logo-file')?.addEventListener('change', function(e) {
   const file = e.target.files[0];
