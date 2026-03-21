@@ -2726,6 +2726,27 @@ async function loadApp() {
   document.getElementById('pin-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
 
+  // Önceki oturumun verilerini temizle
+  allApts = []; allUsers = [];
+  const clearEls = ['apt-tbody','service-list','staff-list','cust-tbody',
+    'today-list','recent-apts','referral-list','sp-tbody','gallery-preview-grid',
+    'svc-chart','week-chart','hour-chart','status-chart'];
+  clearEls.forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = ''; });
+  ['s-today','s-pending','s-confirmed','s-total','s-cancelled',
+   'stat-week','stat-month','stat-rate','stat-cust'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.textContent = '—';
+  });
+
+  // Sidebar nav'ı sıfırla — temiz başlangıç
+  document.querySelectorAll('.sb-body .nav-item').forEach(el => el.style.display = '');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const dashPage = document.getElementById('page-dashboard');
+  if (dashPage) dashPage.classList.add('active');
+  const firstNavItem = document.querySelector('.sb-body .nav-item');
+  if (firstNavItem) firstNavItem.classList.add('active');
+  document.getElementById('topbar-title').textContent = 'Genel Bakış';
+
   // Load profile
   const { data: p } = await sb.from('profiles').select('*').eq('id', CU.id).single();
   if (!p) {
@@ -2748,24 +2769,40 @@ async function loadApp() {
 
   // Load data
   await Promise.all([loadDashboard(), loadSettings(), loadServices(), loadApts()]);
-  if (isAdmin) { loadAdminDash(); loadAdminUsers(); loadAdminKeys(); loadAdminSysSettings(); loadLandingSettings(); }
-  updateMyLink();
+  loadStaff();
   loadCustomers();
+  loadStats();
+  loadAffiliate();
+  updateMyLink();
+  if (isAdmin) { loadAdminDash(); loadAdminUsers(); loadAdminKeys(); loadAdminSysSettings(); loadLandingSettings(); loadAuthCustomization(); }
 }
 
 /* ══════════════════════════════════════
    SIDEBAR NAVIGATION
 ══════════════════════════════════════ */
-const pageTitles = { dashboard:'Genel Bakış', appointments:'Randevular', services:'Hizmetler', customers:'Müşteriler', settings:'Ayarlar', account:'Hesabım', mylink:'Randevu Linkim', 'admin-dash':'Admin Genel', 'admin-users':'İşletmeler', 'admin-keys':'Kayıt Anahtarları', 'admin-landing':'Landing Sayfası', 'admin-system':'Sistem Ayarları' };
+const pageTitles = { dashboard:'Genel Bakış', appointments:'Randevular', services:'Hizmetler', staff:'Personeller', customers:'Müşteriler', stats:'İstatistikler', affiliate:'Affiliate', settings:'Ayarlar', account:'Hesabım', mylink:'Randevu Linkim', 'admin-dash':'Admin Genel', 'admin-users':'İşletmeler', 'admin-keys':'Kayıt Anahtarları', 'admin-landing':'Landing Sayfası', 'admin-auth':'Giriş Sayfası', 'admin-system':'Sistem Ayarları' };
 function nav(page, btn) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('page-'+page)?.classList.add('active');
+  const pageEl = document.getElementById('page-'+page);
+  if (pageEl) pageEl.classList.add('active');
   if (btn) btn.classList.add('active');
   document.getElementById('topbar-title').textContent = pageTitles[page]||page;
   // İptal uyarısını randevular sayfasında göster
   const cn = document.getElementById('cancel-notice');
   if (cn) cn.style.display = page === 'appointments' ? 'flex' : 'none';
+  // Lazy load — sayfaya her geçişte taze veri çek
+  if (page === 'staff') loadStaff();
+  else if (page === 'customers') loadCustomers();
+  else if (page === 'stats') loadStats();
+  else if (page === 'affiliate') loadAffiliate();
+  else if (page === 'appointments') loadApts();
+  else if (page === 'services') loadServices();
+  else if (page === 'mylink') { updateMyLink(); setTimeout(() => { const url = document.getElementById('my-link')?.textContent; if(url) generateQR(url); }, 300); }
+  else if (page === 'admin-users') loadAdminUsers();
+  else if (page === 'admin-keys') loadAdminKeys();
+  else if (page === 'admin-dash') loadAdminDash();
+  else if (page === 'settings') loadSettings();
 }
 
 /* ══════════════════════════════════════
@@ -3064,6 +3101,18 @@ function setSwatch(hex) {
 
 function loadSettings() {
   if (!UP) return;
+  // Her girişte formu temizle - önceki kullanıcı kalıntısı olmasın
+  const allInputs = ['s-bizname','s-biztype','s-phone','s-whatsapp','s-bemail',
+    's-website','s-address','s-maplink','s-desc','s-welcome','s-footernote',
+    's-logo','s-banner','s-instagram','s-facebook','s-twitter','s-tiktok'];
+  allInputs.forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  // Logo/banner preview gizle
+  ['settings-logo-preview','settings-banner-preview'].forEach(id => {
+    const el = document.getElementById(id); if(el) { el.src=''; el.style.display='none'; }
+  });
+  // Galeri temizle
+  const gd = document.getElementById('gallery-data'); if(gd) gd.value='';
+  const gg = document.getElementById('gallery-preview-grid'); if(gg) gg.innerHTML='';
   const p=UP;
   const setVal=(id,val)=>{const el=document.getElementById(id);if(el)el.value=val||'';};
   setVal('s-bizname', p.business_name);
@@ -3835,16 +3884,51 @@ async function staffDelete(id) {
    LOGOUT
 ══════════════════════════════════════ */
 async function doLogout() {
+  // 1. Session temizle
   sessionStorage.removeItem('staffSession');
   localStorage.removeItem('staffSessionPersist');
+
+  // 2. Tüm state sıfırla
   currentStaff = null; staffProfile = null; staffApts = [];
+  allApts = []; allUsers = []; pinBuf = '';
+  CU = null; isAdmin = false; UP = null;
+
+  // 3. Supabase oturumu kapat
   await sb.auth.signOut();
-  CU=null; isAdmin=false; UP=null; pinBuf='';
-  document.querySelectorAll('.pin-dot').forEach(d=>d.classList.remove('filled'));
-  document.getElementById('app').style.display='none';
+
+  // 4. PIN noktalarını temizle
+  document.querySelectorAll('.pin-dot').forEach(d => d.classList.remove('filled'));
+
+  // 5. Tüm sayfa içeriklerini sıfırla (eski kullanıcı verileri görünmesin)
+  const clearIds = [
+    'apt-tbody', 'service-list', 'staff-list', 'cust-tbody',
+    'today-list', 'recent-apts', 'referral-list', 'key-list',
+    'users-tbody', 'sp-tbody', 'gallery-preview-grid'
+  ];
+  clearIds.forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = ''; });
+
+  // Stat kutularını sıfırla
+  ['s-today','s-pending','s-confirmed','s-total','s-cancelled',
+   'stat-week','stat-month','stat-rate','stat-cust',
+   'adm-s-biz','adm-s-active','adm-s-keys','adm-s-apts'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.textContent = '—';
+  });
+
+  // 6. Aktif sayfayı dashboard'a sıfırla
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const dash = document.getElementById('page-dashboard');
+  if (dash) dash.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const firstNav = document.querySelector('.nav-item');
+  if (firstNav) firstNav.classList.add('active');
+
+  // 7. Sidebar nav'ı normal moda al (personel modundan çıkış için)
+  document.querySelectorAll('.sb-body .nav-item').forEach(el => el.style.display = '');
+
+  // 8. app gizle, landing göster
+  document.getElementById('app').style.display = 'none';
   showLanding();
 }
-
 /* ══════════════════════════════════════
    INIT
 ══════════════════════════════════════ */
@@ -3908,33 +3992,44 @@ async function deleteStaff(id) {
 /* --- PERSONEL FONKSİYONLARI --- */
 
 // 1. Personelleri Veritabanından Çek ve Ekrana Bas
+
+async function delStaff(id) {
+  if (!confirm('Bu personeli silmek istediğinizden emin misiniz?')) return;
+  const { error } = await sb.from('staff').delete().eq('id', id);
+  if (error) { toast('Hata: ' + error.message, 'error'); return; }
+  toast('Personel silindi');
+  loadStaff();
+}
 async function loadStaff() {
   if (!UP) return;
-  // Supabase'deki 'staff' tablosundan verileri alıyoruz
   const { data, error } = await sb.from('staff').select('*').eq('profile_id', UP.id).order('created_at');
-  
   const container = document.getElementById('staff-list');
-  if (!data || data.length === 0) {
-    container.innerHTML = '<div class="empty">Henüz personel eklenmemiş.</div>';
+  if (!container) return;
+  if (error) { container.innerHTML = '<div class="empty"><div class="empty-sub">Yüklenemedi: ' + error.message + '</div></div>'; return; }
+  if (!data || !data.length) {
+    container.innerHTML = '<div class="empty"><div class="empty-icon">👤</div><div class="empty-title">Personel yok</div><div class="empty-sub">Sağ üstten personel ekleyin</div></div>';
     return;
   }
-
-  // Gelen veriyi HTML kartlarına dönüştürüyoruz
   container.innerHTML = data.map(s => `
-    <div class="staff-card">
-      <img src="${s.image_url || 'https://via.placeholder.com/60'}" class="staff-img">
-      <div class="staff-info">
-        <div class="staff-name">${s.name}</div>
-        <div class="staff-title">${s.title || 'Personel'}</div>
+    <div style="display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border)">
+      ${s.image_url
+        ? `<img src="${s.image_url}" style="width:46px;height:46px;border-radius:12px;object-fit:cover;flex-shrink:0;border:1.5px solid var(--border)">`
+        : `<div style="width:46px;height:46px;border-radius:12px;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:800;flex-shrink:0">${s.name?s.name[0].toUpperCase():'?'}</div>`
+      }
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:0.92rem">${s.name} ${!s.is_active ? '<span class="badge badge-gray">Pasif</span>' : ''}</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px">${s.title || 'Personel'}${s.email ? ' · ' + s.email : ''}</div>
       </div>
-      <div class="staff-actions">
-        <button class="btn btn-ghost btn-xs" onclick='editStaff(${JSON.stringify(s)})'>✏️</button>
-        <button class="btn btn-danger btn-xs" onclick="deleteStaff('${s.id}')">🗑</button>
+      <div style="display:flex;gap:5px">
+        <button class="btn btn-ghost btn-xs" onclick='editStaff(${JSON.stringify(s).replace(/'/g, "&#39;")})'>
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="btn btn-danger btn-xs" onclick="delStaff('${s.id}')">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        </button>
       </div>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
-
 // 2. Personel Ekleme Modalı Açma
 function showStaffModal() {
   document.getElementById('staff-modal-title').textContent = 'Personel Ekle';
@@ -3943,20 +4038,12 @@ function showStaffModal() {
   });
   const prev = document.getElementById('mst-img-preview');
   if (prev) prev.style.display = 'none';
+  const tog = document.getElementById('mst-active');
+  if (tog) tog.className = 'toggle on';
   openModal('modal-staff');
 }
 
-// Fotoğraf seçildiğinde onu metne çeviren yardımcı kod
-document.getElementById('mst-file')?.addEventListener('change', function(e) {
-  const file = e.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      document.getElementById('mst-img').value = event.target.result; // Fotoğrafı gizli kutuya at
-    };
-    reader.readAsDataURL(file);
-  }
-});
+// (fotoğraf yükleme handleStaffImgUpload ile yapılıyor)
 
 async function saveStaff(e) {
   if (e) e.preventDefault();
