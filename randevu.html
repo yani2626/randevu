@@ -519,15 +519,12 @@ function selSvcFn(id){selSvc=services.find(x=>x.id===id);document.querySelectorA
 function renderStaff() {
   const el = document.getElementById('staff-list');
   if (!el) return;
-  // Seçili hizmetin staff_ids'ini kontrol et
-  const selSvc = services.find(s => s.id === selSvc);
+  // Seçili hizmete atanmış personelleri filtrele
+  const currentSvc = services.find(s => s.id === selSvc);
   let filteredStaff = staff;
-  if (selSvc?.staff_ids?.length) {
-    filteredStaff = staff.filter(s => selSvc.staff_ids.includes(s.id));
-  }
-  if (!filteredStaff.length) {
-    // Staff kısıtlaması yoksa veya tüm staff atanmışsa tüm listeyi göster
-    filteredStaff = staff;
+  if (currentSvc?.staff_ids?.length) {
+    const filtered = staff.filter(s => currentSvc.staff_ids.includes(s.id));
+    if (filtered.length) filteredStaff = filtered;
   }
   if (!filteredStaff.length) { next(3); return; }
   el.innerHTML = filteredStaff.map(s => `
