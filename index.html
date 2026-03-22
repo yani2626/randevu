@@ -1453,7 +1453,7 @@ tr:hover td { background: var(--surface2); }
     <div class="land-nav-actions">
       <button class="btn btn-ghost btn-sm" onclick="toggleThemeLanding()">🌓</button>
       <button class="btn btn-ghost btn-sm" onclick="showAuthScreen('login')">Giriş Yap</button>
-      <button class="btn btn-primary btn-sm" onclick="showAuthScreen('register')">Bugün Başla →</button>
+      <button class="btn btn-primary btn-sm" onclick="showAuthScreen('register')">Ücretsiz Başla →</button>
     </div>
   </nav>
 
@@ -1751,7 +1751,7 @@ tr:hover td { background: var(--surface2); }
 
     <!-- CTA BANNER -->
   <div class="land-cta-banner">
-    <h2>Hemen Başlayın.</h2>
+    <h2>Hemen Başlayın, Ücretsiz</h2>
     <p>Kayıt anahtarınızı alın, dakikalar içinde online randevu sisteminiz hazır olsun.</p>
     <div class="cta-btns">
       <button class="btn btn-white btn-lg" onclick="showAuthScreen('register')">🚀 Ücretsiz Hesap Oluştur</button>
@@ -1782,7 +1782,7 @@ tr:hover td { background: var(--surface2); }
         <div class="auth-left-logo" id="auth-brand-name">KarRandevu</div>
         <div class="auth-left-badge" id="auth-badge-text">Profesyonel Randevu Sistemi</div>
         <h2 class="auth-left-title" id="auth-panel-title">İşletmenizi dijitale taşıyın</h2>
-        <p class="auth-left-sub" id="auth-panel-sub">Müşterilerinize özel randevu sayfası oluşturun. İnstagram üzerinden key almayı unutmayın.</p>
+        <p class="auth-left-sub" id="auth-panel-sub">Müşterilerinize özel randevu sayfası oluşturun. Takvim yönetimi, personel takibi ve çok daha fazlası.</p>
         <ul class="auth-feature-list" id="auth-feature-list">
           <li>
             <span class="auth-feat-icon"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
@@ -2728,6 +2728,13 @@ tr:hover td { background: var(--surface2); }
         </div>
       </div>
     </div>
+    <div class="form-group">
+      <label>Bu Hizmeti Verebilecek Personeller</label>
+      <div id="ms-staff-list" style="display:flex;flex-direction:column;gap:6px;max-height:160px;overflow-y:auto;padding:8px;background:var(--bg);border-radius:10px;border:1.5px solid var(--border)">
+        <div style="color:var(--text-muted);font-size:0.82rem">Personel yükleniyor...</div>
+      </div>
+      <div class="form-hint">Seçili personeller bu hizmeti verebilir</div>
+    </div>
     <div class="form-group"><label>Aktif</label><button class="toggle on" id="ms-active" onclick="this.classList.toggle('on')" style="margin-top:4px"></button></div>
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeModal('modal-service')">İptal</button>
@@ -3268,7 +3275,8 @@ async function loadServices() {
       </div>
     </div>`).join('');
 }
-function showServiceModal(){ document.getElementById('svc-modal-title').textContent='✂️ Hizmet Ekle'; document.getElementById('ms-id').value=''; document.getElementById('ms-name').value=''; document.getElementById('ms-dur').value=30; document.getElementById('ms-price').value=0; document.getElementById('ms-desc').value=''; document.getElementById('ms-icon').value='✂️'; document.getElementById('ms-active').className='toggle on'; openModal('modal-service'); }
+function showServiceModal(){ document.getElementById('svc-modal-title').textContent='✂️ Hizmet Ekle';
+  loadSvcStaffList([]); document.getElementById('ms-id').value=''; document.getElementById('ms-name').value=''; document.getElementById('ms-dur').value=30; document.getElementById('ms-price').value=0; document.getElementById('ms-desc').value=''; document.getElementById('ms-icon').value='✂️'; document.getElementById('ms-active').className='toggle on'; openModal('modal-service'); }
 function editSvc(s){
   document.getElementById('svc-modal-title').textContent='✏️ Hizmet Düzenle';
   document.getElementById('ms-id').value=s.id;
@@ -3281,8 +3289,33 @@ function editSvc(s){
   document.getElementById('ms-img-data').value='';
   const prev=document.getElementById('ms-img-preview');
   if(s.image_url){prev.src=s.image_url;prev.style.display='block';}else{prev.style.display='none';}
+  loadSvcStaffList(s.staff_ids || []);
   openModal('modal-service');
 }
+async function loadSvcStaffList(selectedIds) {
+  const container = document.getElementById('ms-staff-list');
+  if (!container) return;
+  if (!UP) { container.innerHTML = '<div style="color:var(--text-muted);font-size:0.82rem">Önce giriş yapın</div>'; return; }
+  const { data: staff } = await sb.from('staff').select('id,name,title').eq('profile_id', UP.id).eq('is_active', true);
+  if (!staff?.length) {
+    container.innerHTML = '<div style="color:var(--text-muted);font-size:0.82rem">Henüz personel yok</div>';
+    return;
+  }
+  const sel = selectedIds || [];
+  container.innerHTML = staff.map(s => `
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 0">
+      <input type="checkbox" value="${s.id}" ${sel.includes(s.id)?'checked':''} 
+        style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer">
+      <span style="font-size:0.86rem;font-weight:600">${s.name}</span>
+      ${s.title?`<span style="font-size:0.76rem;color:var(--text-muted)">${s.title}</span>`:''}
+    </label>`).join('');
+}
+
+function getSvcSelectedStaff() {
+  const checkboxes = document.querySelectorAll('#ms-staff-list input[type=checkbox]:checked');
+  return Array.from(checkboxes).map(cb => cb.value);
+}
+
 async function saveSvc(){
   const id=document.getElementById('ms-id').value;
   const name=document.getElementById('ms-name').value.trim();
@@ -3293,7 +3326,8 @@ async function saveSvc(){
   const active=document.getElementById('ms-active').classList.contains('on');
   const imgData=document.getElementById('ms-img-data')?.value||null;
   if(!name){toast('Hizmet adı zorunlu','error');return;}
-  const payload={profile_id:UP.id,name,duration:dur,price,description:desc,icon,is_active:active};
+  const staff_ids = getSvcSelectedStaff();
+  const payload={profile_id:UP.id,name,duration:dur,price,description:desc,icon,is_active:active,staff_ids};
   if(imgData) payload.image_url = imgData;
   let error;
   if(id) ({error}=await sb.from('services').update(payload).eq('id',id));
@@ -4061,6 +4095,7 @@ async function doStaffLogin() {
 async function loadStaffPanel() {
   document.getElementById('auth-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
+  closeSidebar();
 
   // Sidebar'ı personel moduna al - sadece kendi sayfasını görsün
   document.querySelectorAll('.sb-body .nav-item').forEach(el => el.style.display = 'none');
@@ -4373,6 +4408,19 @@ async function saveStaff(e) {
   const image_url = document.getElementById('mst-img').value || null;
   const is_active = document.getElementById('mst-active')?.classList.contains('on') ?? true;
   if (!name) { toast('İsim zorunludur', 'error'); return; }
+
+  // Tüm işletmelerde e-posta global unique kontrolü
+  if (email) {
+    const { data: existing } = await sb.from('staff')
+      .select('id')
+      .eq('email', email);
+    const conflict = existing?.filter(s => s.id !== id);
+    if (conflict?.length > 0) {
+      toast('Bu e-posta başka bir personel tarafından kullanılıyor', 'error');
+      return;
+    }
+  }
+
   const payload = { profile_id: UP?.id || CU?.id, name, title, image_url, is_active, email };
   if (password) payload.password_hash = password;
   let error;
