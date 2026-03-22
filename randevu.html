@@ -388,6 +388,14 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 <div id="toast"></div>
 
 <script>
+window.onerror = function(msg, src, line, col, err) {
+  document.getElementById('loader').innerHTML = '<div style="padding:20px;font-family:sans-serif;text-align:center"><b style="color:red">JS Hata:</b><br>' + msg + '<br>Line: ' + line + '</div>';
+  return false;
+};
+window.addEventListener('unhandledrejection', function(e) {
+  document.getElementById('loader').innerHTML = '<div style="padding:20px;font-family:sans-serif;text-align:center"><b style="color:red">Promise Hata:</b><br>' + (e.reason?.message || e.reason) + '</div>';
+});
+
 const SB_URL='https://sqjlqoznuxuwybgygoqy.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNxamxxb3pudXh1d3liZ3lnb3F5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjU3OTUsImV4cCI6MjA4OTI0MTc5NX0.raU-m-id4dj1y_962sTvb2nlXJBdLyfZ9MBzPb3IY2Q';
 const sb=supabase.createClient(SB_URL,SB_KEY);
@@ -523,7 +531,7 @@ function renderStaff() {
   }
   if (!filteredStaff.length) { next(3); return; }
   el.innerHTML = filteredStaff.map(s => `
-    <div class="m-card ${selectedStaff===s.id?'selected':''}" id="st-${s.id}" onclick="selStaff('${s.id}')">
+    <div class="m-card ${selectedStaff===s.id?'selected':''}" id="st-${s.id}" onclick="selStaffFn('${s.id}')">
       ${s.image_url
         ? `<img src="${s.image_url}" style="width:46px;height:46px;border-radius:12px;object-fit:cover;flex-shrink:0">`
         : `<div class="staff-photo-ph"><svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>`}
@@ -534,7 +542,14 @@ function renderStaff() {
     </div>`).join('');
 }
 
-function selStaffFn(id){selStaff=staff.find(x=>x.id===id);document.querySelectorAll('#staff-list .staff-card').forEach(c=>c.classList.remove('selected'));document.getElementById('stf-'+id).classList.add('selected');document.getElementById('btn2').disabled=false;}
+function selStaffFn(id){
+  selStaff = staff.find(x => x.id === id);
+  document.querySelectorAll('#staff-list .m-card').forEach(c => c.classList.remove('selected'));
+  const el = document.getElementById('st-'+id);
+  if (el) el.classList.add('selected');
+  const btn = document.getElementById('btn2');
+  if (btn) btn.disabled = false;
+}
 
 /* STEP NAV */
 function goStep(n){
@@ -729,7 +744,24 @@ document.addEventListener('keydown', e => {
   if (e.key === 'ArrowRight') lightboxNext();
 });
 
-init();
+(async function() {
+  // Supabase yüklenene kadar bekle
+  let waited = 0;
+  while (typeof supabase === 'undefined' && waited < 5000) {
+    await new Promise(r => setTimeout(r, 50));
+    waited += 50;
+  }
+  if (typeof supabase === 'undefined') {
+    document.getElementById('loader').innerHTML = '<div style="text-align:center;padding:40px;color:#ef4444;font-family:sans-serif">Bağlantı hatası. Sayfayı yenileyin.</div>';
+    return;
+  }
+  try {
+    await init();
+  } catch(err) {
+    console.error('Init error:', err);
+    document.getElementById('loader').innerHTML = `<div style="text-align:center;padding:40px;font-family:sans-serif"><div style="font-size:1rem;font-weight:700;color:#ef4444;margin-bottom:8px">Yüklenemedi</div><div style="font-size:0.82rem;color:#666">${err.message}</div></div>`;
+  }
+})();
 </script>
 
 <!-- GALERİ LİGHTBOX -->
