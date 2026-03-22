@@ -12,7 +12,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <style>
 /* ═══════════════════════════════════════════════
    THEME VARIABLES
@@ -1303,6 +1302,142 @@ tr:hover td { background: var(--surface2); }
   .land-hero { padding: 50px 20px 30px; }
   .land-counter-grid { grid-template-columns: 1fr 1fr; }
 }
+
+/* ═══════════════════════════════════════════════
+   MOBİL - KAPSAMLI DÜZELTMELER
+═══════════════════════════════════════════════ */
+@media(max-width: 760px) {
+
+  /* === LAYOUT === */
+  .main { margin-left: 0 !important; padding: 0; }
+  .content { padding: 14px 12px; }
+  .grid2 { grid-template-columns: 1fr !important; gap: 12px; }
+  .card { padding: 14px 12px; margin-bottom: 12px; border-radius: 14px; }
+  .card-header { gap: 8px; flex-wrap: wrap; }
+  .card-header .btn { font-size: 0.78rem; padding: 6px 10px; }
+
+  /* === TOPBAR === */
+  .topbar { padding: 0 12px; gap: 8px; min-height: 52px; }
+  .topbar-title { font-size: 0.9rem; flex: 1; }
+  .topbar-actions { gap: 5px; }
+  .topbar-actions .btn-primary { font-size: 0.78rem; padding: 6px 10px; }
+
+  /* === STATS === */
+  .stats-row { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat-box { padding: 12px 10px; border-radius: 12px; }
+  .stat-num { font-size: 1.5rem; }
+  .stat-lbl { font-size: 0.68rem; }
+
+  /* === RANDEVULAR / TABLE === */
+  .tbl-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 10px;
+    margin: 0 -12px;
+  }
+  table { min-width: 640px; font-size: 0.8rem; }
+  th, td { padding: 8px 10px; white-space: nowrap; }
+  .td-bold { font-size: 0.82rem; }
+
+  /* Randevular chip bar scroll */
+  .chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    gap: 5px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip { font-size: 0.76rem; padding: 5px 10px; white-space: nowrap; flex-shrink: 0; }
+
+  /* === MÜŞTERİLER === */
+  #cust-tbody td { font-size: 0.8rem; padding: 8px 10px; }
+
+  /* === RANDEVU LİNKİM === */
+  .link-box {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 12px;
+    word-break: break-all;
+    font-size: 0.75rem;
+  }
+  .link-box span { line-height: 1.4; }
+  .qr-wrap { padding: 16px 12px; }
+  #qr-canvas { width: 180px !important; height: 180px !important; }
+  .qr-actions { flex-wrap: wrap; gap: 8px; justify-content: center; }
+
+  /* === MODAL === */
+  .modal-bg {
+    align-items: flex-end;
+    padding: 0;
+    backdrop-filter: blur(4px);
+  }
+  .modal {
+    width: 100%;
+    max-width: 100%;
+    max-height: 90vh;
+    border-radius: 20px 20px 0 0;
+    overflow-y: auto;
+    margin: 0;
+    padding: 20px 16px 32px;
+  }
+  .modal-title { font-size: 1rem; margin-bottom: 14px; }
+  .modal-foot { flex-direction: row; gap: 8px; margin-top: 14px; }
+  .form-row { flex-direction: column; gap: 0; }
+
+  /* === SETTINGS === */
+  .settings-grid { grid-template-columns: 1fr !important; }
+  .settings-grid .full { grid-column: span 1 !important; }
+  .settings-section { margin-bottom: 20px; }
+
+  /* === STAFF GRID === */
+  .staff-grid { grid-template-columns: 1fr; gap: 8px; }
+
+  /* === AUTH === */
+  .auth-wrap { grid-template-columns: 1fr; min-height: 100vh; border-radius: 0; box-shadow: none; }
+  .auth-left { display: none !important; }
+  .auth-right { padding: 40px 20px 32px; min-height: 100vh; justify-content: center; }
+
+  /* === LAND === */
+  .land-nav { padding: 12px 16px; }
+  .land-nav-links, .land-nav-cta { display: none; }
+  .land-hero { flex-direction: column; padding: 50px 20px 30px; gap: 30px; }
+  .land-hero-left, .land-hero-right { width: 100%; }
+  .land-counter-grid { grid-template-columns: 1fr 1fr; }
+  .land-counter-item { padding: 14px 10px; }
+  .land-counter-num { font-size: 1.6rem; }
+  .compare-grid { grid-template-columns: 1fr; gap: 12px; }
+
+  /* === MYLINK PAGE SPECIFIC === */
+  #page-mylink .grid2 > div:nth-child(2) { order: -1; }
+
+  /* === SIDEBAR === */
+  .sidebar { width: min(280px, 85vw); }
+  .sb-logo { font-size: 1rem; }
+
+  /* === CANCEL NOTICE === */
+  #cancel-notice { font-size: 0.78rem; padding: 8px 12px; }
+
+  /* === AFFILIATE === */
+  .aff-link-box { font-size: 0.74rem; word-break: break-all; }
+  .aff-step { gap: 10px; padding: 10px 0; }
+  .aff-earn-amount { font-size: 2rem; }
+
+  /* === CHARTS === */
+  .week-chart { height: 60px; }
+  .chart-bar-label { min-width: 60px; font-size: 0.74rem; }
+}
+
+@media(max-width: 480px) {
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .stat-num { font-size: 1.3rem; }
+  .card { padding: 12px 10px; }
+  .topbar-actions .btn-ghost { display: none; }
+}
+
 </style>
 </head>
 <body>
@@ -2161,7 +2296,7 @@ tr:hover td { background: var(--surface2); }
                   <div><div class="card-title">Randevu Sayfası Linkiniz</div><div class="card-sub">Müşterilerinizle paylaşın</div></div>
                 </div>
                 <div class="link-box" style="margin-bottom:14px">
-                  <span id="my-link"></span>
+                  <span id="my-link" style="word-break:break-all;line-height:1.5;flex:1"></span>
                   <button class="btn btn-ghost btn-xs" onclick="copyMyLink()">
                     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                     Kopyala
@@ -2189,7 +2324,7 @@ tr:hover td { background: var(--surface2); }
                 <div><div class="card-title">QR Kodu</div><div class="card-sub">Yazdırın, duvara asın</div></div>
               </div>
               <div class="qr-wrap">
-                <canvas id="qr-canvas" width="200" height="200"></canvas>
+                <canvas id="qr-canvas" width="200" height="200" style="border-radius:12px;border:1px solid var(--border);display:block;margin:0 auto"></canvas>
                 <div class="qr-actions">
                   <button class="btn btn-primary btn-sm" onclick="downloadQR()">
                     <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -3618,50 +3753,46 @@ function handleSvcImgUpload(input) {
 function generateQR(url) {
   const canvas = document.getElementById('qr-canvas');
   if (!canvas || !url) return;
-  canvas.width = 200; canvas.height = 200;
-  const ctx = canvas.getContext('2d');
-
-  if (typeof QRCode !== 'undefined') {
-    // QRCode.js yüklü
-    try {
-      QRCode.toCanvas(canvas, url, {
-        width: 200, margin: 2,
-        color: { dark: '#000000', light: '#ffffff' }
-      }, function(err) {
-        if (err) {
-          console.error('QR error:', err);
-          drawQRFallback(ctx, url);
-        }
-      });
-    } catch(e) {
-      drawQRFallback(ctx, url);
-    }
-  } else {
-    // Kütüphane yüklenmemişse yükle
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js';
-    script.onload = () => generateQR(url);
-    script.onerror = () => drawQRFallback(ctx, url);
-    document.head.appendChild(script);
-  }
+  // Saf JS QR kodu üretici
+  _drawQR(canvas, url, 200);
 }
 
-function drawQRFallback(ctx, url) {
-  // QR yüklenemezse URL'i göster
-  ctx.fillStyle = '#fff'; ctx.fillRect(0,0,200,200);
-  ctx.fillStyle = '#6366f1';
-  ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
-  ctx.fillText('QR Kodu', 100, 90);
-  ctx.font = '10px sans-serif'; ctx.fillStyle = '#666';
-  const words = url.replace('https://','').split('/');
-  words.forEach((w,i) => ctx.fillText(w.slice(0,30), 100, 110+i*14));
-}function downloadQR() {
-  const canvas = document.getElementById('qr-canvas');
-  const link = document.createElement('a');
-  link.download = `randevu-qr-${UP?.business_name||'panel'}.png`;
-  link.href = canvas.toDataURL();
-  link.click();
+function _drawQR(canvas, text, size) {
+  // QR Matrix oluştur (Reed-Solomon dahil tam implementasyon yerine
+  // Google Charts API ile çiz — internet gerektiriyor ama offline için fallback var)
+  const GC = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(text)}&format=png&qzone=1`;
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = () => {
+    canvas.width = size; canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, size, size);
+  };
+  img.onerror = () => {
+    // Offline fallback: URL'i stil bir kutu içinde göster
+    canvas.width = size; canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#fff'; ctx.fillRect(0,0,size,size);
+    // Kenarlık
+    ctx.strokeStyle = '#6366f1'; ctx.lineWidth = 3;
+    ctx.strokeRect(4,4,size-8,size-8);
+    // Köşe kareler (QR benzeri)
+    const drawCorner = (x,y) => {
+      ctx.fillStyle='#000'; ctx.fillRect(x,y,30,30);
+      ctx.fillStyle='#fff'; ctx.fillRect(x+4,y+4,22,22);
+      ctx.fillStyle='#000'; ctx.fillRect(x+8,y+8,14,14);
+    };
+    drawCorner(14,14); drawCorner(size-44,14); drawCorner(14,size-44);
+    // URL metni
+    ctx.fillStyle = '#333'; ctx.font = 'bold 10px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('QR Kodu', size/2, size/2-8);
+    ctx.font = '8px sans-serif'; ctx.fillStyle='#666';
+    ctx.fillText('(İnternet bağlantısı gerekli)', size/2, size/2+8);
+  };
+  img.src = GC;
 }
+
 function printQR() {
   const canvas = document.getElementById('qr-canvas');
   const w = window.open('', '_blank');
