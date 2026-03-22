@@ -520,7 +520,7 @@ function renderStaff() {
   const el = document.getElementById('staff-list');
   if (!el) return;
   // Seçili hizmete atanmış personelleri filtrele
-  const currentSvc = services.find(s => s.id === selSvc);
+  const currentSvc = selSvc || null;
   let filteredStaff = staff;
   if (currentSvc?.staff_ids?.length) {
     const filtered = staff.filter(s => currentSvc.staff_ids.includes(s.id));
@@ -528,7 +528,7 @@ function renderStaff() {
   }
   if (!filteredStaff.length) { next(3); return; }
   el.innerHTML = filteredStaff.map(s => `
-    <div class="m-card ${selStaff===s.id?'selected':''}" id="st-${s.id}" onclick="selStaffFn('${s.id}')">
+    <div class="m-card ${selStaff?.id===s.id?'selected':''}" id="st-${s.id}" onclick="selStaffFn('${s.id}')">
       ${s.image_url
         ? `<img src="${s.image_url}" style="width:46px;height:46px;border-radius:12px;object-fit:cover;flex-shrink:0">`
         : `<div class="staff-photo-ph"><svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>`}
@@ -554,6 +554,7 @@ function goStep(n){
   if(n===3&&curStep===2&&staff.length===0)n=1;
   document.getElementById('step'+curStep).style.display='none';
   document.getElementById('step'+n).style.display='block';
+  if(n===2)renderStaff();
   if(n===3)renderCal();
   if(n===5)buildSummary();
   updateDots(n); curStep=n;
