@@ -508,17 +508,31 @@ function renderServices(){
 }
 function selSvcFn(id){selSvc=services.find(x=>x.id===id);document.querySelectorAll('#svc-list .m-card').forEach(c=>c.classList.remove('selected'));document.getElementById('svc-'+id).classList.add('selected');document.getElementById('btn1').disabled=false;}
 
-function renderStaff(){
-  const el=document.getElementById('staff-list');
-  if(!staff.length){el.innerHTML='<p style="color:var(--muted);text-align:center;padding:20px;grid-column:span 3">Personel bulunamadı.</p>';return;}
-  el.innerHTML=staff.map(s=>`
-    <div class="staff-card" id="stf-${s.id}" onclick="selStaffFn('${s.id}')">
-      ${s.image_url?`<img src="${s.image_url}" class="staff-photo" alt="${s.name}" onerror="this.style.display='none'">`:`<div class="staff-photo-ph"><svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>`}
-      <div class="staff-sname">${s.name}</div>
-      <div class="staff-stitle">${s.title||'Uzman'}</div>
+function renderStaff() {
+  const el = document.getElementById('staff-list');
+  if (!el) return;
+  // Seçili hizmetin staff_ids'ini kontrol et
+  const selSvc = services.find(s => s.id === selectedSvc);
+  let filteredStaff = staff;
+  if (selSvc?.staff_ids?.length) {
+    filteredStaff = staff.filter(s => selSvc.staff_ids.includes(s.id));
+  }
+  if (!filteredStaff.length) {
+    // Staff kısıtlaması yoksa veya tüm staff atanmışsa tüm listeyi göster
+    filteredStaff = staff;
+  }
+  if (!filteredStaff.length) { next(3); return; }
+  el.innerHTML = filteredStaff.map(s => `
+    <div class="m-card ${selectedStaff===s.id?'selected':''}" id="st-${s.id}" onclick="selStaff('${s.id}')">
+      ${s.image_url
+        ? `<img src="${s.image_url}" style="width:46px;height:46px;border-radius:12px;object-fit:cover;flex-shrink:0">`
+        : `<div class="staff-photo-ph"><svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>`}
+      <div class="svc-info">
+        <div class="svc-name">${s.name}</div>
+        ${s.title?`<div class="svc-meta">${s.title}</div>`:''}
+      </div>
     </div>`).join('');
-}
-function selStaffFn(id){selStaff=staff.find(x=>x.id===id);document.querySelectorAll('#staff-list .staff-card').forEach(c=>c.classList.remove('selected'));document.getElementById('stf-'+id).classList.add('selected');document.getElementById('btn2').disabled=false;}
+}function selStaffFn(id){selStaff=staff.find(x=>x.id===id);document.querySelectorAll('#staff-list .staff-card').forEach(c=>c.classList.remove('selected'));document.getElementById('stf-'+id).classList.add('selected');document.getElementById('btn2').disabled=false;}
 
 /* STEP NAV */
 function goStep(n){
