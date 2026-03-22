@@ -532,7 +532,9 @@ function renderStaff() {
         ${s.title?`<div class="svc-meta">${s.title}</div>`:''}
       </div>
     </div>`).join('');
-}function selStaffFn(id){selStaff=staff.find(x=>x.id===id);document.querySelectorAll('#staff-list .staff-card').forEach(c=>c.classList.remove('selected'));document.getElementById('stf-'+id).classList.add('selected');document.getElementById('btn2').disabled=false;}
+}
+
+function selStaffFn(id){selStaff=staff.find(x=>x.id===id);document.querySelectorAll('#staff-list .staff-card').forEach(c=>c.classList.remove('selected'));document.getElementById('stf-'+id).classList.add('selected');document.getElementById('btn2').disabled=false;}
 
 /* STEP NAV */
 function goStep(n){
